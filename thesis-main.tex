@@ -159,6 +159,19 @@ Per ciascun esempio, vengono forniti: il codice originale, una spiegazione del s
 la sua trasposizione in Collektive e alcune immagini relative alle simulazioni condotte.
 % 
 Le simulazioni sono state eseguite utilizzando il simulatore Alchemist \cite{alchemist}.
+%
+Verranno discussi i seguenti esempi:
+\begin{itemize}
+    \item Media Locale (\cref{sec:localaverage})
+    \item Nel Cerchio (\cref{sec:incircle})
+    \item Anello (\cref{sec:ring})
+    \item Temperature (\cref{sec:temperature})
+    \item Navigazione del Gradiente (\cref{sec:navgrad})
+    \item Partizione di Voronoi (\cref{sec:voronoi})
+    \item Connessione lungo l'albero di percorso minimo (\cref{sec:wire})
+    \item Tracciamento (\cref{sec:track})
+    \item Dinamica di uno stormo (\cref{sec:flock})
+\end{itemize}
 
 \newpage
 \section{Media Locale}
@@ -215,10 +228,52 @@ mentre in \cref{fig:local-average-simulation} è mostrata una simulazione dell'e
 \section{Nel Cerchio}
 \label{sec:incircle}
 
+In \cref{lst:incircle} è riportato il codice MIT-Proto.
+%
+\lstinputlisting[
+    language=Lisp,
+    label={lst:incircle},
+    caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/in-circle.proto}}
+]{listings/proto/in-circle.proto}
+%
+La funzione \texttt{in-circle} accetta come argomenti un campo booleano \texttt{o}, 
+il quale identifica il nodo che funge da origine del cerchio, 
+e un raggio \texttt{r}.
+%
+L'obiettivo del programma è determinare se un dispositivo 
+si trova all'interno della regione circolare di raggio \texttt{r}
+centrata nell'origine definita.
+%
+L'istruzione \texttt{let ((dv (- (probe (coord) 1) o)))} calcola il vettore differenza 
+tra la coordinata del dispositivo corrente e quella dell'origine, 
+depositando il risultato nella variabile \texttt{dv}.
+%
+Successivamente, l'espressione \texttt{(< (probe (vdot dv dv) 0) (* r r))} 
+verifica se il quadrato della distanza tra il dispositivo corrente e l'origine
+è inferiore al quadrato del raggio \texttt{r}, restituendo un valore booleano 
+che indica l'appartenenza o meno del dispositivo alla regione circolare.
 
+La trasposizione in Collektive è riportata in \cref{lst:incircleck}, 
+mentre in \cref{fig:in-circle-simulation} è mostrata una simulazione dell'esperimento.
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:incircleck},
+    caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/inCircle/InCircle.kt}}
+]{listings/collektive/inCircle.kt}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/in-circle-simulation.pdf}
+    \caption{Simulazione dell'esperimento di InCircle in Alchemist.
+    Il centro \texttt{o} è rappresentato dal dispositivo in verde, mentre i dispositivi
+    all'interno del cerchio sono colorati in rosso.}
+    \label{fig:in-circle-simulation}
+\end{figure}
 
 \section{Anello}
 \label{sec:ring}
+
+
 
 \section{Temperature}
 \label{sec:temperature}

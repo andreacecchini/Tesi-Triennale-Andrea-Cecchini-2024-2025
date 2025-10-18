@@ -4,7 +4,6 @@
  */
 fun Aggregate<Int>.inCircle(center: Boolean, location: Point2D, metric: () -> Field<Int, Double>): Boolean =
     with(location) {
-        // Broadcast the center position to the whole network
         val centerPos = gradientCast(
             source = center,
             local = this,

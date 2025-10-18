@@ -1,0 +1,3 @@
+(def in-circle (o r)
+  (let ((dv (- (probe (coord) 1) o)))
+    (< (probe (vdot dv dv) 0) (* r r))))
