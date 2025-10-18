@@ -18,9 +18,10 @@
 \academicyear{2024-2025}
 
 % Definition of acronyms
-\acrodef{IoT}{Internet of Thing}
-\acrodef{vm}[VM]{Virtual Machine}
-
+\acrodef{AC}{Programmazione Aggregata}
+\acrodef{FC}{Field Calculus}
+\acrodef{HFC}{Higher-Order Field Calculus}
+\acrodef{XC}{eXchange Calculus}
 
 \mainlinespacing{1.241} % line spacing in mainmatter, comment to default (1)
 
@@ -45,54 +46,142 @@ Optional. Max a few lines.
 \mainmatter
 
 %----------------------------------------------------------------------------------------
-\chapter{Introduction}
-\label{chap:introduction}
+\chapter{Introduzione}
+\label{chap:introduzione}
 %----------------------------------------------------------------------------------------
 
-Write your intro here.
-\sidenote{Add sidenotes in this way. They are named after the author of the thesis}
+\section{Contesto}
+\label{sec:contesto}
 
-You can use acronyms that your defined previously,
-such as \ac{IoT}.
-%
-If you use acronyms twice,
-they will be written in full only once
-(indeed, you can mention the \ac{IoT} now without it being fully explained).
-%
-In some cases, you may need a plural form of the acronym.
-%
-For instance,
-that you are discussing \acp{vm},
-you may need both \ac{vm} and \acp{vm}.
+\subsection{Programmazione Aggregata}
+\label{sec:programmazioneaggregata}
 
-\paragraph{Structure of the Thesis}
+\subsection{Field Calculus e Higher Order Calculus}
+\label{sec:fieldcalculus}
 
-\note{At the end, describe the structure of the paper}
+\subsubsection{Campo computazionale}
+\label{sec:campo_computazionale}
 
-\chapter{State of the art}
+\subsubsection{Dinamica Temporale e Stato}
+\label{sec:dinamicatemporale}
 
-I suggest referencing stuff as follows: \cref{fig:random-image} or \Cref{fig:random-image}
+\subsubsection{Interazione Spaziale e Vicinato}
+\label{sec:interazionespaziale}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=.8\linewidth]{figures/random-image.pdf}
-    \caption{Some random image}
-    \label{fig:random-image}
-\end{figure}
+\subsubsection{Restrizione dello Spazio e Condizionali}
+\label{sec:restrizionespazio}
 
-\section{Some cool topic}
+\subsection{Share e XC Calculus}
+\label{sec:sharandexc}
 
-\chapter{Contribution}
+\newpage
+\section{Motivazione}
+\label{sec:motivazione}
 
-You may also put some code snippet (which is NOT float by default), eg: \cref{lst:random-code}.
+\subsection{MIT Proto}
+\label{sec:mitproto}
 
-\lstinputlisting[float,language=Java,label={lst:random-code}]{listings/HelloWorld.java}
+\subsection{Protelis}
+\label{sec:protelis}
 
-\section{Fancy formulas here}
+\subsection{Scafi}
+\label{sec:scafi}
+
+\subsection{FCPP}
+\label{sec:fcpp}
+
+\subsection{Collektive}
+\label{sec:collektive}
+
+\newpage
+\section{Obiettivo}
+\label{sec:obiettivo}
 
 %----------------------------------------------------------------------------------------
-% BIBLIOGRAPHY
+\chapter{MIT-Proto}
+\label{chap:mitproto}
 %----------------------------------------------------------------------------------------
+
+\section{Introduzione alla sintassi}
+\label{sec:mitprotosyntax}
+
+\section{Operatori}
+\label{sec:mitprotooperators}
+
+\section{Funzioni built-in}
+\label{sec:mitprotobuiltin}
+
+
+%----------------------------------------------------------------------------------------
+\chapter{Collektive}
+\label{chap:collektive}
+%----------------------------------------------------------------------------------------
+
+\section{Field}
+\label{sec:collektivefields}
+
+\section{Operazioni aggregate}
+\label{sec:collektiveaggregateops}
+
+\subsection{Exchange}
+\label{sec:collektiveexchange}
+
+\subsection{Neighborhood}
+\label{sec:collektiveneighborhood}
+
+\subsection{Neighboring}
+\label{sec:collektiveneighboring}
+
+\subsection{Evolve}
+\label{sec:collektiveevolve}
+
+\subsection{Share}
+\label{sec:collektiveshare}
+
+\section{Manipolazione dei Field}
+\label{sec:collektivefieldmanipulation}
+
+\section{Standard Library}
+\label{sec:collektivelibrary}
+
+
+%----------------------------------------------------------------------------------------
+\chapter{Trasposizione di esempi da MIT-Proto a Collektive}
+\label{chap:trasposizione}
+%----------------------------------------------------------------------------------------
+
+\section{Media Locale}
+\label{sec:localavergage}
+
+\section{Nel Cerchio}
+\label{sec:incircle}
+
+\section{Anello}
+\label{sec:ring}
+
+\section{Temperature}
+\label{sec:temperature}
+
+\section{Navigazione del Gradiente}
+\label{sec:navgrad}
+
+\section{Partizione di Voronoi}
+\label{sec:voronoi}
+
+\section{Connessione lungo l'albero di percorso minimo}
+\label{sec:wire}
+
+\section{Tracciamento}
+\label{sec:track}
+
+\section{Dinamica di uno stormo}
+\label{sec:flock}
+
+
+
+
+
+
 
 \backmatter
 
