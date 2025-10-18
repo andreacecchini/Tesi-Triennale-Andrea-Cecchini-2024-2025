@@ -50,6 +50,8 @@ Optional. Max a few lines.
 \label{chap:introduzione}
 %----------------------------------------------------------------------------------------
 
+
+
 \section{Contesto}
 \label{sec:contesto}
 
@@ -150,11 +152,70 @@ Optional. Max a few lines.
 \label{chap:trasposizione}
 %----------------------------------------------------------------------------------------
 
+Sono qui riportati alcuni programmi prototipali originariamente realizzati in MIT-Proto 
+e la loro successiva implementazione in Collektive.
+%
+Per ciascun esempio, vengono forniti: il codice originale, una spiegazione del suo funzionamento, 
+la sua trasposizione in Collektive e alcune immagini relative alle simulazioni condotte.
+% 
+Le simulazioni sono state eseguite utilizzando il simulatore Alchemist \cite{alchemist}.
+
+\newpage
 \section{Media Locale}
-\label{sec:localavergage}
+\label{sec:localaverage}
+
+In \cref{lst:localaverage} è riportato il codice MIT-Proto.
+%
+\lstinputlisting[
+    language=Lisp,
+    label={lst:localaverage},
+    caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/local-average.proto}}
+]{listings/proto/local-average.proto}
+%
+L'obiettivo del programma è determinare il vettore medio a partire
+dai vettori associati ai nodi presenti nel vicinato.
+
+La funzione \texttt{local-average} accetta come argomento un campo di
+vettori \texttt{v}, di tre dimensioni.
+%
+L'espressione nel suo complesso è definita come il prodotto (\texttt{*}) di due termini distinti.
+%
+Il termine di destra, \texttt{(fold-hood + (tup 0 0 0) v)}, calcola la somma di tutti
+i vettori locali nel vicinato. 
+%
+Il termine di sinistra, \texttt{(/ 1 (sum-hood 1))}, è invece responsabile del conteggio 
+dei dispositivi nel vicinato e del calcolo del suo inverso.
+%
+Il risultato dell'espressione \texttt{local-average} è quindi formalizzato come segue:
+\[
+    \texttt{local-average(v)} = \frac{1}{\sum_{d \in N} 1} \cdot \sum_{d \in N} v(d)
+\]
+dove \(N\) rappresenta l'insieme dei dispositivi nel vicinato.
+
+La trasposizione in Collektive è riportata in \cref{lst:localaverageck}, 
+mentre in \cref{fig:local-average-simulation} è mostrata una simulazione dell'esperimento.
+
+
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:localaverageck},
+    caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/localAverage/LocalAverage.kt}}
+]{listings/collektive/localAverage.kt}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/localAverageSimulation.pdf}
+    \caption{Simulazione dell'esperimento di Media Locale in Alchemist.
+     I dispositivi inizializzano \texttt{v} casualmente e convergono verso il valore medio locale.
+    Al vettore risultante viene applicata la norma euclidea per visualizzarlo come scalare.}
+    \label{fig:local-average-simulation}
+\end{figure}
+
 
 \section{Nel Cerchio}
 \label{sec:incircle}
+
+
 
 \section{Anello}
 \label{sec:ring}
@@ -185,7 +246,6 @@ Optional. Max a few lines.
 
 \backmatter
 
-\nocite{*} % Remove this as soon as you have the first citation
 
 \bibliographystyle{alpha}
 \bibliography{bibliography}
