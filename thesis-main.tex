@@ -273,7 +273,56 @@ mentre in \cref{fig:in-circle-simulation} è mostrata una simulazione dell'esper
 \section{Anello}
 \label{sec:ring}
 
+In \cref{lst:ring} è riportato il codice MIT-Proto.
 
+\lstinputlisting[
+    language=Lisp,
+    label={lst:ring},
+    caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/ring.proto}}
+]{listings/proto/ring.proto}
+
+L'obiettivo del programma è far lampeggiare i dispositivi
+che si trovano lungo un anello di raggio variabile nel tempo.
+
+La funzione \texttt{ring} non accetta argomenti ma utilizza la funzione built-in
+\texttt{sense 1} per identificare i dispositivi che fungono da sorgente del segnale.
+%
+L'istruzione \texttt{(probe (broadcast (sense 1) (if (sense 1) (timer) 0)) 0)} calcola il tempo trascorso
+dall'ultima attivazione della sorgente, depositando il risultato nella variabile \texttt{t}.
+%
+Se il dispositivo corrente è la sorgente, viene utilizzata la funzione \texttt{timer} per ottenere il tempo corrente;
+altrimenti, viene assegnato il valore zero, e il valore viene propagato attraverso la rete mediante la funzione \texttt{broadcast}.
+%
+L'istruzione \texttt{(probe (gradient (sense 1)) 1)} calcola la distanza del dispositivo corrente
+dalla sorgente più vicina, depositando il risultato nella variabile \texttt{d}.
+%
+Infine, l'espressione \texttt{(if (< (abs (- (* 5 t) d)) 4) (green 1) (blue 1))}
+verifica se la distanza \texttt{d} sia minore di \(4\) unità dalla posizione dell'anello,
+che si muove con una velocità di \(5\) unità al secondo.
+%
+Se il dispositivo si trova ad una distanza inferiore a \(4\) unità dall'anello,
+viene acceso il LED verde; altrimenti, viene acceso il LED blu.
+
+La trasposizione in Collektive è riportata in \cref{lst:ringck}, 
+mentre in \cref{fig:ring-simulation} è mostrata una simulazione dell'esperimento.
+
+\newpage
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:ringck},
+    caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/ring/Ring.kt}}
+]{listings/collektive/Ring.kt}
+
+% Da rifare
+\begin{figure}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/ring-simulation.pdf}
+    \caption{Simulazione dell'esperimento di Ring in Alchemist.
+    I dispositivi lungo l'anello sono colorati in verde, mentre gli altri sono colorati in blu.
+    La simulazione è mostrata in quattro istanti temporali distinti, evidenziando il movimento dell'anello nel tempo.
+    }
+    \label{fig:ring-simulation}
+\end{figure}
 
 \section{Temperature}
 \label{sec:temperature}
