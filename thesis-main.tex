@@ -327,6 +327,55 @@ mentre in \cref{fig:ring-simulation} è mostrata una simulazione dell'esperiment
 \section{Temperature}
 \label{sec:temperature}
 
+In \cref{lst:temperature} è riportato il codice MIT-Proto.
+
+\lstinputlisting[
+    language=Lisp,
+    label={lst:temperature},
+    caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/temperature.proto}}
+]{listings/proto/temperature.proto}
+
+L'obiettivo del programma è simulare la diffusione del calore
+date delle sorgenti di calore e di freddo in un'area.
+
+La funzione \texttt{temperature} non accetta argomenti.
+Un dispositivo è una sorgente di calore se se il suo identificatore \texttt{mid} è minore di \(6\) ed è pari,
+mentre è una sorgente di freddo se \texttt{mid} è minore di \(6\) ma dispari.
+%
+L'istruzione \texttt{( rep temp 25 ( mux hot 30 ( mux cold 20 (/ (int-hood(nbr temp))(int-hood 1)))))} modella l'evoluzione del campo di temperatura nello spazio e nel tempo.
+%
+Inizialmente, ogni dispositivo imposta la propria temperatura a \(25\) gradi (\texttt{rep temp 25 ...}).
+%
+La temperatura viene quindi aggiornata in ogni round in base al ruolo del dispositivo:
+se è una sorgente di calore, la temperatura viene impostata a \(30\) gradi (\texttt{mux hot 30 \dots});
+se è una sorgente di freddo, la temperatura viene impostata a \(20\) gradi (\texttt{mux cold 20 \dots});
+altrimenti, la temperatura viene calcolata come la media delle temperature dei
+dispositivi vicini (\texttt{(/ (int-hood(nbr temp))(int-hood 1))}).
+%
+La trasposizione in Collektive è riportata in \cref{lst:temperatureck},
+mentre in \cref{fig:temperature-simulation} è mostrata una simulazione dell'esperimento.
+
+
+\lstinputlisting[
+    float,
+    language=Kotlin,
+    label={lst:temperatureck},
+    caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/temperature/Temperature.kt}}
+]{listings/collektive/Temperature.kt}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/temperature-simulation.pdf}
+    \caption{Simulazione dell'esperimento di Temperature in Alchemist.
+    I dispositivi che agiscono come sorgenti di calore sono evidenziati da
+    un rettangolo rosso, mentre quelli che agiscono come sorgenti di freddo
+    sono evidenziati da un rettangolo blu.
+    Il colore dei dispositivi rappresenta la propria temperatura,
+    con una scala che va dal nero (freddo) al rosso (caldo).
+    }
+    \label{fig:temperature-simulation}
+\end{figure}
+
 \section{Navigazione del Gradiente}
 \label{sec:navgrad}
 

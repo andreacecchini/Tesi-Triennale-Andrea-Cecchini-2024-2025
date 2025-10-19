@@ -1,0 +1,4 @@
+(def temperature ()
+  (let ((hot (and (< (mid) 6) (mod (mid) 2)))
+	(cold (and (< (mid) 6) (not (mod (mid) 2)))))
+    (rep temp 25 (mux hot 30 (mux cold 20 (/ (int-hood (nbr temp)) (int-hood 1)))))))
