@@ -443,8 +443,53 @@ La trasposizione in Collektive è riportata in \cref{lst:navgradck}.
 \section{Partizione di Voronoi}
 \label{sec:voronoi}
 
+In questa simulazione, viene implementato il partizionamento di Voronoi\footnote{\url{https://en.wikipedia.org/wiki/Voronoi_diagram}}.
+%
+Un insieme di dispositivi è designato come sorgenti.
+%
+Ogni altro dispositivo determina a quale sorgente è più vicino, suddividendo di fatto lo spazio della rete in celle. 
+%
+All'interno di questo contesto, i dispositivi possono essere classifati in:
+%
+\begin{itemize}
+    \item Membro della cella: un dispositivo appartenente a una singola cella di Voronoi.
+    \item Bordo: un dispositivo situato al limite tra due celle.
+    \item Vertice: un dispositivo posto nel punto di giunzione di tre o più celle.
+\end{itemize}
+%
+Ogni cella, bordo e vertice è rappresentato con un colore diverso per visualizzare la struttura risultante.
 
+In \cref{lst:voronoi} è riportato il codice MIT-Proto.
 
+\lstinputlisting[
+    language=Lisp,
+    label={lst:voronoi},
+    caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/voronoi.proto}}
+]{listings/proto/voronoi.proto}
+
+Il programma accetta due campi booleani come argomenti: \texttt{src}, che definisce l'insieme dei dispositivi generatori delle celle di Voronoi, e \texttt{showedge}, un flag che indica se visualizzare i bordi tra le celle.
+%
+Vengono definite tre variabili:
+\begin{itemize}
+    \item \texttt{closest-src}: identificatore del dispositivo sorgente più vicino, sfruttando la funzione \texttt{broardcast src (mid)}.
+    \item \texttt{edge}: indica se il dispositivo corrente si trova su un bordo tra due celle, verificando se ha almeno un vicino (\texttt{any-hood}) la cui sorgente più vicina (\texttt{nbr closest-src}) è diversa dalla propria (\texttt{closest-src}).
+    \item \texttt{vertex}: indica se il dispositivo corrente è un vertice, verificando se è sul bordo (\texttt{and edge}) e se, tra i suoi vicini appartenenti a celle diverse (\texttt{max-nbr}, \texttt{min-nbr}), esistono almeno due ID di sorgente distinti (\texttt{(not (= max-nbr min-nbr))}).
+\end{itemize}
+%
+Infine, se il flag \texttt{showedge} è attivo, i dispositivi vengono colorati in base alla loro classificazione: se è un vertice, viene colorato con il colore \texttt{rgb (tup 1 0 0)}, se è un bordo con \texttt{rgb (tup 0 0 0.5)}, altrimenti con il colore associato alla propria cella di appartenenza (\texttt{uid2rgb closest-src 10}).
+%
+La funzione restituisce la coppia \texttt{(tup closest-src edge)}, ovvero l'identificatore della sorgente più vicina e se il nodo è su un bordo.
+
+La trasposizione in Collektive è riportata in \cref{lst:voronoick}.
+%
+In questa traduzione, il programma non restituisce la coppia definita precedentemente, bensì si limita a restituire il colore associato al dispositivo: non vi è nessuna perdita di informazione, in quanto il colore codifica sia la cella di appartenenza, sia se il dispositivo è su un bordo.
+
+\newpage
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:voronoick},
+    caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/voronoi/Voronoi.kt}}
+]{listings/collektive/Voronoi.kt}
 
 \section{Connessione lungo l'albero di percorso minimo}
 \label{sec:wire}

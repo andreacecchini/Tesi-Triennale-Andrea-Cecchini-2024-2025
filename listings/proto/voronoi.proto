@@ -1,0 +1,18 @@
+(def voronoi (src showedge)
+  (let* ((closest-src (broadcast src (mid)))
+  	 (edge (any-hood (not (= (nbr closest-src) closest-src))))
+	 (vertex 
+	  (and edge 
+	   (let ((max-nbr (max-hood (if (not (= closest-src (nbr closest-src)))
+				      (nbr closest-src)
+				      -1)))
+		 (min-nbr (min-hood (if (not (= closest-src (nbr closest-src)))
+				      (nbr closest-src)
+				      (inf)))))
+	     (not (= max-nbr min-nbr))))))
+    (if (and edge showedge)
+      (if vertex
+	(rgb (tup 1 0 0))
+	(rgb (tup 0 0 0.5)))
+      (uid2rgb closest-src 10))
+    (tup closest-src edge)))
