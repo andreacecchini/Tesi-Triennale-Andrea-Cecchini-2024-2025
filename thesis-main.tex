@@ -356,8 +356,8 @@ La trasposizione in Collektive è riportata in \cref{lst:temperatureck},
 mentre in \cref{fig:temperature-simulation} è mostrata una simulazione dell'esperimento.
 
 
+\newpage
 \lstinputlisting[
-    float,
     language=Kotlin,
     label={lst:temperatureck},
     caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/temperature/Temperature.kt}}
@@ -376,11 +376,75 @@ mentre in \cref{fig:temperature-simulation} è mostrata una simulazione dell'esp
     \label{fig:temperature-simulation}
 \end{figure}
 
+\newpage
 \section{Navigazione del Gradiente}
 \label{sec:navgrad}
 
+Il programma consente ai nodi mobili di orientarsi e muoversi verso una sorgente di interesse all’interno della rete, calcolando per ciascuno di essi un vettore di direzione di navigazione. I nodi immobili, invece, si occupano di determinare la propria distanza dalla sorgente e di trasmettere questa informazione ai vicini. 
+%
+In questo modo, ogni dispositivo mobile può calcolare il gradiente del campo delle distanze nel proprio vicinato, ottenendo un vettore che lo guida verso la sorgente. 
+%
+I nodi mobili si muovono quindi lungo la discesa del gradiente del campo delle distanze, ottimizzando il proprio percorso.
+%
+I nodi privi di capacità di movimento rimangono fermi e svolgono un ruolo fondamentale nella propagazione delle informazioni di distanza all’interno della rete.
+
+In \cref{lst:navgrad} è riportato il codice MIT-Proto.
+
+\lstinputlisting[
+    language=Lisp,
+    label={lst:navgrad},
+    caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/nav-grad.proto}}
+]{listings/proto/nav-grad.proto}
+
+La funzione \texttt{grad} calcola il gradiente di un campo di valori scalari \texttt{v}, restituendo un vettore che indica la direzione del massimo decremento di quel campo.
+%
+L'espressione più esterna consiste in una moltiplicazione (\texttt{*}) tra un fattore di normalizzazione e l'integrale che aggrega i contributi dei vicini al gradiente. 
+%
+Il fattore di normalizzazione, definito come \texttt{(/ 1 (int-hood 1))}, calcola il reciproco del numero di vicini (pesati) considerati nell'integrale.
+%
+Il contributo di ciascun vicino viene determinato mediante l'espressione \texttt{int-hood (if \dots)}.
+%
+Per ogni vicino, si valuta la condizione \texttt{(or (= (nbr-range) 0) (not (< (abs (- v (nbr v))) (inf))))}: se la distanza è nulla (indicando il dispositivo stesso) oppure se la differenza tra il valore locale \texttt{v} e quello del vicino \texttt{(nbr v)} risulta indefinita, il contributo viene azzerato per evitare singolarità.
+%
+Altrimenti, il contributo viene calcolato attraverso l'espressione \texttt{(* (/ (- v (nbr v) (nbr-range)) (normalize (nbr-vec))))}, ovvero come il prodotto tra la differenza dei valori del campo, diviso per la distanza tra i due dispositivi, e il vettore normalizzato che punta verso quel vicino.
+
+La funzione \texttt{share-distance-to} calcola e condivide una stima della distanza da una sorgente all'interno della rete di dispositivi.
+%
+accetta due campi booleani come argomenti: \texttt{is-calculating}, che indica se il dispositivo è abilitato al calcolo della distanza, e \texttt{source}, che identifica i dispositivi sorgente.
+%
+Quando il dispositivo può calcolare la distanza, utilizza la funzione \texttt{distance-to} per determinare la distanza da \texttt{source} e memorizza il risultato nella variabile \texttt{base}; in caso contrario, \texttt{base} viene impostata a infinito.
+%
+I dispositivi per cui \texttt{base} risulta finito vengono illuminati di verde.
+%
+La funzione restituisce il risultato dell'espressione \texttt{(mux is-calculating base (min-hood (+ (nbr-range) (nbr base))))}.
+\\
+Se \texttt{is-calculating} è vero, la funzione restituisce \texttt{base}; altrimenti, restituisce il minimo tra le somme delle distanze ai vicini e le rispettive stime di distanza dalla sorgente.
+
+La funzione \texttt{nav-grad} combina le funzionalità di \texttt{share-distance-to} e \texttt{grad} per calcolare il vettore di navigazione verso la sorgente.
+%
+Accetta come argomenti due campi booleani: \texttt{is-mover}, che indica se il dispositivo è mobile, e \texttt{source}, che identifica i dispositivi sorgente del campo di distanza.
+%
+Viene calcolato il gradiente rispetto al campo di distanza attraverso l'espressione \texttt{(grad (share-distance-to (not is-mover) source))} e il risultato viene memorizzato nella variabile \texttt{g}.
+%
+Si restituisce il risultato di \texttt{(mux (and is-mover (> (len g) 0)) (normalize g) (tup 0 0)}.
+%
+Se il dispositivo è mobile e \texttt{g} ha una lunghezza positiva, il risultato è il vettore normalizzato \texttt{g}; altrimenti, viene restituito il vettore nullo.
+%
+La trasposizione in Collektive è riportata in \cref{lst:navgradck}.
+
+\newpage
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:navgradck},
+    caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/navgrad/NavGrad.kt}}
+]{listings/collektive/NavGrad.kt}
+
+\newpage
 \section{Partizione di Voronoi}
 \label{sec:voronoi}
+
+
+
 
 \section{Connessione lungo l'albero di percorso minimo}
 \label{sec:wire}
@@ -390,9 +454,6 @@ mentre in \cref{fig:temperature-simulation} è mostrata una simulazione dell'esp
 
 \section{Dinamica di uno stormo}
 \label{sec:flock}
-
-
-
 
 
 

@@ -1,0 +1,15 @@
+(def grad (v)
+  (* (/ 1 (int-hood 1)) ; normalize over neighborhood
+     (int-hood (if (or (= (nbr-range) 0) (not (< (abs (- v (nbr v))) (inf))))
+                   (tup 0 0 0) ; ignore singularity
+                   (* (/ (- v (nbr v)) (nbr-range))
+                      (normalize (nbr-vec)))))))
+
+(def share-distance-to (is-calculating source)
+  (let ((base (if is-calculating (distance-to source) (inf))))
+    (green (< base (inf)))
+    (mux is-calculating base (min-hood (+ (nbr-range) (nbr base))))))
+
+(def nav-grad (is-mover source)
+  (let ((g (grad (share-distance-to (not is-mover) source))))
+    (mux (and is-mover (> (len g) 0)) (normalize g) (tup 0 0))))
