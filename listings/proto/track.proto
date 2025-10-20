@@ -1,0 +1,10 @@
+(def channel (src dst width)
+  (let* ((d (distance src dst))
+        (trail (<= (+ (gradient src) (gradient dst)) (+ d 1)))) ;; slop
+    (and (< d (inf)) (dilate trail width))))
+
+(def track (target dst coord)
+  (if (channel target dst 10)
+    (all (blue 1)
+    (mux dst (- (broadcast target coord) coord) (tup 0 0 0)))
+    (tup 0 0 0)))
