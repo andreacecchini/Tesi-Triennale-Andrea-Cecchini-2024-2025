@@ -1,0 +1,13 @@
+(def flock (dir)
+  (rep v 
+   (tup 0 0 0)
+   (let ((d
+	  (normalize
+	   (int-hood
+	    (if (< (nbr-range) 5)
+	      (* -1 (normalize (nbr-vec)))
+	      (if (> (nbr-range) 10)
+		(* 0.2 (normalize (nbr-vec)))
+		(normalize (nbr v))))))))
+     (normalize 
+      (+ dir (mux (> (vdot d d) 0) d v))))))

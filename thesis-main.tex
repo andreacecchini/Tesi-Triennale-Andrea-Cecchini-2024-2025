@@ -177,7 +177,9 @@ Verranno discussi i seguenti esempi:
 \section{Media Locale}
 \label{sec:localaverage}
 
-In \cref{lst:localaverage} è riportato il codice MIT-Proto.
+\paragraph{Obiettivo} Determinare il vettore medio a partire dai valori associati ai nodi nel vicinato.
+
+\paragraph{Codice originale} In \cref{lst:localaverage} è riportato il codice MIT-Proto.
 %
 \lstinputlisting[
     language=Lisp,
@@ -185,8 +187,6 @@ In \cref{lst:localaverage} è riportato il codice MIT-Proto.
     caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/local-average.proto}}
 ]{listings/proto/local-average.proto}
 %
-L'obiettivo del programma è determinare il vettore medio a partire
-dai vettori associati ai nodi presenti nel vicinato.
 
 La funzione \texttt{local-average} accetta come argomento un campo di
 vettori \texttt{v}, di tre dimensioni.
@@ -199,15 +199,15 @@ i vettori locali nel vicinato.
 Il termine di sinistra, \texttt{(/ 1 (sum-hood 1))}, è invece responsabile del conteggio 
 dei dispositivi nel vicinato e del calcolo del suo inverso.
 %
-Il risultato dell'espressione \texttt{local-average} è quindi formalizzato come segue:
-\[
+Il risultato del programma è quindi formalizzato come
+\(
     \texttt{local-average(v)} = \frac{1}{\sum_{d \in N} 1} \cdot \sum_{d \in N} v(d)
-\]
+\)
 dove \(N\) rappresenta l'insieme dei dispositivi nel vicinato.
 
-La trasposizione in Collektive è riportata in \cref{lst:localaverageck}, 
-mentre in \cref{fig:local-average-simulation} è mostrata una simulazione dell'esperimento.
+\paragraph{Trasposizione in Collektive}  Si sfrutta il costrutto \texttt{neighboring} per accedere ai vettori del vicinato e la funzione \texttt{fold} per aggregarli (\cref{lst:localaverageck}).
 
+In \cref{fig:local-average-simulation} è mostrata una simulazione dell'esperimento. 
 
 \lstinputlisting[
     language=Kotlin,
@@ -224,25 +224,21 @@ mentre in \cref{fig:local-average-simulation} è mostrata una simulazione dell'e
     \label{fig:local-average-simulation}
 \end{figure}
 
-
+\newpage
 \section{Nel Cerchio}
 \label{sec:incircle}
 
-In \cref{lst:incircle} è riportato il codice MIT-Proto.
+\paragraph{Obiettivo} determinare se un dispositivo si trova all'interno della regione circolare di raggio \texttt{r} centrata nell'origine definita.
+
+\paragraph{Codice originale} La funzione \texttt{in-circle} (\cref{lst:incircle}) accetta come argomenti un campo booleano \texttt{o}, 
+il quale identifica il nodo che funge da origine del cerchio, 
+e un raggio \texttt{r}.
 %
 \lstinputlisting[
     language=Lisp,
     label={lst:incircle},
     caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/in-circle.proto}}
 ]{listings/proto/in-circle.proto}
-%
-La funzione \texttt{in-circle} accetta come argomenti un campo booleano \texttt{o}, 
-il quale identifica il nodo che funge da origine del cerchio, 
-e un raggio \texttt{r}.
-%
-L'obiettivo del programma è determinare se un dispositivo 
-si trova all'interno della regione circolare di raggio \texttt{r}
-centrata nell'origine definita.
 %
 L'istruzione \texttt{let ((dv (- (probe (coord) 1) o)))} calcola il vettore differenza 
 tra la coordinata del dispositivo corrente e quella dell'origine, 
@@ -253,8 +249,8 @@ verifica se il quadrato della distanza tra il dispositivo corrente e l'origine
 è inferiore al quadrato del raggio \texttt{r}, restituendo un valore booleano 
 che indica l'appartenenza o meno del dispositivo alla regione circolare.
 
-La trasposizione in Collektive è riportata in \cref{lst:incircleck}, 
-mentre in \cref{fig:in-circle-simulation} è mostrata una simulazione dell'esperimento.
+\paragraph{Trasposizione in Collektive} Le coordinate del centro vengono condivise tramite la funzione \texttt{gradientCast} (\cref{lst:incircleck}).
+
 \lstinputlisting[
     language=Kotlin,
     label={lst:incircleck},
@@ -273,22 +269,20 @@ mentre in \cref{fig:in-circle-simulation} è mostrata una simulazione dell'esper
 \section{Anello}
 \label{sec:ring}
 
-In \cref{lst:ring} è riportato il codice MIT-Proto.
+\paragraph{Obiettivo} Individuare i dispositivo che si trovano lungo la circonferenza di un anello di raggio variabile nel tempo.
 
+\paragraph{Codice originale} La funzione \texttt{ring} (\cref{lst:ring}) non accetta argomenti ma utilizza la funzione built-in
+\texttt{sense 1} per identificare i dispositivi che fungono da sorgente del segnale.
+%
 \lstinputlisting[
     language=Lisp,
     label={lst:ring},
     caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/ring.proto}}
 ]{listings/proto/ring.proto}
-
-L'obiettivo del programma è far lampeggiare i dispositivi
-che si trovano lungo un anello di raggio variabile nel tempo.
-
-La funzione \texttt{ring} non accetta argomenti ma utilizza la funzione built-in
-\texttt{sense 1} per identificare i dispositivi che fungono da sorgente del segnale.
 %
-L'istruzione \texttt{(probe (broadcast (sense 1) (if (sense 1) (timer) 0)) 0)} calcola il tempo trascorso
-dall'ultima attivazione della sorgente, depositando il risultato nella variabile \texttt{t}.
+L'istruzione \texttt{(probe (broadcast (sense 1) (if (sense 1) (timer) 0)) 0)} 
+\\
+calcola il tempo trascorso dall'ultima attivazione della sorgente, depositando il risultato nella variabile \texttt{t}.
 %
 Se il dispositivo corrente è la sorgente, viene utilizzata la funzione \texttt{timer} per ottenere il tempo corrente;
 altrimenti, viene assegnato il valore zero, e il valore viene propagato attraverso la rete mediante la funzione \texttt{broadcast}.
@@ -303,8 +297,9 @@ che si muove con una velocità di \(5\) unità al secondo.
 Se il dispositivo si trova ad una distanza inferiore a \(4\) unità dall'anello,
 viene acceso il LED verde; altrimenti, viene acceso il LED blu.
 
-La trasposizione in Collektive è riportata in \cref{lst:ringck}, 
-mentre in \cref{fig:ring-simulation} è mostrata una simulazione dell'esperimento.
+\paragraph{Trasposizione in Collektive} La propagazione del tempo dalla sorgente viene realizzata tramite la funzione \texttt{gradientCast} (\cref{lst:ringck}) e la distanza dalla sorgente viene calcolata con la funzione \texttt{distanceTo} dalla stdlib.
+
+In \cref{fig:ring-simulation} è mostrata una simulazione dell'esperimento.
 
 \newpage
 \lstinputlisting[
@@ -313,7 +308,6 @@ mentre in \cref{fig:ring-simulation} è mostrata una simulazione dell'esperiment
     caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/ring/Ring.kt}}
 ]{listings/collektive/Ring.kt}
 
-% Da rifare
 \begin{figure}
     \centering
     \includegraphics[width=.8\linewidth]{figures/ring-simulation.pdf}
@@ -327,20 +321,17 @@ mentre in \cref{fig:ring-simulation} è mostrata una simulazione dell'esperiment
 \section{Temperature}
 \label{sec:temperature}
 
-In \cref{lst:temperature} è riportato il codice MIT-Proto.
+\paragraph{Obiettivo} Simulare la diffusione del calore in un'area, data la presenza di sorgenti di calore e di freddo.
 
+\paragraph{Codice originale} La funzione \texttt{temperature} (\cref{lst:temperature}) non accetta argomenti.
+Un dispositivo è una sorgente di calore se se il suo identificatore \texttt{mid} è minore di \(6\) ed è pari,
+mentre è una sorgente di freddo se \texttt{mid} è minore di \(6\) ma dispari.
+%
 \lstinputlisting[
     language=Lisp,
     label={lst:temperature},
     caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/temperature.proto}}
 ]{listings/proto/temperature.proto}
-
-L'obiettivo del programma è simulare la diffusione del calore
-date delle sorgenti di calore e di freddo in un'area.
-
-La funzione \texttt{temperature} non accetta argomenti.
-Un dispositivo è una sorgente di calore se se il suo identificatore \texttt{mid} è minore di \(6\) ed è pari,
-mentre è una sorgente di freddo se \texttt{mid} è minore di \(6\) ma dispari.
 %
 L'istruzione \texttt{( rep temp 25 ( mux hot 30 ( mux cold 20 (/ (int-hood(nbr temp))(int-hood 1)))))} modella l'evoluzione del campo di temperatura nello spazio e nel tempo.
 %
@@ -351,9 +342,11 @@ se è una sorgente di calore, la temperatura viene impostata a \(30\) gradi (\te
 se è una sorgente di freddo, la temperatura viene impostata a \(20\) gradi (\texttt{mux cold 20 \dots});
 altrimenti, la temperatura viene calcolata come la media delle temperature dei
 dispositivi vicini (\texttt{(/ (int-hood(nbr temp))(int-hood 1))}).
-%
-La trasposizione in Collektive è riportata in \cref{lst:temperatureck},
-mentre in \cref{fig:temperature-simulation} è mostrata una simulazione dell'esperimento.
+
+\paragraph{Trasposizione in Collektive} L'evoluzione nello spazio e nel tempo della temperature è modellata tramite l'operatore \texttt{share} (\cref{lst:temperatureck}).
+
+In \cref{fig:temperature-simulation} è mostrata una simulazione dell'esperimento.
+
 
 
 \newpage
@@ -380,16 +373,10 @@ mentre in \cref{fig:temperature-simulation} è mostrata una simulazione dell'esp
 \section{Navigazione del Gradiente}
 \label{sec:navgrad}
 
-Il programma consente ai nodi mobili di orientarsi e muoversi verso una sorgente di interesse all’interno della rete, calcolando per ciascuno di essi un vettore di direzione di navigazione. I nodi immobili, invece, si occupano di determinare la propria distanza dalla sorgente e di trasmettere questa informazione ai vicini. 
-%
-In questo modo, ogni dispositivo mobile può calcolare il gradiente del campo delle distanze nel proprio vicinato, ottenendo un vettore che lo guida verso la sorgente. 
-%
-I nodi mobili si muovono quindi lungo la discesa del gradiente del campo delle distanze, ottimizzando il proprio percorso.
-%
-I nodi privi di capacità di movimento rimangono fermi e svolgono un ruolo fondamentale nella propagazione delle informazioni di distanza all’interno della rete.
+\paragraph{Obiettivo} Consentire ai nodi mobili di navigare verso una sorgente di interesse all'interno della rete, sfruttando il gradiente del campo delle distanze.
 
-In \cref{lst:navgrad} è riportato il codice MIT-Proto.
-
+\paragraph{Codice originale} Il programma (\cref{lst:navgrad}) è composto da tre funzioni: \texttt{grad}, \texttt{share-distance-to} e \texttt{nav-grad}.
+%
 \lstinputlisting[
     language=Lisp,
     label={lst:navgrad},
@@ -429,10 +416,11 @@ Viene calcolato il gradiente rispetto al campo di distanza attraverso l'espressi
 Si restituisce il risultato di \texttt{(mux (and is-mover (> (len g) 0)) (normalize g) (tup 0 0)}.
 %
 Se il dispositivo è mobile e \texttt{g} ha una lunghezza positiva, il risultato è il vettore normalizzato \texttt{g}; altrimenti, viene restituito il vettore nullo.
-%
-La trasposizione in Collektive è riportata in \cref{lst:navgradck}.
 
-\newpage
+\paragraph{Trasposizione in Collektive} Segue la traduzione della funzione \texttt{grad}: si calcolano le differenze (\texttt{differences}) tra il valore locale e quelli dei vicini tramite l'espressione \texttt{mapNeighborhood \{ v \} - neighboring(v)}, quindi si determinano distanze e direzioni rispetto ai vicini e si combinano questi campi di vicinato (\texttt{alignedMapValues}) per ottenere il gradiente (\cref{lst:navgradck}).
+
+La funzione \texttt{share-distance-to} utilizza la funzione \texttt{distanceTo} per calcolare la distanza dalla sorgente; i dispositivi incapaci di calcolarla determinano il minimo tra la somma delle distanze ai vicini e le rispettive stime di distanza dalla sorgente (\texttt{neighborDistances() + neighboring(myDist)}), grazie all'espressione \texttt{potentialDist.all.valueOfMinBy(\dots)}.
+
 \lstinputlisting[
     language=Kotlin,
     label={lst:navgradck},
@@ -443,46 +431,44 @@ La trasposizione in Collektive è riportata in \cref{lst:navgradck}.
 \section{Partizione di Voronoi}
 \label{sec:voronoi}
 
-In questa simulazione, viene implementato il partizionamento di Voronoi\footnote{\url{https://en.wikipedia.org/wiki/Voronoi_diagram}}.
+\paragraph{Obiettivo} Suddividere lo spazio della rete tramite il partizionamento di Voronoi\footnote{\url{https://en.wikipedia.org/wiki/Voronoi_diagram}}.
 %
 Un insieme di dispositivi è designato come sorgenti.
 %
 Ogni altro dispositivo determina a quale sorgente è più vicino, suddividendo di fatto lo spazio della rete in celle. 
 %
-All'interno di questo contesto, i dispositivi possono essere classifati in:
-%
-\begin{itemize}
-    \item Membro della cella: un dispositivo appartenente a una singola cella di Voronoi.
-    \item Bordo: un dispositivo situato al limite tra due celle.
-    \item Vertice: un dispositivo posto nel punto di giunzione di tre o più celle.
-\end{itemize}
-%
 Ogni cella, bordo e vertice è rappresentato con un colore diverso per visualizzare la struttura risultante.
 
-In \cref{lst:voronoi} è riportato il codice MIT-Proto.
-
+\paragraph{Codice originale} Il programma (\cref{lst:voronoi}) accetta due campi booleani come argomenti: \texttt{src}, che definisce l'insieme dei dispositivi generatori delle celle di Voronoi, e \texttt{showedge}, un flag che indica se visualizzare i bordi tra le celle.
+%
 \lstinputlisting[
     language=Lisp,
     label={lst:voronoi},
     caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/voronoi.proto}}
 ]{listings/proto/voronoi.proto}
-
-Il programma accetta due campi booleani come argomenti: \texttt{src}, che definisce l'insieme dei dispositivi generatori delle celle di Voronoi, e \texttt{showedge}, un flag che indica se visualizzare i bordi tra le celle.
 %
-Vengono definite tre variabili:
+Si definiscono tre variabili:
 \begin{itemize}
     \item \texttt{closest-src}: identificatore del dispositivo sorgente più vicino, sfruttando la funzione \texttt{broardcast src (mid)}.
     \item \texttt{edge}: indica se il dispositivo corrente si trova su un bordo tra due celle, verificando se ha almeno un vicino (\texttt{any-hood}) la cui sorgente più vicina (\texttt{nbr closest-src}) è diversa dalla propria (\texttt{closest-src}).
     \item \texttt{vertex}: indica se il dispositivo corrente è un vertice, verificando se è sul bordo (\texttt{and edge}) e se, tra i suoi vicini appartenenti a celle diverse (\texttt{max-nbr}, \texttt{min-nbr}), esistono almeno due ID di sorgente distinti (\texttt{(not (= max-nbr min-nbr))}).
 \end{itemize}
 %
-Infine, se il flag \texttt{showedge} è attivo, i dispositivi vengono colorati in base alla loro classificazione: se è un vertice, viene colorato con il colore \texttt{rgb (tup 1 0 0)}, se è un bordo con \texttt{rgb (tup 0 0 0.5)}, altrimenti con il colore associato alla propria cella di appartenenza (\texttt{uid2rgb closest-src 10}).
+Se il flag \texttt{showedge} è attivo, i dispositivi vengono colorati in base alla loro classificazione: se è un vertice, viene colorato con il colore \texttt{rgb (tup 1 0 0)}, se è un bordo con \texttt{rgb (tup 0 0 0.5)}, altrimenti con il colore associato alla propria cella di appartenenza (\texttt{uid2rgb closest-src 10}).
 %
 La funzione restituisce la coppia \texttt{(tup closest-src edge)}, ovvero l'identificatore della sorgente più vicina e se il nodo è su un bordo.
 
-La trasposizione in Collektive è riportata in \cref{lst:voronoick}.
+\paragraph{Trasposizione in Collektive} Si determina la sorgente più vicina (\cref{lst:voronoick}) sfruttando la funzione \texttt{multigradient(\dots)} (\cref{lst:multigradientck}), basata sulla funzione 
+\\
+\texttt{multiGradientCast(\dots)} presente nella stdlib di Collektive.
+
+I vicini condividono la propria sorgente più vicina tramite l'operatore
+\\
+\texttt{neighboring}, in modo che ogni dispositivo possa controllare quante sorgenti diverse sono presenti nel vicinato, al fine di determinare se si trova su un bordo o su un vertice.
 %
-In questa traduzione, il programma non restituisce la coppia definita precedentemente, bensì si limita a restituire il colore associato al dispositivo: non vi è nessuna perdita di informazione, in quanto il colore codifica sia la cella di appartenenza, sia se il dispositivo è su un bordo.
+Se \texttt{distinctSources >= 3}, il dispositivo è un vertice; se \texttt{distinctSources == 2}, è su un bordo.
+
+In questa traduzione, il programma non restituisce la coppia \texttt{(closest-src edge)}, bensì si limita a restituire il colore associato al dispositivo: non vi è nessuna perdita di informazione in quanto il colore codifica sia la cella di appartenenza, sia se il dispositivo è su un bordo.
 
 \newpage
 \lstinputlisting[
@@ -491,20 +477,75 @@ In questa traduzione, il programma non restituisce la coppia definita precedente
     caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/voronoi/Voronoi.kt}}
 ]{listings/collektive/Voronoi.kt}
 
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:multigradientck},
+    caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/multiGradient/MultiGradient.kt}. Questa funzione è stata implementata da Luca Marchi per realizzare la simulazione MultiGradient.}
+]{listings/collektive/Multigradient.kt}
+
+\newpage
 \section{Connessione lungo l'albero di percorso minimo}
 \label{sec:wire}
 
 \section{Tracciamento}
 \label{sec:track}
 
+\newpage
 \section{Dinamica di uno stormo}
 \label{sec:flock}
 
+\paragraph{Obiettivo} Simulare la dinamica di uno stormo.
+
+Ciascun dispositivo calcola una nuova direzione di movimento in funzione della direzione iniziale, della distanza dai nodi vicini e delle loro rispettive direzioni di movimento.
+%
+La direzione iniziale è determinata dal ruolo del nodo: se il dispositivo è un "leader", viene orientato verso l'origine del sistema di coordinate; in caso contrario, la direzione iniziale è nulla.
+%
+La direzione, che evolve dinamicamente nel tempo, viene aggiornata secondo logiche di repulsione, coesione e allineamento, in base alla distanza dai vicini.
+%
+La direzione risultante è data dalla somma ponderata dei contributi di ciascun vicino, insieme alla direzione iniziale.
+
+\paragraph{Codice originale} La funzione \texttt{flock} (\cref{lst:flock}) inizializza il sistema accettando in input un campo vettoriale \texttt{dir}, che definisce una direzione di partenza per ogni dispositivo.
+%
+\lstinputlisting[
+    language=Lisp,
+    label={lst:flock},
+    caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/flock.proto}}
+]{listings/proto/flock.proto}
+%
+L'evoluzione temporale della velocità dei nodi è gestita dall'istruzione \texttt{(rep v (tup 0 0 0) \dots)}.
+%
+Ad ogni round, viene determinato il vettore risultante \texttt{d} come somma dei contributi di repulsione, coesione e allineamento, provenienti dai dispositivi nel vicinato.
+I contributi dei vicini vengono calcolati e aggregati tramite la funzione \texttt{int-hood \dots}, seguendo queste regole di interazione:
+\begin{itemize}
+    \item Se la distanza da un vicino è inferiore a $5$ unità (\texttt{(if (< (nbr-range) 5) \dots)}), il contributo è un vettore che allontana dall'entità vicina. Si calcola come il vettore unitario diretto verso il vicino, moltiplicato per \(-1\) (\texttt{(* -1 (normalize (nbr-vec)))}).
+    \item Se la distanza è superiore a $10$ unità (\texttt{(if (> (nbr-range) 10) \dots)}), si esercita un'attrazione. Il contributo è il vettore unitario orientato verso il vicino, scalato di $0.2$ (\texttt{* 0.2 (normalize (nbr-vec))}).
+    \item Se la distanza è compresa tra $5$ e $10$ unità, l'entità si allinea alla direzione attuale del vicino. Il contributo è dato dalla direzione attuale del vicino normalizzata (\texttt{normalize (nbr v)}).
+\end{itemize}
+Infine, la nuova velocità viene calcolata con l'espressione \texttt{(+ dir (mux (> (vdot d d) 0) d v))}. Questa istruzione somma la direzione iniziale \texttt{dir} al vettore risultante \texttt{d}, se la norma di quest'ultimo è positiva; altrimenti, mantiene la velocità precedente calcolata \texttt{v}.
+
+\paragraph{Trasposizione in Collektive} La traduzione in Collektive è riportata in \cref{lst:flockck}.
+
+Per modellare l'evoluzione della velocità dei dispositivi, viene utilizzato l'operatore \texttt{share}, poiché esiste una dipendenza sia spaziale sia temporale.
+
+Per simulare l'istruzione built-in \texttt{int-hood}, sono state create due funzioni ausiliarie, \texttt{sumWeightedNeighbors} e \texttt{spatialWeight} (\cref{lst:inthoodck}), che calcolano rispettivamente la somma pesata dei contributi dei vicini e il peso associato a ciascun vicino.
+
+Il peso assegnato a ogni vicino si ottiene dividendo l'area del cerchio, il cui raggio è pari a quello di comunicazione, per il numero di dispositivi presenti nel vicinato.
 
 
+\newpage
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:flockck},
+    caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/flock/Flock.kt}}
+    ]{listings/collektive/Flock.kt}
+
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:inthoodck},
+    caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/flock/Flock.kt}
+    }]{listings/collektive/IntHood.kt}
 
 \backmatter
-
 
 \bibliographystyle{alpha}
 \bibliography{bibliography}

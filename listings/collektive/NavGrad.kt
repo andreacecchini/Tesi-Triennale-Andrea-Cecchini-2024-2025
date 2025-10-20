@@ -13,11 +13,11 @@ fun Aggregate<Int>.grad(v: Double, neighborDistances: () -> Field<Int, Double>, 
     val distances = neighborDistances()
     return distances.alignedMapValues(differences, directions, { dist, diff, dir ->
         when {
-            dist == 0.0 || !(abs(diff) < Double.POSITIVE_INFINITY) -> Vector2D(0.0 to 0.0)
+            dist == 0.0 || !(abs(diff) < Double.POSITIVE_INFINITY) -> vectorZero
             else -> dir.normalize() * (diff / dist)
         }
     }).all.run {
-        fold(Vector2D(0.0 to 0.0)) { acc, (_, value) -> acc + value } / size.toDouble()
+        fold(vectorZero) { acc, (_, value) -> acc + value } / size.toDouble()
     }
 }
 
@@ -60,6 +60,6 @@ fun Aggregate<Int>.navGrad(
     val g = grad(distance, neighborDistances, neighborDirectionVectors)
     when {
         mover && g.magnitude() > 0.0 -> g.normalize()
-        else -> Vector2D(0.0 to 0.0)
+        else -> vectorZero
     }
 }
