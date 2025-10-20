@@ -202,8 +202,7 @@ dei dispositivi nel vicinato e del calcolo del suo inverso.
 Il risultato del programma è quindi formalizzato come
 \(
     \texttt{local-average(v)} = \frac{1}{\sum_{d \in N} 1} \cdot \sum_{d \in N} v(d)
-\)
-dove \(N\) rappresenta l'insieme dei dispositivi nel vicinato.
+\), dove \(N\) rappresenta l'insieme dei dispositivi nel vicinato.
 
 \paragraph{Trasposizione in Collektive}  Si sfrutta il costrutto \texttt{neighboring} per accedere ai vettori del vicinato e la funzione \texttt{fold} per aggregarli (\cref{lst:localaverageck}).
 
@@ -218,7 +217,7 @@ In \cref{fig:local-average-simulation} è mostrata una simulazione dell'esperime
 \begin{figure}
     \centering
     \includegraphics[width=.8\linewidth]{figures/localAverageSimulation.pdf}
-    \caption{Simulazione dell'esperimento di Media Locale in Alchemist.
+    \caption{Simulazione dell'esperimento ``Media Locale'' in Alchemist.
      I dispositivi inizializzano \texttt{v} casualmente e convergono verso il valore medio locale.
     Al vettore risultante viene applicata la norma euclidea per visualizzarlo come scalare.}
     \label{fig:local-average-simulation}
@@ -259,8 +258,8 @@ che indica l'appartenenza o meno del dispositivo alla regione circolare.
 
 \begin{figure}
     \centering
-    \includegraphics[width=.8\linewidth]{figures/in-circle-simulation.pdf}
-    \caption{Simulazione dell'esperimento di InCircle in Alchemist.
+    \includegraphics[width=.8\linewidth]{figures/incircle.pdf}
+    \caption{Simulazione dell'esperimento ``InCircle'' in Alchemist.
     Il centro \texttt{o} è rappresentato dal dispositivo in verde, mentre i dispositivi
     all'interno del cerchio sono colorati in rosso.}
     \label{fig:in-circle-simulation}
@@ -310,8 +309,8 @@ In \cref{fig:ring-simulation} è mostrata una simulazione dell'esperimento.
 
 \begin{figure}
     \centering
-    \includegraphics[width=.8\linewidth]{figures/ring-simulation.pdf}
-    \caption{Simulazione dell'esperimento di Ring in Alchemist.
+    \includegraphics[width=0.8\linewidth]{figures/ring.pdf}
+    \caption{Simulazione dell'esperimento ``Ring'' in Alchemist.
     I dispositivi lungo l'anello sono colorati in verde, mentre gli altri sono colorati in blu.
     La simulazione è mostrata in quattro istanti temporali distinti, evidenziando il movimento dell'anello nel tempo.
     }
@@ -358,8 +357,8 @@ In \cref{fig:temperature-simulation} è mostrata una simulazione dell'esperiment
 
 \begin{figure}
     \centering
-    \includegraphics[width=.8\linewidth]{figures/temperature-simulation.pdf}
-    \caption{Simulazione dell'esperimento di Temperature in Alchemist.
+    \includegraphics[width=.8\linewidth]{figures/temperature.pdf}
+    \caption{Simulazione dell'esperimento ``Temperature'' in Alchemist.
     I dispositivi che agiscono come sorgenti di calore sono evidenziati da
     un rettangolo rosso, mentre quelli che agiscono come sorgenti di freddo
     sono evidenziati da un rettangolo blu.
@@ -421,11 +420,22 @@ Se il dispositivo è mobile e \texttt{g} ha una lunghezza positiva, il risultato
 
 La funzione \texttt{share-distance-to} utilizza la funzione \texttt{distanceTo} per calcolare la distanza dalla sorgente; i dispositivi incapaci di calcolarla determinano il minimo tra la somma delle distanze ai vicini e le rispettive stime di distanza dalla sorgente (\texttt{neighborDistances() + neighboring(myDist)}), grazie all'espressione \texttt{potentialDist.all.valueOfMinBy(\dots)}.
 
+In \cref{fig:navgrad-simulation} è mostrata una simulazione dell'esperimento.
 \lstinputlisting[
     language=Kotlin,
     label={lst:navgradck},
     caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/navgrad/NavGrad.kt}}
 ]{listings/collektive/NavGrad.kt}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/navgrad.pdf}
+    \caption{Simulazione dell'esperimento ``Navigazione del Gradiente'' in Alchemist.
+    Ogni nodo è colorato rispetto alla distanza dalla sorgente (nodo evidenziato in rosso).
+    I dispositivi mobili sono evidenziati da un cerchio blu.
+    }
+    \label{fig:navgrad-simulation}
+\end{figure}
 
 \newpage
 \section{Partizione di Voronoi}
@@ -470,6 +480,8 @@ Se \texttt{distinctSources >= 3}, il dispositivo è un vertice; se \texttt{disti
 
 In questa traduzione, il programma non restituisce la coppia \texttt{(closest-src edge)}, bensì si limita a restituire il colore associato al dispositivo: non vi è nessuna perdita di informazione in quanto il colore codifica sia la cella di appartenenza, sia se il dispositivo è su un bordo.
 
+In \cref{fig:voronoi-simulation} è mostrata una simulazione dell'esperimento.
+
 \newpage
 \lstinputlisting[
     language=Kotlin,
@@ -483,12 +495,37 @@ In questa traduzione, il programma non restituisce la coppia \texttt{(closest-sr
     caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/multiGradient/MultiGradient.kt}. Questa funzione è stata implementata da Luca Marchi per realizzare la simulazione MultiGradient.}
 ]{listings/collektive/Multigradient.kt}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/voronoi.pdf}
+    \caption{Simulazione dell'esperimento ``Voronoi'' in Alchemist.
+    I dispositivi sono colorati in base alla cella di appartenenza;
+    i dispositivi sui bordi sono colorati in rosso,
+    mentre i vertici sono colorati in magenta.
+    Le sorgenti sono evidenziate da un rettangolo nero.
+    }
+    \label{fig:voronoi-simulation}
+\end{figure}
+
 \newpage
 \section{Connessione lungo l'albero di percorso minimo}
 \label{sec:wire}
 
+\paragraph{Obiettivo} Stabilire un collegamento tra due dispositivi, passando per i nodi che appartengono all'albero di percorso minimo tra di essi.
+
+\paragraph{Codice originale}
+
+\paragraph{Trasposizione in Collektive}
+
+\newpage
 \section{Tracciamento}
 \label{sec:track}
+
+\paragraph{Obiettivo}
+
+\paragraph{Codice originale}
+
+\paragraph{Trasposizione in Collektive}
 
 \newpage
 \section{Dinamica di uno stormo}
@@ -531,6 +568,7 @@ Per simulare l'istruzione built-in \texttt{int-hood}, sono state create due funz
 
 Il peso assegnato a ogni vicino si ottiene dividendo l'area del cerchio, il cui raggio è pari a quello di comunicazione, per il numero di dispositivi presenti nel vicinato.
 
+In \cref{fig:flock-simulation} è mostrata una simulazione dell'esperimento.
 
 \newpage
 \lstinputlisting[
@@ -544,6 +582,16 @@ Il peso assegnato a ogni vicino si ottiene dividendo l'area del cerchio, il cui 
     label={lst:inthoodck},
     caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/flock/Flock.kt}
     }]{listings/collektive/IntHood.kt}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/flock.pdf}
+    \caption{Simulazione dell'esperimento ``Flock'' in Alchemist.
+    I dispositivi ``leader'' sono evidenziati in rosso. 
+    }
+    \label{fig:flock-simulation}
+\end{figure}
+
 
 \backmatter
 
