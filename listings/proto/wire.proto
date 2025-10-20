@@ -1,0 +1,5 @@
+(def wire (src dest near-obst)
+    (if (and near-obst (and (not src)(not dest)))
+      (tup 0 0 0)
+      (connect src dest))
+  )

@@ -22,6 +22,7 @@
 \acrodef{FC}{Field Calculus}
 \acrodef{HFC}{Higher-Order Field Calculus}
 \acrodef{XC}{eXchange Calculus}
+\acrodef{SPT}{Shortest Path Three}
 
 \mainlinespacing{1.241} % line spacing in mainmatter, comment to default (1)
 
@@ -167,7 +168,7 @@ Verranno discussi i seguenti esempi:
     \item Anello (\cref{sec:ring})
     \item Temperature (\cref{sec:temperature})
     \item Navigazione del Gradiente (\cref{sec:navgrad})
-    \item Partizione di Voronoi (\cref{sec:voronoi})
+    \item Partizionamento di Voronoi (\cref{sec:voronoi})
     \item Connessione lungo l'albero di percorso minimo (\cref{sec:wire})
     \item Tracciamento (\cref{sec:track})
     \item Dinamica di uno stormo (\cref{sec:flock})
@@ -177,7 +178,7 @@ Verranno discussi i seguenti esempi:
 \section{Media Locale}
 \label{sec:localaverage}
 
-\paragraph{Obiettivo} Determinare il vettore medio a partire dai valori associati ai nodi nel vicinato.
+\paragraph{Obiettivo} Determinare il vettore medio conoscendo i vettori locali associati al vicinato.
 
 \paragraph{Codice originale} In \cref{lst:localaverage} è riportato il codice MIT-Proto.
 %
@@ -227,7 +228,7 @@ In \cref{fig:local-average-simulation} è mostrata una simulazione dell'esperime
 \section{Nel Cerchio}
 \label{sec:incircle}
 
-\paragraph{Obiettivo} determinare se un dispositivo si trova all'interno della regione circolare di raggio \texttt{r} centrata nell'origine definita.
+\paragraph{Obiettivo} Determinare se un dispositivo si trova all'interno della regione circolare di raggio \texttt{r} centrata in un dispositivo.
 
 \paragraph{Codice originale} La funzione \texttt{in-circle} (\cref{lst:incircle}) accetta come argomenti un campo booleano \texttt{o}, 
 il quale identifica il nodo che funge da origine del cerchio, 
@@ -246,9 +247,11 @@ depositando il risultato nella variabile \texttt{dv}.
 Successivamente, l'espressione \texttt{(< (probe (vdot dv dv) 0) (* r r))} 
 verifica se il quadrato della distanza tra il dispositivo corrente e l'origine
 è inferiore al quadrato del raggio \texttt{r}, restituendo un valore booleano 
-che indica l'appartenenza o meno del dispositivo alla regione circolare.
+che indica l'appartenenza al cerchio.
 
 \paragraph{Trasposizione in Collektive} Le coordinate del centro vengono condivise tramite la funzione \texttt{gradientCast} (\cref{lst:incircleck}).
+
+In \cref{fig:in-circle-simulation} è mostrata la simulazione dell'esperimento.
 
 \lstinputlisting[
     language=Kotlin,
@@ -268,7 +271,7 @@ che indica l'appartenenza o meno del dispositivo alla regione circolare.
 \section{Anello}
 \label{sec:ring}
 
-\paragraph{Obiettivo} Individuare i dispositivo che si trovano lungo la circonferenza di un anello di raggio variabile nel tempo.
+\paragraph{Obiettivo} Individuare i dispositivi che si trovano lungo l'anello di raggio variabile nel tempo.
 
 \paragraph{Codice originale} La funzione \texttt{ring} (\cref{lst:ring}) non accetta argomenti ma utilizza la funzione built-in
 \texttt{sense 1} per identificare i dispositivi che fungono da sorgente del segnale.
@@ -296,9 +299,9 @@ che si muove con una velocità di \(5\) unità al secondo.
 Se il dispositivo si trova ad una distanza inferiore a \(4\) unità dall'anello,
 viene acceso il LED verde; altrimenti, viene acceso il LED blu.
 
-\paragraph{Trasposizione in Collektive} La propagazione del tempo dalla sorgente viene realizzata tramite la funzione \texttt{gradientCast} (\cref{lst:ringck}) e la distanza dalla sorgente viene calcolata con la funzione \texttt{distanceTo} dalla stdlib.
+\paragraph{Trasposizione in Collektive} La propagazione del tempo dalla sorgente viene realizzata tramite la funzione \texttt{gradientCast} (\cref{lst:ringck}) e la distanza dalla sorgente viene calcolata con la funzione \texttt{distanceTo}.
 
-In \cref{fig:ring-simulation} è mostrata una simulazione dell'esperimento.
+In \cref{fig:ring-simulation} si nota come l'anello si propaghi come un'onda.
 
 \newpage
 \lstinputlisting[
@@ -320,7 +323,7 @@ In \cref{fig:ring-simulation} è mostrata una simulazione dell'esperimento.
 \section{Temperature}
 \label{sec:temperature}
 
-\paragraph{Obiettivo} Simulare la diffusione del calore in un'area, data la presenza di sorgenti di calore e di freddo.
+\paragraph{Obiettivo} Simulare la diffusione di calore in un'area, data la presenza di sorgenti di calore e di freddo.
 
 \paragraph{Codice originale} La funzione \texttt{temperature} (\cref{lst:temperature}) non accetta argomenti.
 Un dispositivo è una sorgente di calore se se il suo identificatore \texttt{mid} è minore di \(6\) ed è pari,
@@ -349,6 +352,7 @@ In \cref{fig:temperature-simulation} è mostrata una simulazione dell'esperiment
 
 
 \newpage
+
 \lstinputlisting[
     language=Kotlin,
     label={lst:temperatureck},
@@ -438,7 +442,7 @@ In \cref{fig:navgrad-simulation} è mostrata una simulazione dell'esperimento.
 \end{figure}
 
 \newpage
-\section{Partizione di Voronoi}
+\section{Partizionamento di Voronoi}
 \label{sec:voronoi}
 
 \paragraph{Obiettivo} Suddividere lo spazio della rete tramite il partizionamento di Voronoi\footnote{\url{https://en.wikipedia.org/wiki/Voronoi_diagram}}.
@@ -511,11 +515,80 @@ In \cref{fig:voronoi-simulation} è mostrata una simulazione dell'esperimento.
 \section{Connessione lungo l'albero di percorso minimo}
 \label{sec:wire}
 
-\paragraph{Obiettivo} Stabilire un collegamento tra due dispositivi, passando per i nodi che appartengono all'albero di percorso minimo tra di essi.
+\paragraph{Obiettivo} Stabilire un collegamento tra due dispositivi, passando per i nodi che appartengono al \ac{SPT} tra di essi.
 
-\paragraph{Codice originale}
+\paragraph{Codice originale} Il programma è costituito da tre funzioni: \texttt{spath}, \texttt{connect} e \texttt{wire}.
 
-\paragraph{Trasposizione in Collektive}
+La funzione \texttt{spath} (\cref{lst:spath}) determina l'\ac{SPT} tra una sorgente (\texttt{src}) e una destinazione (\texttt{dest}), sfruttando la distanza \texttt{d} di ciascun dispositivo rispetto alla destinazione.
+
+In fase iniziale, viene definita la variabile \texttt{min-id}, la quale memorizza l'identificatore del vicino che presenta la distanza minima \texttt{d}, come espresso da: \texttt{(2nd (min-hood (tup (nbr d) (nbr (mid)))))}.
+
+Successivamente, l'istruzione iterativa \texttt{(rep ispath \dots)} è utilizzata per mantenere traccia dei dispositivi che appartengono all'\ac{SPT}. La variabile \texttt{ispath} è inizializzata a \texttt{0} (\texttt{false}) e viene aggiornata a ogni round mediante l'espressione:
+\[
+\texttt{(mux src 1 (any-hood (muxand (= (mid) (nbr min-id) (nbr ispath)))))}
+\]
+Questa logica opera come segue:
+\begin{itemize}
+    \item Se il dispositivo corrente è la sorgente (\texttt{src}), \texttt{ispath} è impostato a \texttt{1} (\texttt{true}).
+    \item Altrimenti, il dispositivo verifica se almeno un vicino (\texttt{any-hood}) soddisfa congiuntamente due condizioni: che il proprio identificatore (\texttt{(mid)}) sia il \texttt{min-id} del vicino (\texttt{= (mid) (nbr min-id)}), e che tale vicino faccia già parte dell'\ac{SPT} (\texttt{(nbr ispath)}).
+\end{itemize}
+
+La funzione restituisce \texttt{ispath}.
+%
+\newpage
+\lstinputlisting[
+    language=Lisp,
+    label={lst:spath},
+    caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/spath.proto}}
+]{listings/proto/spath.proto}
+
+La funzione \texttt{connect} (\cref{lst:connect}) stabilisce il collegamento logico tra sorgente (\texttt{src}) e destinazione (\texttt{dest}), computando un vettore di connessione che indica il prossimo dispositivo lungo l'albero di percorso minimo.
+
+Ogni dispositivo calcola innanzitutto la propria distanza \texttt{d} dalla destinazione mediante la funzione \texttt{distance-to}. Successivamente, tutti i dispositivi verificano la propria appartenenza all'albero di percorso minimo, invocando la funzione \texttt{spath}.
+
+Attraverso l'espressione \texttt{if thepath \dots}, i dispositivi che risultano parte dell'albero collaborano per calcolare il vettore di connessione. Questo calcolo è basato sulla ricerca della distanza minima rispetto alla destinazione tra i nodi vicini (\texttt{(min-hood (nbr d))}). Vengono poi sommati i contributi di quei vicini per i quali la distanza \texttt{(nbr d)} coincide con tale distanza minima (\texttt{= (nbr d) min-d}).
+
+Se tale condizione è verificata, l'espressione \texttt{mux \dots} restituisce il vettore che punta verso il vicino in questione (\texttt{(nbr-vec)}); in caso contrario, restituisce il vettore nullo.
+
+\lstinputlisting[
+    language=Lisp,
+    label={lst:connect},
+    caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/connect.proto}}
+]{listings/proto/connect.proto}
+
+La funzione \texttt{wire} (\cref{lst:wire}) invoca \texttt{connect} solo per i nodi che non hanno un ostacolo vicino (\texttt{near-obst}) e che non siano né la sorgente né la destinazione (\texttt{(and (not src) (not dest))}).
+
+\lstinputlisting[
+    language=Lisp,
+    label={lst:wire},
+    caption={\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/wire.proto}}
+]{listings/proto/wire.proto}
+
+
+\paragraph{Trasposizione in Collektive} Le tre funzioni in Collektive sono riportate in \cref{lst:wireck}.
+
+Si evidenzia l'utilizzo dell'operatore \texttt{share} per modellare lo stato di appartenenza all'\ac{SPT}, in quanto l'aggiornamento di tale stato a livello locale richiede la verifica dell'appartenenza dei nodi vicini all'albero.
+
+In \cref{fig:wire-simulation} è mostrata la simulazione dell'esperimento.
+
+\newpage
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:wireck},
+    caption={\url{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/wire/Wire.kt}}
+]{listings/collektive/Wire.kt}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/wire.pdf}
+    \caption{Simulazione dell'esperimento ``Wire'' in Alchemist.
+    La sorgente è evidenziata in rosso mentre la destinazione in verde.
+    Gli ostacoli sono rappresentati attraverso quadrati blu.
+    I dispositivi che appartengono all'\ac{SPT} puntano verso il prossimo nodo lungo l'albero, formando un collegamento che unisce sorgente e destinazione.
+    }
+    \label{fig:wire-simulation}
+\end{figure}
 
 \newpage
 \section{Tracciamento}

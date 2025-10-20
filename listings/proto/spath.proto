@@ -1,0 +1,5 @@
+(def spath (src dest d)
+  (let* ((min-id (2nd (min-hood (tup (nbr d) (nbr (mid)))))))
+    (rep ispath
+     0
+     (mux src 1 (any-hood (muxand (= (mid) (nbr min-id)) (nbr ispath)))))))
