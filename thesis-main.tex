@@ -18,11 +18,12 @@
 \academicyear{2024-2025}
 
 % Definition of acronyms
+\acrodef{IoT}{Internet of Things}
 \acrodef{AC}{Programmazione Aggregata}
 \acrodef{FC}{Field Calculus}
 \acrodef{HFC}{Higher-Order Field Calculus}
 \acrodef{XC}{eXchange Calculus}
-\acrodef{SPT}{Shortest Path Three}
+\acrodef{SPT}{Shortest Path Tree}
 
 \mainlinespacing{1.241} % line spacing in mainmatter, comment to default (1)
 
@@ -52,29 +53,142 @@ Optional. Max a few lines.
 %----------------------------------------------------------------------------------------
 
 
-
 \section{Contesto}
 \label{sec:contesto}
 
+Le attuali tendenze tecnologiche, e in particolare la rapida espansione dell'\ac{IoT}, stanno favorendo una crescente integrazione dei dispositivi computazionali nell'ambiente circostante, aprendo nuove prospettive per servizi e applicazioni innovative.
+%
+Tra gli esempi più rilevanti si annoverano sistemi di monitoraggio ambientale, reti di sensori intelligenti, infrastrutture urbane connesse, sciami di droni e robotica collaborativa.
+
+I paradigmi di programmazione tradizionali, che individuano l'unità fondamentale di calcolo nel singolo dispositivo, risultano ormai inadatti allo sviluppo di applicazioni distribuite su larga scala.
+%
+L'approccio centrato sul dispositivo evidenzia le complessità legate alla gestione della comunicazione, della sincronizzazione e della coordinazione tra i nodi, che diventano parti integranti del codice applicativo del sistema distribuito.
+%
+Con l'aumentare della complessità, tali sistemi manifestano limiti di design, come scarsa modularità e riusabilità, difficoltà nel deployment e nel testing \cite{AC, AC2}.
+%
+Di conseguenza, la progettazione di sistemi distribuiti viene spesso percepita come una sfida ardua e rischiosa, generando timore e resistenza invece che stimolare la valorizzazione delle potenzialità offerte da un ecosistema di dispositivi cooperanti.
+
 \subsection{Programmazione Aggregata}
 \label{sec:programmazioneaggregata}
+La \ac{AC} \cite{AC, AC2} emerge come una risposta a queste sfide, proponendo un alternativa che semplifica la progettazione, creazione e manutenzione di sistemi distribuiti complessi, astraendo in gran parte i dettagli di ``basso livello'' e consentendo agli sviluppatori di concentrarsi sul dominio applicativo.
 
-\subsection{Field Calculus e Higher Order Calculus}
+Il fulcro di \ac{AC} consiste nel cambio di prospettiva rispetto all'unità fondamentale di calcolo: il programma non è più pensato per essere eseguito su singoli nodi, bensì sull'intera rete di dispositivi.
+%
+I valori manipolati da tali programmi non sono più dati locali, bensì strutture distribuite nello spazio e nel tempo, denominate ``campi computazionali'' \ref{campo}.
+%
+I programmi aggregati non fanno altro che trasformare campi in altri campi \cite{HFC}.
+
+Questo cambio di mentalità impatta profondamente la progettazione di applicazioni complesse per reti con numerosi dispositivi, dove è essenziale che identità e posizione dei singoli nodi non influenzino il comportamento complessivo. 
+%
+L'approccio a campi consente di creare algoritmi distribuiti riusabili mediante funzioni componibili - da campi a campi -, strutturabili in librerie di complessità crescente per costruire interi servizi applicativi \cite{AC, AC2}. 
+%
+Tale astrazione porta all'eliminazione del focus sui singoli agenti in favore di una visione collettiva del sistema.
+
+La \Cref{fig:traditional-vs-ac} illustra il confronto tra l'approccio tradizionale, ``device-centrico'', e quello proposto da \ac{AC} nello sviluppo di un servizio di sicurezza per folle.
+%
+In questo scenario, gli smartphone degli utenti cooperano per monitorare la densità della folla e segnalare situazioni di pericolo.
+%
+Come evidenziato in \Cref{fig:traditional-vs-ac}a, l'approccio tradizionale richiede al programmatore di gestire esplicitamente il protocollo di interazione tra i nodi, dovendo al contempo comprendere come le singole interazioni locali si combinino per generare il comportamento globale desiderato. 
+%
+Per contro, \ac{AC} (\Cref{fig:traditional-vs-ac}b) permette di ragionare in modo più naturale attraverso una costruzione incrementale basata su strutture dati e servizi che si comportano come continui spaziali \cite{AC}.
+%
+\begin{figure}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/traditional-vs-ac.pdf}
+    \caption{
+        Figura estratta da \cite{BealPV15}.
+        %
+        Confronto tra i due approcci per sviluppare un crowd safety service hostato su smartphones.
+        %
+        (a) Approccio tradizionale centrato sul dispositivo.
+        %
+        (b) Approccio di programmazione aggregata basato su campi.
+        }
+    \label{fig:traditional-vs-ac}
+\end{figure}
+
+% Field calculus e Aggregate programming abstraction levels
+\paragraph{Architettura a livelli}
+%
+%\ac{AC} nasconde la complessità della coordinazione distribuita dietro a un'architettura a livelli (\cref{fig:ac-architecture}) \cite{AC2}. 
+\ac{AC} nasconde la complessità intrinseca della coordinazione distribuita sfruttando diversi livelli di astrazione (\cref{fig:ac-architecture}) \cite{AC2}.
+Le fondamenta di questo stack sono costituite dal \textit{Field Calculus} (FC) (\cref{sec:fieldcalculus}), un insieme minimale di costrutti che modellano il comportamento e le interazione dei dispositivi nel collettivo.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/ac-architecture.pdf}
+    \caption{
+        Figura estratta da \cite{BealPV15}.
+        %
+        Architettura a livelli della programmazione aggregata.
+        Le capacità del dispositivo sono sfruttate per implementare i costrutti del \ac{FC}, che a loro volta costituiscono la base per la creazione di un limitato numero di operatori aggregati di cui si può provare la resilienza. Tali costrutti sono così generali da poter essere utilizzati per costruire librerie di alto livello per la programmazione aggregata.
+        }
+    \label{fig:ac-architecture}
+\end{figure}
+%
+%
+A partire da queste fondamenta, diventa possibile identificare componenti chiave per la coordinazione resiliente e successivamente comporle per realizzare API destinate a soddisfare esigenze applicative ricorrenti. Tali componenti, costruiti a partire da operatori resilienti, ereditano questa proprietà, garantendo che le applicazioni risultanti mantengano caratteristiche di robustezza e adattabilità, il tutto in modo trasparente al programmatore.
+
+\subsection{Field Calculus e Higher Order Field Calculus}
 \label{sec:fieldcalculus}
 
-\subsubsection{Campo computazionale}
-\label{sec:campo_computazionale}
+\ac{FC} è un linguaggio funzionale minimale progettato per fornire i costrutti fondamentali necessari alla manipolazione dei campi \cite{HFC}.
 
-\subsubsection{Dinamica Temporale e Stato}
-\label{sec:dinamicatemporale}
+L'astrazione unificante del linguaggio è il concetto di ``campo computazionale'', ispirato alla teoria dei campi della fisica \cite{AC}. Ogni espressione in \ac{FC} rappresenta un campo computazionale, e nell'estensione \ac{HFC} \cite{HFC}, le funzioni, considerate come cittadini di prima classe, sono anch'esse campi.
 
-\subsubsection{Interazione Spaziale e Vicinato}
-\label{sec:interazionespaziale}
+\paragraph{Campo computazionale \label{campo}} Un campo computazionale è una struttura dati distribuita nello spazio e nel tempo che associa a ogni dispositivo un valore.
+%
+A titolo esemplificativo, si consideri una rete di sensori di temperatura distribuiti su un'area geografica: tale configurazione può essere interpretata come un campo computazionale discreto, in cui ogni sensore rappresenta un punto del campo e il valore a esso associato corrisponde alla temperatura rilevata in quel istante.
 
-\subsubsection{Restrizione dello Spazio e Condizionali}
-\label{sec:restrizionespazio}
+In questo contesto, una computazione può essere osservata da due prospettive diverse: locale e globale \cite{HFC}.
 
-\subsection{Share e XC Calculus}
+Dal punto di vista aggregato (globale) \ref{sec:programmazioneaggregata}, è possibile specificare il comportamento collettivo del sistema attraverso una serie di trasformazioni su campi computazionali.
+%
+
+Dal punto di vista locale, la computazione è vista dal singolo dispositivo \(\delta_i\), che esegue periodicamente un programma \texttt{P} in round di esecuzione asincroni.
+
+%
+In questa visione, il dispositivo \(\delta_i\) non può percepire l'intero campo globale, ma solo una proiezione limitata ai dispositivi entro il proprio raggio di comunicazione, definita come ``campo di vicinato'', ovvero una mappa \(\phi: \delta \to v\) che associa a ciascun vicino \(\delta_j\) il valore \(v_j\) più recente.
+%
+In ogni round, il dispositivo i) raccoglie i valori dal proprio campo di vicinato \(\phi_i\); ii) ottiene le informazioni dall'ambiente (attraverso sensori); iii) recupera lo stato interno memorizzato dall'ultimo round; (iv) valuta il programma \texttt{P} utilizzando queste informazioni; v) aggiorna il proprio stato interno e invia il valore risultante ai vicini; vi) attende il successivo round di esecuzione \cite{HFC}.
+
+
+\subsubsection{Sintassi}
+
+I costrutti fondamentali di \ac{FC} \cite{AC,HFC,Share} sono:
+
+
+\paragraph{Chiamate a funzione}  \texttt{b(\(e_1, \dots, e_n\))} applica la funzione \texttt{b} agli argomenti \texttt{\(e_1, \dots, e_n\)}, restituendo un nuovo campo computazionale.
+
+\paragraph{Dinamica temporale} \texttt{rep(\(e_0\)) \{((x) => e)\}} inizializza una variabile di stato \texttt{x} con il valore \texttt{\(e_0\)} e la aggiorna ad ogni round con il risultato dell'espressione \texttt{e}, che può fare riferimento al valore precedente di \texttt{x}.
+%
+\texttt{rep} modella l'evoluzione nel tempo del campo computazionale.
+
+\paragraph{Interazione spaziale} \texttt{nbr\{e\}} consente di accedere ai valori calcolati dai dispositivi vicini nell'ultimo round di esecuzione, restituendo un campo di vicinato che mappa ogni vicino all'espressione \texttt{e} valutata in quel dispositivo.
+%
+\texttt{nbr} modella l'evoluzione spaziale del campo computazionale.
+%
+I campi di vicinato ottenuti tramite \texttt{nbr} possono essere manipolati con funzioni di aggregazione spaziale, come \texttt{min-hood}, \texttt{max-hood} e \texttt{sum-hood}, etc\dots
+
+
+
+\paragraph{Restrizione dello spazio} \texttt{if (\(e_0\)) \{\(e_1\)\} else \{\(e_2\)\}} partiziona lo spazio dei dispositivi in due sottoinsiemi \(D_{true}\) e \(D_{false}\) in base alla valutazione di \texttt{\(e_0\)}.
+%
+Se un dispositivo \(\delta\) appartiene a \(D_{true}\), valuta esclusivamente l’espressione \(e_1\), ignorando \(e_2\); viceversa, se appartiene a \(D_{false}\), valuta solo \(e_2\). In entrambi i casi, le informazioni di stato e i valori scambiati con i vicini non vengono condivisi tra i due rami: quando un dispositivo passa da un ramo all’altro, le variabili di stato vengono reinizializzate e i valori precedenti vengono persi.
+
+\paragraph{Share} È possibile combinare i costrutti \texttt{rep} e \texttt{nbr} per modellare l'evoluzione sia spaziale che temporale di un campo. 
+%
+Sfortunatamente, come notato in \cite{UniversalityFC}, la loro combinazione nasconde del ritardo, che può portare alla perdita di round di esecuzione.
+%
+Per ovviare a questo problema, \cite{Share} introduce il costrutto \texttt{share}.
+
+\[
+\texttt{share(e1) \{(x) => e2\}}
+\]
+Sebbene la sintassi del nuovo costrutto \texttt{share} sia identica a quella di \texttt{rep}, i due costrutti si differenziano per il modo in cui la variabile \texttt{x} viene interpretata ad ogni round di esecuzione.
+Per \texttt{share}, \texttt{x} è un campo di vicinato piuttosto che un valore locale ed \texttt{\(e_2\)} è responsabile di processarlo per produrre un nuovo valore locale per il prossimo round, che verrà poi condiviso con i vicini. 
+
+\subsection{XC Calculus}
 \label{sec:sharandexc}
 
 \newpage
@@ -686,6 +800,7 @@ In \cref{fig:flock-simulation} è mostrata una simulazione dell'esperimento.
 \backmatter
 
 \bibliographystyle{alpha}
+\nocite{*}
 \bibliography{bibliography}
 
 \begin{acknowledgements} % this is optional
