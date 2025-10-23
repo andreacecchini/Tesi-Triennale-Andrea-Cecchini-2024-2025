@@ -19,6 +19,7 @@
 
 % Definition of acronyms
 \acrodef{IoT}{Internet of Things}
+\acrodef{DSL}{Domain-Specific Language}
 \acrodef{AC}{Programmazione Aggregata}
 \acrodef{FC}{Field Calculus}
 \acrodef{HFC}{Higher-Order Field Calculus}
@@ -160,15 +161,9 @@ I costrutti fondamentali di \ac{FC} \cite{AC,HFC,Share} sono:
 
 \paragraph{Chiamate a funzione}  \texttt{b(\(e_1, \dots, e_n\))} applica la funzione \texttt{b} agli argomenti \texttt{\(e_1, \dots, e_n\)}, restituendo un nuovo campo computazionale.
 
-\paragraph{Dinamica temporale} \texttt{rep(\(e_0\)) \{((x) => e)\}} inizializza una variabile di stato \texttt{x} con il valore \texttt{\(e_0\)} e la aggiorna ad ogni round con il risultato dell'espressione \texttt{e}, che può fare riferimento al valore precedente di \texttt{x}.
-%
-\texttt{rep} modella l'evoluzione nel tempo del campo computazionale.
+\paragraph{Dinamica Temporale} $\texttt{rep(e0) \{(x) => e\}}$ è fondamentale per modellare l'evoluzione nel tempo di un campo computazionale. Esso inizializza una variabile di stato locale $\texttt{x}$ con il valore iniziale $\texttt{e}_0$. Successivamente, a ogni round di esecuzione, il valore di $\texttt{x}$ viene aggiornato con il risultato dell'espressione $\texttt{e}$. È importante sottolineare che l'espressione $\texttt{e}$ può fare riferimento al valore precedente di $\texttt{x}$, consentendo così la definizione di processi iterativi.
 
-\paragraph{Interazione spaziale} \texttt{nbr\{e\}} consente di accedere ai valori calcolati dai dispositivi vicini nell'ultimo round di esecuzione, restituendo un campo di vicinato che mappa ogni vicino all'espressione \texttt{e} valutata in quel dispositivo.
-%
-\texttt{nbr} modella l'evoluzione spaziale del campo computazionale.
-%
-I campi di vicinato ottenuti tramite \texttt{nbr} possono essere manipolati con funzioni di aggregazione spaziale, come \texttt{min-hood}, \texttt{max-hood} e \texttt{sum-hood}, etc\dots
+\paragraph{Interazione Spaziale} $\texttt{nbr\{e\}}$ modella l'evoluzione spaziale del campo computazionale, consentendo a un dispositivo di accedere ai valori calcolati dai vicini nell'ultimo round di esecuzione. Esso restituisce un campo di vicinato ($\phi$) che mappa l'identificatore di ogni vicino all'espressione $\texttt{e}$ valutata in quel dispositivo. I campi di vicinato così ottenuti possono essere successivamente manipolati mediante funzioni di aggregazione spaziale, come $\texttt{min-hood}$, $\texttt{max-hood}$, $\texttt{sum-hood}$ e altre.
 
 
 
@@ -176,24 +171,72 @@ I campi di vicinato ottenuti tramite \texttt{nbr} possono essere manipolati con 
 %
 Se un dispositivo \(\delta\) appartiene a \(D_{true}\), valuta esclusivamente l’espressione \(e_1\), ignorando \(e_2\); viceversa, se appartiene a \(D_{false}\), valuta solo \(e_2\). In entrambi i casi, le informazioni di stato e i valori scambiati con i vicini non vengono condivisi tra i due rami: quando un dispositivo passa da un ramo all’altro, le variabili di stato vengono reinizializzate e i valori precedenti vengono persi.
 
-\paragraph{Share} È possibile combinare i costrutti \texttt{rep} e \texttt{nbr} per modellare l'evoluzione sia spaziale che temporale di un campo. 
-%
-Sfortunatamente, come notato in \cite{UniversalityFC}, la loro combinazione nasconde del ritardo, che può portare alla perdita di round di esecuzione.
-%
-Per ovviare a questo problema, \cite{Share} introduce il costrutto \texttt{share}.
+\paragraph{Share}
+La combinazione dei costrutti \texttt{rep} e \texttt{nbr} permette di modellare l'evoluzione sia spaziale che temporale di un campo. Tuttavia, come evidenziato in \cite{UniversalityFC}, la loro integrazione introduce un ritardo implicito nel sistema che può causare la perdita di intere esecuzioni dei round.
 
+Per risolvere questo problema, l'approccio presentato in \cite{Share} introduce il costrutto \texttt{share}:
 \[
 \texttt{share(e1) \{(x) => e2\}}
 \]
-Sebbene la sintassi del nuovo costrutto \texttt{share} sia identica a quella di \texttt{rep}, i due costrutti si differenziano per il modo in cui la variabile \texttt{x} viene interpretata ad ogni round di esecuzione.
-Per \texttt{share}, \texttt{x} è un campo di vicinato piuttosto che un valore locale ed \texttt{\(e_2\)} è responsabile di processarlo per produrre un nuovo valore locale per il prossimo round, che verrà poi condiviso con i vicini. 
+
+Nonostante la sintassi sia identica a quella del costrutto \texttt{rep}, i due si distinguono radicalmente per l'interpretazione della variabile \texttt{x} ad ogni round. Nel caso di \texttt{share}, \texttt{x} non rappresenta un valore locale (come in \texttt{rep}) ma un campo di vicinato ($\phi$) che contiene i valori condivisi dai vicini nel round precedente. L'espressione \texttt{\(e_2\)} ha quindi il compito di elaborare questo campo di vicinato per produrre il nuovo valore locale. Tale nuovo valore sarà poi utilizzato come \texttt{\(e_1\)} nel round successivo e condiviso con i vicini.
 
 \subsection{XC Calculus}
 \label{sec:sharandexc}
 
+\ac{XC} è un linguaggio di programmazione funzionale sperimentale che generalizza ed estende le capacità di \ac{FC} \cite{XC}. 
+
+\ac{XC} formalizza un insieme di meccanismi chiave, più minimali rispetto a \ac{FC}, per esprimere il comportamento complessivo dei sistemi collettivi distribuiti.
+
+\paragraph{Modello di Esecuzione}
+Ogni dispositivo, indicato con \(\delta_i\), comunica con i propri vicini tramite uno scambio di messaggi. Il funzionamento dei nodi si articola in round di esecuzione asincroni. In ogni round, ciascun dispositivo esegue un programma \ac{XC}, elabora i messaggi ricevuti e produce nuovi messaggi da inviare ai vicini, gestendo l'intero processo attraverso una coda locale.
+
+Questo modello è illustrato in \Cref{fig:xc-rounds}, dove si mostra che il dispositivo \(\delta_i\) esegue il programma \ac{XC} nei round \(\varepsilon_n\) e invia i messaggi ai vicini al termine di ciascuno \cite{XC}.
+
+Data la natura asincrona del sistema, può verificarsi che un dispositivo completi più round prima che un vicino ne termini uno. In questi casi, il vicino considererà solo l'ultimo messaggio ricevuto, sovrascrivendo i precedenti.\begin{figure}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/xc-rounds.pdf}
+    \caption{\(\delta_i\) è un dispositivo, \(\varepsilon_n\) rappresenta un round di esecuzione e le frecce indicano l'invio di messaggi ai vicini al termine di ciascun round \cite{XC}.}
+    \label{fig:xc-rounds}
+\end{figure}
+
+\paragraph{Tipi di dato} Nel formalismo \ac{FC}, si distinguono due categorie di valori: i valori locali \(\ell\) e i campi di vicinato \(\phi\). Questi ultimi sono mappe che associano un valore locale a ciascun identificatore di dispositivo e vengono impiegati per rappresentare i messaggi ricevuti dai vicini. Tuttavia, \ac{FC} impone che solo i valori locali \(\ell\) possano essere inviati. Ciò implica che ogni nodo trasmetta necessariamente lo stesso messaggio a tutti i suoi vicini, limitando l'espressività del linguaggio e impedendo l'invio di messaggi differenziati.
+
+Al contrario, il linguaggio \ac{XC} risolve questa limitazione unificando le due categorie in una singola classe di valori, denominata \texttt{nvalues} (\(v\)). Un \texttt{nvalue} è una struttura dati che associa un valore locale \(\ell_i\) a ciascun identificatore di dispositivo \(\delta_i\) specificato e include un valore di default \(\ell\):
+
+\[v = \ell[\delta_1 \to \ell_1, \dots, \delta_n \to \ell_n]\]
+
+Tale notazione significa che \(v\) assume il valore di default \(\ell\) per tutti i dispositivi, ad eccezione di quelli esplicitamente specificati (\(\delta_1, \dots, \delta_n\)), ai quali sono associati i valori \(\ell_1, \dots, \ell_n\). Un valore locale \(\ell\) può essere automaticamente convertito in un \texttt{nvalue} con \(\ell\) come valore di default e senza eccezioni.
+
+Questa unificazione semplifica notevolmente il sistema di tipi rispetto a \ac{FC} e, grazie alla flessibilità degli \texttt{nvalues}, il linguaggio \ac{XC} risulta più espressivo, consentendo a ciascun dispositivo di inviare messaggi diversi a vicini differenti.
+
+\paragraph{exchange} La comunicazione in \ac{XC} è costruita attorno ad un'unica primitiva chiamata \texttt{exchange} \cite{XC}, che incapsula in unico costrutto la computazione, la comunicazione e la gestione dello stato.
+
+La sintassi è la seguente:
+%
+\[
+\texttt{exchange(\(e_i\), (n)) => return \(e_r\) send \(e_s\)}
+\]
+%
+Dove:
+\begin{itemize}
+    \item \(\mathbf{e_i}\): È l'espressione che determina il valore locale iniziale. Tale valore funge da default per l'$\texttt{nvalue}$ dei messaggi nel primo round o quando non sono ancora stati ricevuti messaggi dai vicini.
+    \item \(\mathbf{n}\): È una variabile che, ad ogni round di esecuzione, viene automaticamente sostituita con l'\texttt{nvalue} che incapsula i messaggi ricevuti dai vicini nell'ultimo round.
+    \item \(\mathbf{e_r}\): È l'espressione che definisce il valore locale di ritorno del costrutto, che rappresenta il risultato del round corrente del dispositivo.
+    \item \(\mathbf{e_s}\): È l'espressione che definisce l'\texttt{nvalue} dei messaggi che il dispositivo invierà ai vicini al termine del round corrente.
+\end{itemize}
+
+Ogni costrutto di \ac{FC} può essere espresso in termini di \texttt{exchange}, come illustrato in \cite{XC}. Il fatto che ogni programma \ac{FC} possa essere codificato in \ac{XC}, permette a quest'ultimo di ereditare tutte le proprietà di resilienza e universalità dimostrate per \ac{FC} \cite{HFC,UniversalityFC}.
+
 \newpage
 \section{Motivazione}
 \label{sec:motivazione}
+
+Il panorama della programmazione aggregata è caratterizzato da diversi linguaggi e framework che implementano i concetti fondamentali di \ac{FC} e \ac{HFC}, ognuno con specifiche caratteristiche, vantaggi e svantaggi. 
+Tra le soluzioni più note e consolidate si annoverano MIT Proto \cite{proto} (\cref{sec:mitproto}), Protelis \cite{protelis} (\cref{sec:protelis}), Scafi \cite{scafi} (\cref{sec:scafi}) e FCPP \cite{fcpp} (\cref{sec:fcpp}). 
+
+In questo scenario, l'ultima proposta è Collektive (\cref{sec:collektive}), un \ac{DSL} sviluppato in Kotlin. Collektive si pone l'obiettivo di sintetizzare i punti di forza dei linguaggi esistenti, superandone al contempo le limitazioni strutturali, rappresentando così un passo in avanti nel contesto della programmazione aggregata.
+
 
 \subsection{MIT Proto}
 \label{sec:mitproto}
