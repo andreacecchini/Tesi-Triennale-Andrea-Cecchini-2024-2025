@@ -1,0 +1,9 @@
+def distanceTo(source) {
+  share (distance <- POSITIVE_INFINITY) {
+    mux (source) {
+      0
+    } else {
+      foldMin(POSITIVE_INFINITY, distance + self.nbrRange())
+    }
+  }
+}

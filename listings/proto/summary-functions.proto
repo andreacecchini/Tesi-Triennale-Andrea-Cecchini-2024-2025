@@ -1,0 +1,12 @@
+; returns the lower limit of values in the range of expr.
+(min-hood ,expr|F_n) -> N 
+; returns the upper limit of values in the range of expr.
+(max-hood ,expr|F_n) -> N 
+; returns false if the range of expr includes false; otherwise returns true.
+(all-hood ,expr|F_b) -> B 
+; returns true if the range of expr includes true; otherwise returns false.
+(any-hood ,expr|F_b) -> B 
+; returns the sum of expr over all devices in the neighborhood.
+(sum-hood ,expr|F_n) -> N 
+; returns the integral of expr over the neighborhood.
+(int-hood ,expr|F_n) -> N 

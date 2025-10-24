@@ -1,0 +1,3 @@
+(fold-hood ,fold|Lambda ,base|L ,value|L) -> L
+; example
+(fold-hood + 0 1) ;counts the number of neighbors. Equals to (sum-hood (nbr 1)) 

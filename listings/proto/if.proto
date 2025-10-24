@@ -1,0 +1,4 @@
+(if ,test|B ,true ,false) -> A
+; example
+; counts the neighbhors which have followed the same path.
+(if (mod mid 2) (sum-hood (nbr 1)) (sum-hood (nbr 1))) 

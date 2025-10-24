@@ -1,0 +1,3 @@
+(def distance-to (src)
+   (letfed ((n infinity (mux src 0 (min-hood (+ (nbr n) (nbr-range))))))
+      n))
