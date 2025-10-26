@@ -1,0 +1,1 @@
+fun <Stored> evolve(initial: Stored, transform: (Stored) -> Stored): Stored

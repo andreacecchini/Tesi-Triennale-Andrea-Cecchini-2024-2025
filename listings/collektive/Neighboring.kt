@@ -1,0 +1,1 @@
+inline fun <ID : Any, reified Shared> Aggregate<ID>.neighboring(local: Shared): Field<ID, Shared>

@@ -1,24 +1,24 @@
 ; Arithmetic Operations
-(+ ,x|N ,y|N ++) -> N  ; Adds two or more numbers
-(- ,x|N ,y|N) -> N  ; Subtracts y from x
-(* ,x|S ++ ,y|N) -> N  ; Multiplies numbers together
-(/ ,x|S ,y|S) -> S  ; Divides x by y
+(+ ,x|N ,y|N ++) -> N         ; Adds two or more numbers
+(- ,x|N ,y|N) -> N            ; Subtracts y from x
+(* ,x|S ++ ,y|N) -> N         ; Multiplies numbers together
+(/ ,x|S ,y|S) -> S            ; Divides x by y
 (mod ,num|S ,divisor|S) -> S  ; Returns remainder
-(max ,x|N ,y|N) -> N  ; Returns maximum value
-(min ,x|N ,y|N) -> N  ; Returns minimum value
-(sqrt ,n|S) -> S  ; Returns square root
-(abs  ,n|S) -> S  ; Returns absolute value
+(max ,x|N ,y|N) -> N          ; Returns maximum value
+(min ,x|N ,y|N) -> N          ; Returns minimum value
+(sqrt ,n|S) -> S              ; Returns square root
+(abs  ,n|S) -> S              ; Returns absolute value
 
 ; Random Operations
-(rnd ,min|S ,max|S) -> S  ; Random number between min and max
+(rnd ,min|S ,max|S) -> S      ; Random number between min and max
 
 ; Vector Operations
-(vdot ,a|V ,b|V) -> S  ; Dot product of vectors
-(vlen ,v|V) -> S  ; Length of vector
-(normalize ,v|V) -> V  ; Normalizes vector to length 1
+(vdot ,a|V ,b|V) -> S         ; Dot product of vectors
+(vlen ,v|V) -> S              ; Length of vector
+(normalize ,v|V) -> V         ; Normalizes vector to length 1
 
 ; Tuple Operations
-(tuple ,v|L ++) -> T  ; Creates tuple from arguments, tup is an alias
-(1st ,tuple|T) -> L  ; Returns first element
-(2nd ,tuple|T) -> L  ; Returns second element
-(3rd ,tuple|T) -> L  ; Returns third element
+(tuple ,v|L ++) -> T          ; Creates tuple from arguments, tup is an alias
+(1st ,tuple|T) -> L           ; Returns first element
+(2nd ,tuple|T) -> L           ; Returns second element
+(3rd ,tuple|T) -> L           ; Returns third element

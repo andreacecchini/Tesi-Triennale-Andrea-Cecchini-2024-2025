@@ -1,0 +1,4 @@
+ (def channel (src dst width)
+   (let* ((d (distance src dst))
+          (trail (<= (+ (gradient src) (gradient dst)) (+ d 1)))) ;; slop
+     (and (< d (inf)) (dilate trail width))))

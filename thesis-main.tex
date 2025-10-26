@@ -27,6 +27,7 @@
 \acrodef{XC}{eXchange Calculus}
 \acrodef{SPT}{Shortest Path Tree}
 \acrodef{sexp}{s-expression}
+\acrodef{KTM}{Kotlin Multiplatform}
 
 \mainlinespacing{1.241} % line spacing in mainmatter, comment to default (1)
 
@@ -184,7 +185,7 @@ Per risolvere questo problema, l'approccio presentato in \cite{Share} introduce 
 Nonostante la sintassi sia identica a quella del costrutto \texttt{rep}, i due si distinguono radicalmente per l'interpretazione della variabile \texttt{x} ad ogni round. Nel caso di \texttt{share}, \texttt{x} non rappresenta un valore locale (come in \texttt{rep}) ma un campo di vicinato ($\phi$) che contiene i valori condivisi dai vicini nel round precedente. L'espressione \texttt{\(e_2\)} ha quindi il compito di elaborare questo campo di vicinato per produrre il nuovo valore locale. Tale nuovo valore sarà poi utilizzato come \texttt{\(e_1\)} nel round successivo e condiviso con i vicini.
 
 \subsection{XC Calculus}
-\label{sec:sharandexc}
+\label{sec:xc}
 
 \ac{XC} è un linguaggio di programmazione funzionale sperimentale che generalizza ed estende le capacità di \ac{FC} \cite{XC}. 
 
@@ -449,7 +450,7 @@ L'esempio in \cref{lst:mitprotoresp} illustra l'uso di \texttt{rep} per creare u
 
 \begin{itemize}
     \item \texttt{expr} è l'espressione il cui valore locale viene raccolto dai vicini.
-    \item Il tipo di ritorno dell'operatore è un (\texttt{Field}) che mappa l'identificatore di ogni vicino al valore locale risultante dalla valutazione di \texttt{expr} in quel dispositivo.
+    \item Il tipo di ritorno dell'operatore è un \texttt{Field} che mappa l'identificatore di ogni vicino al valore locale risultante dalla valutazione di \texttt{expr} in quel dispositivo.
 \end{itemize}
 
 In \cref{lst:mitprotonbr} viene mostrato un esempio di utilizzo di \texttt{nbr} nel quale si costruice un campo di vicinato che associa a \(1\) ad ogni vicino.
@@ -464,7 +465,7 @@ Vengono fornite anche delle funzioni di aggregazione che permettono di ridurre u
     caption={Esempi di funzioni di aggregazione spaziale in Proto.}
 ]{listings/proto/summary-functions.proto}
 
-Queste funzioni sono implementate sfruttando una funzione più generale chiamata \texttt{fold-hood} (\cref{lst:mitprotofoldhood}), che consente di specificare una funzione di combinazione personalizzata.
+Queste funzioni sono implementate sfruttando una funzione più generale chiamata \texttt{fold-hood} (\cref{lst:mitprotofoldhood}), che consente di specificare una funzione di combinazione personalizzata. 
 
 \lstinputlisting[
     language=Lisp,
@@ -472,7 +473,7 @@ Queste funzioni sono implementate sfruttando una funzione più generale chiamata
     caption={Sintassi dell'operatore \texttt{fold-hood} in Proto.}
 ]{listings/proto/fold.proto}
 
-Si noti che \texttt{fold-hood} non richieda in ingresso un \texttt{Field}, bensì \texttt{value} è un valore locale (\texttt{Local}). Internamente, \texttt{fold-hood} utilizza l'operatore \texttt{nbr} per raccogliere i valori dai vicini in modo trasparente al programmatore e applica la funzione di combinazione specificata per aggregarli.
+Si noti che \texttt{fold-hood} non richiede in ingresso un \texttt{Field}, bensì \texttt{value} è un valore locale (\texttt{Local}). Internamente, \texttt{fold-hood} utilizza l'operatore \texttt{nbr} per raccogliere i valori dai vicini in modo trasparente al programmatore e applica la funzione di combinazione specificata per aggregarli.
 
 \paragraph{Restrizione dello spazio} L'operatore \texttt{if} (\cref{sec:fieldcalculus}) consente di eseguire una valutazione condizionale, partizionando lo spazio dei dispositivi in due sottoinsiemi in base alla valutazione di una condizione booleana. La sintassi è la seguente (\ref{lst:mitprotoif}):
 
@@ -519,33 +520,232 @@ Inoltre sono fornite funzioni per operare con i tipi di dato elencati in \cref{f
 \chapter{Collektive}
 \label{chap:collektive}
 %----------------------------------------------------------------------------------------
+Collektive è composto da tre componenti indipendenti: il \ac{DSL} (\cref{sec:collektiveaggregateops}), che definisce la sintassi e la semantica del linguaggio; una libreria standard (\cref{sec:collektivelibrary}) che fornisce funzionalità comuni per la programmazione aggregata; e un plugin per il compilatore che si occupa della gestione automatica dell’allineamento e della comunicazione.
 
+Il linguaggio, progettato per essere multipiattaforma grazie all’adesione al progetto \href{https://kotlinlang.org/docs/multiplatform.html}{\ac{KTM}}, permette di eseguire il codice su diverse piattaforme (ad esempio JVM, JavaScript e nativo) con modifiche minime. L’intero processo di build è gestito tramite \href{https://gradle.com/}{Gradle}.
+
+\newpage
 \section{Field}
 \label{sec:collektivefields}
 
-\section{Operazioni aggregate}
-\label{sec:collektiveaggregateops}
+In Collektive, un \texttt{Field} è una struttura dati che associa, per ogni dispositivo all’interno di un vicinato, l’identificatore del dispositivo al suo valore locale.
+%
+A differenza del campo di vicinato definito in \cref{sec:fieldcalculus}, un \texttt{Field} tiene traccia anche del dispositivo locale, associando il proprio identificatore al proprio valore locale.
 
-\subsection{Exchange}
+Ad esempio, un \texttt{Field} relativo a un dispositivo con identificativo \(0\) e vicini \(1\), \(2\) e \(3\), che assegna il valore \(1\) a ciascun dispositivo del vicinato (\ref{lst:collektivefield}), si rappresenta come:
+\begin{center}
+\texttt{\(\phi\)(localId=0, localValue=1, neighbors=\{1=1, 2=1, 3=1\})}
+\end{center}
+dove \texttt{localId} è l’identificatore del dispositivo locale, \texttt{localValue} è il valore locale associato al dispositivo e \texttt{neighbors} è una mappa che associa gli identificatori dei vicini ai loro rispettivi valori locali.
+
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:collektivefield},
+    caption={Creazione di un campo di vicinato che associa il valore \(1\) a ogni dispositivo del vicinato, incluso se stesso.}
+]{listings/collektive/MapNeighborhood.kt}
+
+Le proprietà \texttt{all} e \texttt{neighbors} (\ref{lst:collektivefield}) permettono di ottenere una vista sulle entry del \texttt{Field}: la prima include sia il dispositivo locale sia tutti i vicini, mentre la seconda restituisce solo i vicini, escludendo il nodo locale.
+Forniscono inoltre metodi per convertire la vista sul \texttt{Field} in diverse strutture dati native di Kotlin, come \texttt{list}, \texttt{set}, \texttt{sequence} e \texttt{map} (\ref{lst:fieldsToKotlin}).
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:fieldsToKotlin},
+    caption={}
+]{listings/collektive/FieldToKotlin.kt}
+
+I \texttt{Field} possono essere manipolati sfruttando \texttt{map/mapValues} e combinati tramite \texttt{alignedMap/alignedMapValues} (\ref{lst:fieldmap}).
+
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:fieldmap},
+    caption={Esempi di manipolazione e combinazione di \texttt{Field} in Collektive.}
+]{listings/collektive/FieldManipulationAndCombination.kt}
+
+Data la verbosità delle operazioni che combinano più \texttt{Field}, Collektive fornisce operatori infissi per semplificare la scrittura del codice (\ref{lst:fieldinfix}).
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:fieldinfix},
+    caption={Operatori infissi per la combinazione di \texttt{Field} in Collektive.}
+]{listings/collektive/FieldInfixOperators.kt}
+
+I \texttt{Field} supportano anche operazioni di riduzione, come \texttt{fold}, oppure accedere alle funzioni di aggregazione standard di Kotlin, una volta convertiti in strutture dati native (\ref{lst:fieldfold}).
+
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:fieldfold},
+    caption={Esempi di riduzione di \texttt{Field} in Collektive.}
+]{listings/collektive/FieldReduction.kt}
+
+\section{Operatori}
+\label{sec:collektiveaggregateops}
+Collektive mette a disposizione l’interfaccia \texttt{Aggregate}, che definisce il set minimo di operazioni fondamentali per la programmazione aggregata. Queste operazioni sono accessibili sia come metodi interni sia tramite extension functions, e l’interfaccia mantiene l’identificativo locale (\texttt{localId}) del dispositivo che esegue il programma aggregato.
+Per utilizzare i costrutti di programmazione aggregata, i programmi devono estendere \texttt{Aggregate}.
+
+I nomi degli operatori sono stati scelti privilegiando una sintassi più adatta a Kotlin, piuttosto che i termini usati in letteratura. In particolare, \texttt{rep} è stato rinominato in \texttt{evolve} e \texttt{nbr} in \texttt{neighboring}.
+
+\paragraph{Exchange}
 \label{sec:collektiveexchange}
 
-\subsection{Neighborhood}
-\label{sec:collektiveneighborhood}
+L’operatore \texttt{exchange} (\ref{lst:collektiveexchange}) è il cuore del DSL: consente a ciascun dispositivo di inviare valori differenti ai propri vicini, permettendo così interazioni personalizzate e modellando l’evoluzione spazio-temporale del sistema tramite una comunicazione anisotropica.
 
-\subsection{Neighboring}
-\label{sec:collektiveneighboring}
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:collektiveexchange},
+    caption={Firma dell'operatore \texttt{exchange} in Collektive.}
+]{listings/collektive/Exchange.kt}
 
-\subsection{Evolve}
-\label{sec:collektiveevolve}
+A partire da un valore iniziale (\texttt{initial}), \texttt{exchange} calcola un \texttt{Field} di valori condivisi che include sia il valore locale sia quelli dei vicini. Su questo \texttt{Field} viene applicata una funzione (\texttt{body}) che restituisce un nuovo \texttt{Field}, i cui valori vengono inviati come messaggi personalizzati ai rispettivi vicini. Il risultato evolve nel tempo: la funzione mantiene lo stato locale del campo, così che le invocazioni successive non ripartano dal valore iniziale, ma dal valore locale calcolato nel round precedente.
 
-\subsection{Share}
+Questo costrutto, derivato dall’eXchange calculus (\cref{sec:xc}), permette di esprimere tutti gli altri operatori del field calculus.
+
+Un esempio di utilizzo dell’operatore \texttt{exchange} è riportato in \cref{lst:collektiveexchangeexample}.
+
+\newpage
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:collektiveexchangeexample},
+    caption={Esempio di utilizzo dell'operatore \texttt{exchange} in Collektive.}
+]{listings/collektive/ExchangeExample.kt}
+
+\paragraph{Share}
 \label{sec:collektiveshare}
 
-\section{Manipolazione dei Field}
-\label{sec:collektivefieldmanipulation}
+
+L’operatore \texttt{share} (\cref{lst:collektiveshare}) modella l'evoluzione spazio-temporale del dispositivo, consentendogli  di condividere la stessa informazione con tutti i vicini.
+
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:collektiveshare},
+    caption={Firma dell'operatore \texttt{share} in Collektive.}
+]{listings/collektive/Share.kt}
+
+A partire da un valore iniziale (\texttt{initial}), \texttt{share} calcola un \texttt{Field} di valori condivisi che viene processato alla funzione \texttt{body}. Il risultato prodotto da questa funzione viene memorizzato internamente e inviato a tutti i vicini. L’operatore mantiene lo stato tra i round: le invocazioni successive non ripartono dal valore iniziale, ma dal risultato calcolato nel round precedente.
+%
+Internamente è implementato tramite \texttt{exchange} (\ref{sec:collektiveexchange}).
+
+Un esempio di utilizzo dell’operatore \texttt{share} è riportato in \cref{lst:temperatureck}, dove ogni dispositivo calcola la propria temperatura in base a quella dei vicini e, una volta ottenuto il risultato, lo condivide con tutti i dispositivi adiacenti.
+
+
+\paragraph{Neighboring} l'operatore \texttt{neighboring} (\cref{lst:collektivenbr}), corrispondente al costrutto \texttt{nbr} del field calculus (\cref{sec:fieldcalculus}), consente a un dispositivo di accedere ai valori calcolati dai vicini nell'ultimo round di esecuzione.
+%
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:collektivenbr},
+    caption={Firma dell'operatore \texttt{neighboring} in Collektive.}
+]{listings/collektive/Neighboring.kt}
+%
+Restituisce un \texttt{Field} che mappa ogni vicino al valore locale \texttt{local}.
+
+Per minimizzare la comunicazione, si usano le varianti $\texttt{neighborhood}$ e 
+\\
+$\texttt{mapNeighborhood}$. La prima restituisce un $\texttt{Field}$ con i soli identificatori dei vicini, mentre la seconda consente di mappare ciascun vicino ad un valore calcolato dal dispositivo corrente.
+
+La \cref{lst:collektivenbrexamples} mostra la differenza tra i tre operatori, considerando un dispositivo con tre vicini identificati da \(1\), \(2\) e \(3\). L’operatore \texttt{neighboring} crea un \texttt{Field} in cui a ciascun nodo \(\delta_i\) del vicinato è associato il proprio valore locale \texttt{x\(_i\)}. Con \texttt{neighborhood} si ottiene invece un \texttt{Field} che associa a ogni vicino il valore \(0\), utile per identificare i dispositivi adiacenti senza scambiare informazioni aggiuntive. Infine, \texttt{mapNeighborhood} produce un \texttt{Field} che associa a ciascun vicino \(\delta_i\) il valore \texttt{x\(_0\)}, ovvero il valore locale del dispositivo corrente.
+%
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:collektivenbrexamples},
+    caption={Varianti dell'operatore \texttt{neighboring} in Collektive.}
+]{listings/collektive/NeighboringExample.kt}
+
+\paragraph{Evolve} L'operatore \texttt{evolve} (\cref{lst:collektiveevolve}) corrisponde al costrutto \texttt{rep} del field calculus (\cref{sec:fieldcalculus}) e consente di modellare lo stato locale di un dispositivo che evolve nel tempo.
+%
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:collektiveevolve},
+    caption={Firma dell'operatore \texttt{evolve} in Collektive.}
+]{listings/collektive/Evolve.kt}
+%
+A partire da un valore iniziale (\texttt{initial}), a ogni round di esecuzione ciascun dispositivo applica la funzione \texttt{transform} al valore corrente per determinare il valore del round successivo.
+
+In \cref{lst:collektiveevolveexample} si mostra come utilizzare l'operatore \texttt{evolve} per creare un campo che associa ad ogni dispositivo un contatore che si incrementa ad ogni round di esecuzione.
+%
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:collektiveevolveexample},
+    caption={Esempio di utilizzo dell'operatore \texttt{evolve} in Collektive.}
+]{listings/collektive/EvolveExample.kt}
 
 \section{Standard Library}
 \label{sec:collektivelibrary}
+
+Collektive dispone di una libreria standard, sviluppata a partire dai costrutti del \ac{DSL}, che mette a disposizione funzionalità comuni utili alla realizzazione di programmi aggregati.
+
+In questa sezione verranno presentate solamente le funzionalità utilizzate nel \cref{chap:trasposizione}; per un elenco completo si rimanda alla \href{https://javadoc.io/doc/it.unibo.collektive/collektive-stdlib/latest/index.html}{documentazione ufficiale}.
+
+\paragraph{Spreading} Questo package offre funzioni per la propagazione di informazioni all’interno della rete di dispositivi.
+
+Tra le principali, troviamo \texttt{gradientCast}, \texttt{multiGradientCast} e \texttt{distanceTo}.
+%
+La funzione \texttt{gradientCast} (\cref{lst:gradientcast}) permette di diffondere un valore locale da una sorgente a tutta la rete, assegnando a ciascun dispositivo il valore proveniente dalla sorgente più vicina.
+%
+\texttt{multiGradientCast} (\cref{lst:multigradientcast}) amplia questa funzionalità, consentendo a ogni dispositivo di ottenere una mappa dei valori propagati da tutte le sorgenti presenti nella rete.
+%
+Infine, \texttt{distanceTo} (\cref{lst:distanceto}) calcola la distanza minima dalla sorgente più vicina.
+
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:gradientcast},
+    caption={Firma della funzione gradientCast dalla libreria standard di Collektive}
+]{listings/collektive/GradientCast.kt}
+
+\newpage
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:multigradientcast},
+    caption={Firma della funzione multiGradientCast dalla libreria standard di Collektive}
+]{listings/collektive/MultiGradientCast.kt}
+
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:distanceto},
+    caption={Firma della funzione distanceTo dalla libreria standard di Collektive}
+]{listings/collektive/DistanceTo.kt}
+
+\paragraph{Accumulation} Questo package implementa funzioni per accumulare valori su alcuni nodi della rete.
+
+\paragraph{Accumulation} Questo package offre funzioni per l’accumulo di valori su specifici nodi della rete.
+
+La funzione \texttt{convergeCast} (\cref{lst:convergeCast}) permette di aggregare un campo computazionale verso una destinazione, seguendo la discesa del gradiente di un campo potenziale fornito e applicando una funzione di accumulo a ciascun nodo attraversato.
+%
+La funzione \texttt{countDevices} (\cref{lst:countDevices}), basata su \texttt{convergeCast}, conta il numero di dispositivi presenti nella rete, aggregando i valori verso il nodo destinazione (\texttt{sink}).
+
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:convergeCast},
+    caption={Firma della funzione convergeCast dalla libreria standard di Collektive}
+]{listings/collektive/ConvergeCast.kt}
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:countDevices},
+    caption={Firma della funzione countDevices dalla libreria standard di Collektive}
+]{listings/collektive/CountDevices.kt}
+
+
+\paragraph{Collapse} Questo package fornisce funzioni per ridurre un \texttt{Field} a un singolo valore.
+
+\paragraph{Collapse} Questo package fornisce funzioni per ridurre un \texttt{Field} a un singolo valore.
+
+\texttt{all}, \texttt{any} e \texttt{countMatching} (\cref{lst:collapsebypredicate}) valutano un predicato su tutti i valori di un \texttt{Field}: \texttt{all} restituisce \texttt{true} se tutti i valori lo soddisfano, \texttt{any} restituisce \texttt{true} se almeno uno lo soddisfa, mentre \texttt{countMatching} restituisce il numero di valori che soddisfano il predicato.
+
+\texttt{fold} e \texttt{reduce} (\cref{lst:collapsefold}) riducono un \texttt{Field} a un singolo valore sfruttando una funzione di accumulo; la differenza è che \texttt{fold} consente di specificare un valore iniziale, mentre \texttt{reduce} utilizza il primo elemento come punto di partenza e non considera il dispositivo locale.
+
+Infine, sono disponibili un insieme di varianti delle funzioni \texttt{min} e \texttt{max} per ottenere rispettivamente il valore minimo e massimo all’interno di un \texttt{Field}.
+
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:collapsebypredicate},
+    caption={Firme delle funzioni \texttt{all}, \texttt{any} e \texttt{countMatching} dalla libreria standard di Collektive}
+]{listings/collektive/CollapsingPredicate.kt}
+
+\newpage
+
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:collapsefold},
+    caption={Firme delle funzioni \texttt{fold} e \texttt{reduce} dalla libreria standard di Collektive}
+]{listings/collektive/FoldReduce.kt}
+
+
 
 
 %----------------------------------------------------------------------------------------

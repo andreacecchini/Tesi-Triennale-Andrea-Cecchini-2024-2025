@@ -1,0 +1,7 @@
+ (def broadcast (src f)
+   (letfed ((d (inf) (gradient src))
+	    (v f (mux src f (2nd (fold-hood
+			 	  (fun (r x) (if (< (1st x) (1st r)) x r))
+				  (tup (inf) f)
+				  (tup d v))))))
+     (all d v)))
