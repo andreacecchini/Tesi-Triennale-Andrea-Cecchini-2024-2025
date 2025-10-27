@@ -823,32 +823,33 @@ In \cref{fig:local-average-simulation} si illustra la simulazione dell'esperimen
 \section{Nel Cerchio}
 \label{sec:incircle}
 
-\paragraph{Obiettivo} Determinare se un dispositivo si trova all'interno della regione circolare di raggio \texttt{r} centrata su un dispositivo.
+\paragraph{Obiettivo} Stabilire l'appartenenza di un dispositivo a una regione circolare di raggio \texttt{r} centrata su un nodo.
 
 % TODO (Richiede in ingresso un valore booleano che indica se il dispositivo è il centro del cerchio)
-\paragraph{Codice originale} La funzione \texttt{in-circle} (\cref{lst:incircle}) richiede in input un campo booleano \texttt{o}, che identifica il nodo utilizzato come origine del cerchio, e un raggio \texttt{r}.
+\paragraph{Codice originale} La funzione \texttt{in-circle} (\Cref{lst:incircle}) richiede in ingresso le coordinate del centro (\texttt{o}) e il raggio del cerchio (\texttt{r}).
 
 % TODO (Permalink)
 \lstinputlisting[
     language=Lisp,
     label={lst:incircle},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/in-circle.proto}{in-circle.proto}}
+    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/c6ba89d9fb1c3f4e68bd9ecd60540f429a77fa4f/proto/demos/in-circle.proto\#L1-L3}{in-circle.proto}}
 ]{listings/proto/in-circle.proto}
 %
-L'istruzione \texttt{let ((dv (- (probe (coord) 1) o)))} calcola la differenza tra le coordinate del dispositivo corrente e quelle dell'origine, 
+L'istruzione \texttt{let ((dv (- (probe (coord) 1) o)))} calcola la differenza tra le coordinate del dispositivo corrente e quelle del nodo centrale, 
 depositando il risultato nella variabile \texttt{dv}.
 %
 Successivamente, l'espressione \texttt{(< (probe (vdot dv dv) 0) (* r r))}  verifica che il prodotto scalare di \texttt{dv} con sè stesso sia inferiore al quadrato del raggio \texttt{r}, restituendo un valore booleano   che indica l'appartenenza al cerchio.
 
 % TODO (Aggiungere giuste reference, far vedere la funzione distanceToSquared)
-\paragraph{Trasposizione in Collektive} Le coordinate del centro vengono condivise tramite la funzione \texttt{gradientCast} (\cref{lst:incircleck}).
+\paragraph{Trasposizione in Collektive} (\Cref{lst:incircleck}) Le coordinate del nodo centrale vengono propagate agli altri dispositivi tramite la funzione \texttt{gradientCast} (\ref{lst:gradientcast}). 
+In seguito, si verifica che il quadrato della distanza tra il dispositivo corrente e il centro sia inferiore al quadrato del raggio.
 
-In \cref{fig:in-circle-simulation} è mostrata la simulazione dell'esperimento.
+In \cref{fig:in-circle-simulation} è riportata la simulazione dell'esperimento, in cui il dispositivo che rappresenta il centro \texttt{o} è evidenziato in verde, mentre i dispositivi che ricadono all'interno della regione circolare di raggio \texttt{r} sono colorati in rosso.
 
 \lstinputlisting[
     language=Kotlin,
     label={lst:incircleck},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/inCircle/InCircle.kt}{InCircle.kt}}
+    caption={\href{https://github.com/Collektive/collektive-examples/blob/9e4fd2ac52c2ebdd1f88a152eeafa916881d2faf/simulation/src/main/kotlin/it/unibo/collektive/examples/inCircle/InCircle.kt\#L26-L39}{InCircle.kt}}
 ]{listings/collektive/inCircle.kt}
 
 \begin{figure}
