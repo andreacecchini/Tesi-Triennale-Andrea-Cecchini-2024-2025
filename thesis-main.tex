@@ -753,15 +753,12 @@ Infine, sono disponibili un insieme di varianti delle funzioni \texttt{min} e \t
 \label{chap:trasposizione}
 %----------------------------------------------------------------------------------------
 
-Questo capitolo si concentra sulla trasposizione di esempi di programmazione aggregata originariamente realizzati in MIT-Proto
-verso il linguaggio Collektive.
+In questo capitolo si analizza la trasposizione di una selezione di programmi aggregati originariamente sviluppati in Proto (\ref{sec:mitproto}) verso il linguaggio Collektive (\ref{sec:collektive}).
 %
-Per ciascun esempio, vengono forniti: il codice originale, una spiegazione del suo funzionamento, 
-la trasposizione in Collektive e alcune immagini relative alle simulazioni condotte.
-% 
-Le simulazioni sono state eseguite utilizzando il simulatore Alchemist \cite{alchemist}.
+Per ciascun esempio vengono presentati: il codice sorgente originale, una descrizione dettagliata del funzionamento, la corrispondente implementazione in Collektive e immagini delle simulazioni implementate all'interno del simulatore Alchemist \cite{alchemist}.
 %
-Verranno discussi i seguenti esempi:
+I programmi selezionati sono i seguenti:
+%
 \begin{enumerate}
     \item Media Locale (\cref{sec:localaverage})
     \item Nel Cerchio (\cref{sec:incircle})
@@ -780,6 +777,7 @@ Verranno discussi i seguenti esempi:
 
 \paragraph{Obiettivo} Calcolare la media dei vettori presenti nel vicinato.
 
+% TODO (Richiede in ingresso il vettore v del dispositivo corrente)
 \paragraph{Codice originale} \texttt{local-average} (\cref{lst:localaverage}) richiede come argomento un campo di vettori \texttt{v} \(\in \mathbb{R}^3\).
 %
 \lstinputlisting[
@@ -800,10 +798,12 @@ Il risultato del programma è quindi formalizzato come
     \texttt{local-average(v)} = \frac{1}{\sum_{d \in N} 1} \cdot \sum_{d \in N} v(d)
 \], dove \(N\) rappresenta l'insieme dei dispositivi nel vicinato.
 
+% Aggiungere reference ai costrutti usati
 \paragraph{Trasposizione in Collektive}  Si sfrutta il costrutto \texttt{neighboring} per accedere ai vettori del vicinato e la funzione \texttt{fold} per aggregarli (\cref{lst:localaverageck}).
 
 In \cref{fig:local-average-simulation} si illustra la simulazione dell'esperimento, dove per ogni nodo viene calcolata la norma euclidea del vettore risultante dal programma.
 
+% TODO (Sostituire il link con il permalink, possible aggiunta di footnote)
 \lstinputlisting[
     language=Kotlin,
     label={lst:localaverageck},
@@ -813,7 +813,7 @@ In \cref{fig:local-average-simulation} si illustra la simulazione dell'esperimen
 \begin{figure}
     \centering
     \includegraphics[width=.8\linewidth]{figures/localAverageSimulation.pdf}
-    \caption{Simulazione dell'esperimento ``Media Locale'' in Alchemist.
+    \caption{Simulazione dell'esperimento in \cref{sec:localaverage}.
      I dispositivi inizializzano \texttt{v} casualmente e convergono verso il valore medio locale.
     Al vettore risultante viene applicata la norma euclidea per visualizzarlo come scalare.}
     \label{fig:local-average-simulation}
@@ -825,8 +825,10 @@ In \cref{fig:local-average-simulation} si illustra la simulazione dell'esperimen
 
 \paragraph{Obiettivo} Determinare se un dispositivo si trova all'interno della regione circolare di raggio \texttt{r} centrata su un dispositivo.
 
+% TODO (Richiede in ingresso un valore booleano che indica se il dispositivo è il centro del cerchio)
 \paragraph{Codice originale} La funzione \texttt{in-circle} (\cref{lst:incircle}) richiede in input un campo booleano \texttt{o}, che identifica il nodo utilizzato come origine del cerchio, e un raggio \texttt{r}.
-%
+
+% TODO (Permalink)
 \lstinputlisting[
     language=Lisp,
     label={lst:incircle},
@@ -838,6 +840,7 @@ depositando il risultato nella variabile \texttt{dv}.
 %
 Successivamente, l'espressione \texttt{(< (probe (vdot dv dv) 0) (* r r))}  verifica che il prodotto scalare di \texttt{dv} con sè stesso sia inferiore al quadrato del raggio \texttt{r}, restituendo un valore booleano   che indica l'appartenenza al cerchio.
 
+% TODO (Aggiungere giuste reference, far vedere la funzione distanceToSquared)
 \paragraph{Trasposizione in Collektive} Le coordinate del centro vengono condivise tramite la funzione \texttt{gradientCast} (\cref{lst:incircleck}).
 
 In \cref{fig:in-circle-simulation} è mostrata la simulazione dell'esperimento.
@@ -851,7 +854,7 @@ In \cref{fig:in-circle-simulation} è mostrata la simulazione dell'esperimento.
 \begin{figure}
     \centering
     \includegraphics[width=.8\linewidth]{figures/incircle.pdf}
-    \caption{Simulazione dell'esperimento ``InCircle'' in Alchemist.
+    \caption{Simulazione dell'esperimento in \cref{sec:incircle}.
     Il centro \texttt{o} è rappresentato dal dispositivo in verde, mentre i dispositivi
     all'interno del cerchio sono colorati in rosso.}
     \label{fig:in-circle-simulation}
@@ -863,14 +866,15 @@ In \cref{fig:in-circle-simulation} è mostrata la simulazione dell'esperimento.
 
 \paragraph{Obiettivo} Identificare i dispositivi disposti lungo un anello di raggio variabile.
 
+% TODO (Aggiungere in chap 2 la funzione sense)
 \paragraph{Codice originale} La funzione \texttt{ring} (\cref{lst:ring}) non prevede argomenti in ingresso, ma si avvale della funzione built-in \texttt{sense 1} per individuare i dispositivi che fungono da sorgente del segnale.
-%
+% TODO (Permalink)
 \lstinputlisting[
     language=Lisp,
     label={lst:ring},
     caption={\href{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/ring.proto}{ring.proto}}
 ]{listings/proto/ring.proto}
-%
+% TODO (Spiegare meglio quest'espressione)
 L'espressione 
 \[
 \texttt{(let ((t(probe (broadcast (sense 1) (if (sense 1) (timer) 0)) 0))))} 
@@ -893,6 +897,7 @@ L’anello si propaga come un’onda, originando dalla sorgente del segnale, com
 A scopo dimostrativo, è stato introdotto un comportamento periodico dell'onda, in modo tale che l'anello si formi e si dissolva ciclicamente nel tempo.
 
 \newpage
+% TODO (Permalink)
 \lstinputlisting[
     language=Kotlin,
     label={lst:ringck},
@@ -902,7 +907,7 @@ A scopo dimostrativo, è stato introdotto un comportamento periodico dell'onda, 
 \begin{figure}
     \centering
     \includegraphics[width=0.8\linewidth]{figures/ring.pdf}
-    \caption{Simulazione dell'esperimento ``Ring'' in Alchemist.
+    \caption{Simulazione dell'esperimento in \cref{lst:ring}.
     I dispositivi lungo l'anello sono colorati in verde, mentre gli altri sono colorati in blu.
     La simulazione è mostrata in quattro istanti temporali distinti, evidenziando il movimento dell'anello nel tempo.
     }
