@@ -778,14 +778,14 @@ I programmi selezionati sono i seguenti:
 \paragraph{Obiettivo} Calcolare la media dei vettori presenti nel vicinato.
 
 % TODO (Richiede in ingresso il vettore v del dispositivo corrente)
-\paragraph{Codice originale} \texttt{local-average} (\cref{lst:localaverage}) richiede come argomento un campo di vettori \texttt{v} \(\in \mathbb{R}^3\).
-%
+% filepath: /Users/andreacecchini/git/tesi/Tesi-Triennale-Andrea-Cecchini-2024-2025/thesis-main.tex
+\paragraph{Codice originale} La funzione \texttt{local-average} (\Cref{lst:localaverage}) accetta come parametro il vettore locale \texttt{v} del dispositivo, con \texttt{v} \(\in \mathbb{R}^3\).
+
 \lstinputlisting[
     language=Lisp,
     label={lst:localaverage},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/local-average.proto}{local-average.proto}}
+    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/c6ba89d9fb1c3f4e68bd9ecd60540f429a77fa4f/proto/demos/local-average.proto\#L1-L2}{local-average.proto}}
 ]{listings/proto/local-average.proto}
-%
 %
 L'espressione complessiva è definita come il prodotto (\texttt{*}) di due termini distinti.
 %
@@ -799,23 +799,23 @@ Il risultato del programma è quindi formalizzato come
 \], dove \(N\) rappresenta l'insieme dei dispositivi nel vicinato.
 
 % Aggiungere reference ai costrutti usati
-\paragraph{Trasposizione in Collektive}  Si sfrutta il costrutto \texttt{neighboring} per accedere ai vettori del vicinato e la funzione \texttt{fold} per aggregarli (\cref{lst:localaverageck}).
-
-In \cref{fig:local-average-simulation} si illustra la simulazione dell'esperimento, dove per ogni nodo viene calcolata la norma euclidea del vettore risultante dal programma.
+\paragraph{Trasposizione in Collektive} (\Cref{lst:localaverageck}) La trasposizione utilizza il costrutto \texttt{neighboring} (\ref{lst:collektivenbr}) per raccogliere i vettori locali dei dispositivi nel vicinato, sommandoli tramite la funzione \texttt{fold} (\ref{lst:collapsefold}); la media viene infine ottenuta dividendo la somma per il numero di dispositivi, ottenuto tramite la proprietà \texttt{size}.
 
 % TODO (Sostituire il link con il permalink, possible aggiunta di footnote)
 \lstinputlisting[
     language=Kotlin,
     label={lst:localaverageck},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/localAverage/LocalAverage.kt}{LocalAverage.kt}}
+    caption={\href{https://github.com/Collektive/collektive-examples/blob/9e4fd2ac52c2ebdd1f88a152eeafa916881d2faf/simulation/src/main/kotlin/it/unibo/collektive/examples/localAverage/LocalAverage.kt\#L27-L34}{LocalAverage.kt}}
 ]{listings/collektive/localAverage.kt}
+
+In \cref{fig:local-average-simulation} si illustra la simulazione dell'esperimento, dove per ogni nodo viene calcolata la norma euclidea del vettore risultante dal programma.
 
 \begin{figure}
     \centering
     \includegraphics[width=.8\linewidth]{figures/localAverageSimulation.pdf}
     \caption{Simulazione dell'esperimento in \cref{sec:localaverage}.
      I dispositivi inizializzano \texttt{v} casualmente e convergono verso il valore medio locale.
-    Al vettore risultante viene applicata la norma euclidea per visualizzarlo come scalare.}
+     Il colore dei nodi dipende dalla norma euclidea del vettore calcolato, il cui intensità è indicata a fianco.}
     \label{fig:local-average-simulation}
 \end{figure}
 
