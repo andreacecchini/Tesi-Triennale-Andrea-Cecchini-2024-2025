@@ -865,10 +865,10 @@ In \cref{fig:in-circle-simulation} è riportata la simulazione dell'esperimento,
 \section{Anello}
 \label{sec:ring}
 
-\paragraph{Obiettivo} Identificare i dispositivi disposti lungo un anello di raggio variabile.
+\paragraph{Obiettivo} Identificare i dispositivi disposti lungo un anello di raggio variabile nel tempo.
 
 % TODO (Aggiungere in chap 2 la funzione sense)
-\paragraph{Codice originale} La funzione \texttt{ring} (\cref{lst:ring}) non prevede argomenti in ingresso, ma si avvale della funzione built-in \texttt{sense 1} per individuare i dispositivi che fungono da sorgente del segnale.
+\paragraph{Codice originale} La funzione \texttt{ring} (\Cref{lst:ring}) non prevede argomenti in ingresso, ma si avvale della funzione built-in \texttt{sense 1} per individuare i dispositivi che fungono da sorgente del segnale.
 % TODO (Permalink)
 \lstinputlisting[
     language=Lisp,
@@ -876,29 +876,27 @@ In \cref{fig:in-circle-simulation} è riportata la simulazione dell'esperimento,
     caption={\href{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/ring.proto}{ring.proto}}
 ]{listings/proto/ring.proto}
 % TODO (Spiegare meglio quest'espressione)
-L'espressione 
+L'espressione \texttt{(let (\dots))} si compone di due parti principali. La prima,
 \[
-\texttt{(let ((t(probe (broadcast (sense 1) (if (sense 1) (timer) 0)) 0))))} 
+\texttt{((t(probe (broadcast (sense 1) (if (sense 1) (timer) 0)) 0)))} 
 \]
-
-calcola il tempo trascorso dall’ultima attivazione della sorgente, ne propaga il valore attraverso la rete, e ogni nodo assegna il risultato alla variabile \texttt{t}.
+% 
+, propaga il valore del \texttt{timer} dalle sorgenti del segnale, assegnando a ciascun dispositivo il valore proveniente da quella più prossima e memorizzandolo nella variabile \texttt{t}.
 %
-L'istruzione \texttt{(d (probe (gradient (sense 1)) 1))} calcola la distanza dalla sorgente più vicina, memorizzandola nella variabile \texttt{d}.
+La seconda parte, \texttt{(d (probe (gradient (sense 1)) 1))}, calcola la distanza dalla sorgente più vicina, attribuendola alla variabile \texttt{d}.
 %
 Infine, l'espressione \texttt{(if (< (abs (- (* 5 t) d)) 4) (green 1) (blue 1))}
-verifica se la distanza \texttt{d} sia minore di \(4\) unità dalla posizione dell'anello,
+verifica che \texttt{d} sia minore di \(4\) unità rispetto alla posizione dell'anello,
 che si muove con una velocità di \(5\) unità al secondo.
 %
-Se il dispositivo si trova ad una distanza inferiore a \(4\) unità dall'anello,
-viene colorato di verde; altrimenti, di blu.
+Se la condizione è soddisfatta, il dispositivo viene colorato di verde; altrimenti, di blu.
 
-\paragraph{Trasposizione in Collektive} La propagazione del tempo dalla sorgente viene effettuata tramite la funzione \texttt{gradientCast} (\cref{lst:ringck}), mentre la distanza dalla sorgente viene calcolata tramite la funzione \texttt{distanceTo}. 
+\paragraph{Trasposizione in Collektive} (\Cref{lst:ringck}) 
+La propagazione del valore del timer dalle sorgenti è realizzata tramite la funzione \texttt{gradientCast} (\ref{lst:gradientcast}), mentre la funzione \texttt{distanceTo} (\ref{lst:distanceto}) consente di determinare, per ciascun dispositivo, la distanza rispetto alla sorgente più prossima.
 
-L’anello si propaga come un’onda, originando dalla sorgente del segnale, come illustrato in \cref{fig:ring-simulation}.
-A scopo dimostrativo, è stato introdotto un comportamento periodico dell'onda, in modo tale che l'anello si formi e si dissolva ciclicamente nel tempo.
+L’anello si propaga come un’onda, originata dalla sorgente, come illustrato in \cref{fig:ring-simulation}.
+Per evitare che la simulazione si concluda subito dopo la prima propagazione, è stata introdotta una dinamica periodica che permette all’anello di formarsi e dissolversi ciclicamente nel tempo.
 
-\newpage
-% TODO (Permalink)
 \lstinputlisting[
     language=Kotlin,
     label={lst:ringck},
