@@ -919,28 +919,25 @@ Per evitare che la simulazione si concluda subito dopo la prima propagazione, è
 
 \paragraph{Obiettivo} Simulare la diffusione del calore in un’area, considerando la presenza simultanea di sorgenti di calore e di freddo.
 
-\paragraph{Codice originale} La funzione \texttt{temperature} (\cref{lst:temperature}) non accetta argomenti.
+\paragraph{Codice originale} La funzione \texttt{temperature} (\Cref{lst:temperature}) non accetta argomenti.
 Un dispositivo è una sorgente di calore se il suo identificatore \texttt{mid} è minore di \(6\) ed è pari,
 mentre è una sorgente di freddo se \texttt{mid} è minore di \(6\) ma dispari.
 %
 \lstinputlisting[
     language=Lisp,
     label={lst:temperature},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/temperature.proto}{temperature.proto}}
+    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/c6ba89d9fb1c3f4e68bd9ecd60540f429a77fa4f/proto/demos/temperature.proto\#L4-L7}{temperature.proto}}
 ]{listings/proto/temperature.proto}
 %
-L'istruzione \texttt{( rep temp 25 ( mux hot 30 ( mux cold 20 (/ (int-hood(nbr temp))(int-hood 1)))))} modella l'evoluzione del campo di temperatura nello spazio e nel tempo.
+L'istruzione \texttt{( rep temp 25 ( mux hot 30 ( mux cold 20 (/ (sum-hood(nbr temp))(sum-hood 1)))))} modella l'evoluzione del campo di temperatura nello spazio e nel tempo.
 %
 Inizialmente, ogni dispositivo imposta la propria temperatura a \(25\) gradi (\texttt{rep temp 25 ...}).
 %
-La temperatura viene quindi aggiornata ad ogni round in base al ruolo del dispositivo:
-se è una sorgente di calore, la temperatura viene impostata a \(30\) gradi (\texttt{mux hot 30 \dots});
-se è una sorgente di freddo, la temperatura viene impostata a \(20\) gradi (\texttt{mux cold 20 \dots});
-altrimenti, la temperatura viene calcolata come la media delle temperature del vicinato (\texttt{(/ (int-hood(nbr temp))(int-hood 1))}).
+Il valore della temperatura viene aggiornato a ogni round in base al ruolo del dispositivo: se il nodo agisce come sorgente di calore, viene impostato a \(30\) gradi (\texttt{mux hot 30 \dots}); se invece funge da sorgente di freddo, viene fissato a \(20\) gradi (\texttt{mux cold 20 \dots}); in tutti gli altri casi, si assume la media delle temperature rilevate nel vicinato (\texttt{(/ (sum-hood(nbr temp))(sum-hood 1))}).
 
-\paragraph{Trasposizione in Collektive} L'evoluzione nello spazio e nel tempo della temperature è modellata tramite l'operatore \texttt{share} (\cref{lst:temperatureck}).
+\paragraph{Trasposizione in Collektive} (\Cref{lst:temperatureck}) L'evoluzione spazio-temporale della temperature è modellata tramite l'operatore \texttt{share} (\ref{sec:collektiveshare}).
 
-In \cref{fig:temperature-simulation} è mostrata una simulazione dell'esperimento.
+In \cref{fig:temperature-simulation} è riportata una simulazione dell'esperimento, in cui i dispositivi che agiscono come sorgenti di calore sono evidenziati da un rettangolo rosso, mentre quelli che fungono da sorgenti di freddo sono evidenziati da un rettangolo blu. Il colore di ciascun dispositivo rappresenta la temperatura locale, secondo una scala cromatica che va dal nero (freddo) al rosso (caldo).
 
 
 
@@ -949,7 +946,7 @@ In \cref{fig:temperature-simulation} è mostrata una simulazione dell'esperiment
 \lstinputlisting[
     language=Kotlin,
     label={lst:temperatureck},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/temperature/Temperature.kt}{Temperature.kt}}
+    caption={\href{https://github.com/Collektive/collektive-examples/blob/9e4fd2ac52c2ebdd1f88a152eeafa916881d2faf/simulation/src/main/kotlin/it/unibo/collektive/examples/temperature/Temperature.kt\#L18-L35}{Temperature.kt}}
 ]{listings/collektive/Temperature.kt}
 
 \begin{figure}
