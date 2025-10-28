@@ -1,49 +1,4 @@
 /**
- * Check whenever the current node is on the path from [source] to destination.
- * [toDestination] is the distance to the destination.
- */
-fun Aggregate<Int>.shortestPath(source: Boolean, toDestination: Double): Boolean = share(false) { nbrIsPath ->
-    val minId = neighboring(toDestination).all.minBy { (_, value) -> value }.id
-    val isOnShortestPath = neighboring(minId)
-        .mapValues { it == localId }.and(nbrIsPath)
-        .all
-        .any { (_, value) -> value }
-    when {
-        source -> true
-        else -> isOnShortestPath
-    }
-}
-
-/**
- * Connect [source] to [destination] using the given [metric] to measure distances
- * and [neighborDirectionVectors] to get the direction to each neighbor.
- * This function computes the direction of the next hop on the path from [source] to [destination].
- * If the current node is not on the path from [source] to [destination], return the zero vector.
- */
-fun Aggregate<Int>.connect(
-    source: Boolean,
-    destination: Boolean,
-    metric: () -> Field<Int, Double>,
-    neighborDirectionVectors: () -> Field<Int, Vector2D>,
-): Vector2D {
-    val toDestination = distanceTo(destination, metric())
-    val isOnShortestPath = shortestPath(source, toDestination)
-    return when {
-        isOnShortestPath -> {
-            val neighborDistances = neighboring(toDestination)
-            val minNeighborhoodDistance = neighborDistances.all.valueOfMinBy { (_, dist) -> dist }
-            neighborDirectionVectors()
-                .alignedMapValues(neighborDistances) { dir, dist ->
-                    if (dist == minNeighborhoodDistance) dir else vectorZero
-                }
-                .all
-                .fold(vectorZero) { acc, (_, v) -> acc + v }
-        }
-        else -> vectorZero
-    }
-}
-
-/**
  * Wire the source and the destination with connections to the next hop on the shortest path, avoiding obstacles.
  */
 fun Aggregate<Int>.wire(collektiveDevice: CollektiveDevice<*>, env: EnvironmentVariables): Unit =

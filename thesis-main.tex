@@ -755,7 +755,7 @@ Infine, sono disponibili un insieme di varianti delle funzioni \texttt{min} e \t
 
 In questo capitolo si analizza la trasposizione di una selezione di programmi aggregati originariamente sviluppati in Proto (\ref{sec:mitproto}) verso il linguaggio Collektive (\ref{sec:collektive}).
 %
-Per ciascun esempio vengono presentati: il codice sorgente originale, una descrizione dettagliata del funzionamento, la corrispondente implementazione in Collektive e immagini delle simulazioni implementate all'interno del simulatore Alchemist \cite{alchemist}.
+Per ciascuno vengono presentati: il codice sorgente originale, una descrizione dettagliata del funzionamento, la corrispondente implementazione in Collektive e immagini delle simulazioni implementate all'interno del simulatore Alchemist \cite{alchemist}.
 %
 I programmi selezionati sono i seguenti:
 %
@@ -784,7 +784,7 @@ I programmi selezionati sono i seguenti:
 \lstinputlisting[
     language=Lisp,
     label={lst:localaverage},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/c6ba89d9fb1c3f4e68bd9ecd60540f429a77fa4f/proto/demos/local-average.proto\#L1-L2}{local-average.proto}}
+    caption={Codice della funzione \texttt{local-average} in Proto.}
 ]{listings/proto/local-average.proto}
 %
 L'espressione complessiva è definita come il prodotto (\texttt{*}) di due termini distinti.
@@ -799,13 +799,13 @@ Il risultato del programma è quindi formalizzato come
 \], dove \(N\) rappresenta l'insieme dei dispositivi nel vicinato.
 
 % Aggiungere reference ai costrutti usati
-\paragraph{Trasposizione in Collektive} (\Cref{lst:localaverageck}) La trasposizione utilizza il costrutto \texttt{neighboring} (\ref{lst:collektivenbr}) per raccogliere i vettori locali dei dispositivi nel vicinato, sommandoli tramite la funzione \texttt{fold} (\ref{lst:collapsefold}); la media viene infine ottenuta dividendo la somma per il numero di dispositivi, ottenuto tramite la proprietà \texttt{size}.
+\paragraph{Trasposizione in Collektive} (\Cref{lst:localaverageck}) La trasposizione utilizza il costrutto \texttt{neighboring} (\ref{lst:collektivenbr}) per raccogliere i vettori locali dei dispositivi nel vicinato, sommandoli tramite la funzione \texttt{fold} (\ref{lst:collapsefold}); la media viene infine divisa la somma per il numero di dispositivi, ottenuto grazie alla proprietà \texttt{size}.
 
 % TODO (Sostituire il link con il permalink, possible aggiunta di footnote)
 \lstinputlisting[
     language=Kotlin,
     label={lst:localaverageck},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/9e4fd2ac52c2ebdd1f88a152eeafa916881d2faf/simulation/src/main/kotlin/it/unibo/collektive/examples/localAverage/LocalAverage.kt\#L27-L34}{LocalAverage.kt}}
+    caption={Codice della funzione \texttt{localAverage} in Collektive.}
 ]{listings/collektive/localAverage.kt}
 
 In \cref{fig:local-average-simulation} si illustra la simulazione dell'esperimento, dove per ogni nodo viene calcolata la norma euclidea del vettore risultante dal programma.
@@ -832,7 +832,7 @@ In \cref{fig:local-average-simulation} si illustra la simulazione dell'esperimen
 \lstinputlisting[
     language=Lisp,
     label={lst:incircle},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/c6ba89d9fb1c3f4e68bd9ecd60540f429a77fa4f/proto/demos/in-circle.proto\#L1-L3}{in-circle.proto}}
+    caption={Codice della funzione \texttt{in-circle} in Proto.}
 ]{listings/proto/in-circle.proto}
 %
 L'istruzione \texttt{let ((dv (- (probe (coord) 1) o)))} calcola la differenza tra le coordinate del dispositivo corrente e quelle del nodo centrale, 
@@ -849,7 +849,7 @@ In \cref{fig:in-circle-simulation} è riportata la simulazione dell'esperimento,
 \lstinputlisting[
     language=Kotlin,
     label={lst:incircleck},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/9e4fd2ac52c2ebdd1f88a152eeafa916881d2faf/simulation/src/main/kotlin/it/unibo/collektive/examples/inCircle/InCircle.kt\#L26-L39}{InCircle.kt}}
+    caption={Trasposizione della funzione \texttt{in-circle} (\ref{lst:incircle}) in Collektive.}
 ]{listings/collektive/inCircle.kt}
 
 \begin{figure}
@@ -873,7 +873,7 @@ In \cref{fig:in-circle-simulation} è riportata la simulazione dell'esperimento,
 \lstinputlisting[
     language=Lisp,
     label={lst:ring},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/ring.proto}{ring.proto}}
+    caption={Codice della funzione \texttt{ring} in Proto.}
 ]{listings/proto/ring.proto}
 % TODO (Spiegare meglio quest'espressione)
 L'espressione \texttt{(let (\dots))} si compone di due parti principali. La prima,
@@ -900,7 +900,7 @@ Per evitare che la simulazione si concluda subito dopo la prima propagazione, è
 \lstinputlisting[
     language=Kotlin,
     label={lst:ringck},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/ring/Ring.kt}{Ring.kt}}
+    caption={Trasposizione della funzione \texttt{ring} (\ref{lst:ring}) in Collektive.}
 ]{listings/collektive/Ring.kt}
 
 \begin{figure}
@@ -926,7 +926,7 @@ mentre è una sorgente di freddo se \texttt{mid} è minore di \(6\) ma dispari.
 \lstinputlisting[
     language=Lisp,
     label={lst:temperature},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/c6ba89d9fb1c3f4e68bd9ecd60540f429a77fa4f/proto/demos/temperature.proto\#L4-L7}{temperature.proto}}
+    caption={Codice della funzione \texttt{temperature} in Proto.}
 ]{listings/proto/temperature.proto}
 %
 L'istruzione \texttt{( rep temp 25 ( mux hot 30 ( mux cold 20 (/ (sum-hood(nbr temp))(sum-hood 1)))))} modella l'evoluzione del campo di temperatura nello spazio e nel tempo.
@@ -946,7 +946,7 @@ In \cref{fig:temperature-simulation} è riportata una simulazione dell'esperimen
 \lstinputlisting[
     language=Kotlin,
     label={lst:temperatureck},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/9e4fd2ac52c2ebdd1f88a152eeafa916881d2faf/simulation/src/main/kotlin/it/unibo/collektive/examples/temperature/Temperature.kt\#L18-L35}{Temperature.kt}}
+    caption={Trasposizione della funzione \texttt{temperature} (\ref{lst:temperature}) in Collektive.}
 ]{listings/collektive/Temperature.kt}
 
 \begin{figure}
@@ -973,7 +973,7 @@ In \cref{fig:temperature-simulation} è riportata una simulazione dell'esperimen
 \lstinputlisting[
     language=Lisp,
     label={lst:navgrad},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/c6ba89d9fb1c3f4e68bd9ecd60540f429a77fa4f/proto/demos/nav-grad.proto\#L1-L15}{nav-grad.proto}}
+    caption={Codice Proto per l'esperimento di navigazione del gradiente, comprendente le funzioni \texttt{grad}, \texttt{share-distance-to} e \texttt{nav-grad}.}
 ]{listings/proto/nav-grad.proto}
 
 \texttt{grad} calcola il gradiente di un campo di valori scalari \texttt{v}, restituendo un vettore che indica la direzione del massimo decremento di quel campo.
@@ -1017,20 +1017,20 @@ In \Cref{lst:navgradck} si mostra la trasposizione della funzione \texttt{nav-gr
 \lstinputlisting[
     language=Kotlin,
     label={lst:gradck},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/9e4fd2ac52c2ebdd1f88a152eeafa916881d2faf/simulation/src/main/kotlin/it/unibo/collektive/examples/navGrad/NavGrad.kt\#L90-L114}{Funzione \texttt{grad} in NavGrad.kt}}
+    caption={Trasposizione della funzione \texttt{grad} (\ref{lst:navgrad}) in Collektive.}
 ]{listings/collektive/Grad.kt}
 
 \lstinputlisting[
     language=Kotlin,
     label={lst:sharedistancetock},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/9e4fd2ac52c2ebdd1f88a152eeafa916881d2faf/simulation/src/main/kotlin/it/unibo/collektive/examples/navGrad/NavGrad.kt\#L66-L88}{Funzione \texttt{shareDistanceTo} in NavGrad.kt}}
+    caption={Trasposizione della funzione \texttt{share-distance-to} (\ref{lst:navgrad}) in Collektive.}
 ]{listings/collektive/ShareDistanceTo.kt}
 
 \newpage
 \lstinputlisting[
     language=Kotlin,
     label={lst:navgradck},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/9e4fd2ac52c2ebdd1f88a152eeafa916881d2faf/simulation/src/main/kotlin/it/unibo/collektive/examples/navGrad/NavGrad.kt\#L43-L64}{Funzione \texttt{navGrad} in NavGrad.kt}}
+    caption={Trasposizione della funzione \texttt{nav-grad} (\ref{lst:navgrad}) in Collektive.}
 ]{listings/collektive/NavGrad.kt}
 
 % filepath: /Users/andreacecchini/git/tesi/Tesi-Triennale-Andrea-Cecchini-2024-2025/thesis-main.tex
@@ -1056,17 +1056,19 @@ Un insieme di dispositivi è designato come sorgenti.
 %
 Ogni altro nodo determina a quale sorgente è più vicino, suddividendo di fatto lo spazio della rete in celle. 
 %
-Ogni cella, bordo e vertice è rappresentato con un colore diverso per visualizzare la struttura risultante.
+Il dispositivo è classificato in base alla sua posizione: in una cella, su un bordo (tra due celle) o come vertice (all'intersezione di almeno tre celle).
+%
+La colorazione dei nodi riflette questa classificazione.
 
-\paragraph{Codice originale} Il programma (\cref{lst:voronoi}) accetta due campi booleani come argomenti: \texttt{src}, che definisce l'insieme dei dispositivi generatori delle celle, e \texttt{showedge}, un flag che abilita la visualizzazione dei bordi.
+\paragraph{Codice originale} Il programma (\cref{lst:voronoi}) richiede in ingresso due valori booleani: \texttt{src}, che definisce l'insieme dei dispositivi generatori delle celle, e \texttt{showedge}, un flag che abilita la visualizzazione dei bordi.
 %
 \lstinputlisting[
     language=Lisp,
     label={lst:voronoi},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/voronoi.proto}{voronoi.proto}}
+    caption={Codice della funzione \texttt{voronoi} in Proto.}
 ]{listings/proto/voronoi.proto}
 %
-Si definiscono tre variabili:
+Tramite il costrutto \texttt{let}, vengono definite tre variabili in modo sequenziale:
 \begin{itemize}
     \item \texttt{closest-src}: identificatore del dispositivo sorgente più vicino, sfruttando la funzione \texttt{broardcast src (mid)}.
     \item \texttt{edge}: indica se il dispositivo corrente si trova su un bordo tra due celle, verificando se ha almeno un vicino (\texttt{any-hood}) la cui sorgente più vicina (\texttt{nbr closest-src}) è diversa dalla propria (\texttt{closest-src}).
@@ -1077,33 +1079,22 @@ Se il flag \texttt{showedge} è attivo, i dispositivi vengono colorati in base a
 %
 La funzione restituisce la coppia \texttt{(tup closest-src edge)}.
 
-\paragraph{Trasposizione in Collektive - \Cref{lst:voronoick}} La determinazione della sorgente più vicina avviene tramite la funzione \texttt{multigradient(\dots)} (\cref{lst:multigradientck}), la quale sfrutta l’implementazione della funzione \texttt{multiGradientCast(\dots)} presente nella libreria standard di Collektive. 
-%
-Ogni dispositivo viene a conoscenza delle sorgenti nella rete e seleziona quella più vicina.
+\paragraph{Trasposizione in Collektive} (\Cref{lst:voronoick}) L'identificatore della sorgente più vicina è determinato dalla funzione \texttt{gradientCast} (\ref{lst:gradientcast}), la cui natura assicura che ogni dispositivo ottenga il valore della sorgente più prossima.
 
-I vicini poi la condividono tramite l'operatore
-\texttt{neighboring}, in modo che ogni nodo possa controllare quante sorgenti diverse sono presenti nel vicinato, al fine di determinare se si trova su un bordo o su un vertice.
+I vicini condividono il valore calcolato tramite \texttt{neighboring} (\ref{lst:collektivenbr}), permettendo a ogni nodo di contare il numero di sorgenti diverse nel vicinato, determinando così la propria classificazione.
 %
 Se \texttt{distinctSources >= 3}, il dispositivo è un vertice; se \texttt{distinctSources == 2}, è su un bordo.
 
-In questa traduzione, il programma non restituisce la coppia \texttt{(closest-src edge)}, bensì si limita a restituire il colore associato al dispositivo: non vi è nessuna perdita di informazione in quanto il colore codifica sia la cella di appartenenza, sia se il dispositivo è su un bordo.
-
-In \cref{fig:voronoi-simulation} è mostrata una simulazione dell'esperimento.
+In questa traduzione, il programma non restituisce la coppia \texttt{(closest-src edge)}, bensì si limita a restituire il colore (\ref{fig:voronoi-simulation}) associato al dispositivo: non vi è nessuna perdita di informazione in quanto il colore codifica sia la cella di appartenenza, sia se il dispositivo è su un bordo.
 
 \newpage
 \lstinputlisting[
     language=Kotlin,
     label={lst:voronoick},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/voronoi/Voronoi.kt}{Voronoi.kt}}
+    caption={Trasposizione della funzione \texttt{voronoi} (\ref{lst:voronoi}) in Collektive.}
 ]{listings/collektive/Voronoi.kt}
 
 \newpage
-\lstinputlisting[
-    language=Kotlin,
-    label={lst:multigradientck},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/multiGradient/MultiGradient.kt}{MultiGradient.kt}. Questa funzione è stata implementata da Luca Marchi per realizzare la simulazione MultiGradient.}
-]{listings/collektive/Multigradient.kt}
-
 \begin{figure}
     \centering
     \includegraphics[width=.8\linewidth]{figures/voronoi.pdf}
@@ -1144,7 +1135,7 @@ La funzione restituisce \texttt{ispath}.
 \lstinputlisting[
     language=Lisp,
     label={lst:spath},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/spath.proto}{spath.proto}}
+    caption={Codice della funzione \texttt{spath} in Proto.}
 ]{listings/proto/spath.proto}
 
 La funzione \texttt{connect} (\cref{lst:connect}) stabilisce il collegamento logico tra sorgente (\texttt{src}) e destinazione (\texttt{dest}), computando un vettore di connessione che indica il prossimo dispositivo lungo l'albero di percorso minimo.
@@ -1158,7 +1149,7 @@ Se tale condizione è verificata, l'espressione \texttt{mux \dots} restituisce i
 \lstinputlisting[
     language=Lisp,
     label={lst:connect},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/connect.proto}{connect.proto}}
+    caption={Codice della funzione \texttt{connect} in Proto.}
 ]{listings/proto/connect.proto}
 
 La funzione \texttt{wire} (\cref{lst:wire}) invoca \texttt{connect} solo per i nodi che non hanno un ostacolo vicino (\texttt{near-obst}) e che non siano né la sorgente né la destinazione (\texttt{(and (not src) (not dest))}).
@@ -1166,7 +1157,7 @@ La funzione \texttt{wire} (\cref{lst:wire}) invoca \texttt{connect} solo per i n
 \lstinputlisting[
     language=Lisp,
     label={lst:wire},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/wire.proto}{wire.proto}}
+    caption={Codice della funzione \texttt{wire} in Proto.}
 ]{listings/proto/wire.proto}
 
 
@@ -1177,10 +1168,23 @@ Si evidenzia l'utilizzo dell'operatore \texttt{share} per modellare lo stato di 
 In \cref{fig:wire-simulation} è mostrata la simulazione dell'esperimento.
 
 \newpage
+
 \lstinputlisting[
     language=Kotlin,
     label={lst:wireck},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/wire/Wire.kt}{Wire.kt}}
+    caption={Trasposizione della funzione \texttt{spath} (\ref{lst:spath}) in Collektive.}
+]{listings/collektive/ShortestPath.kt}
+
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:wireck},
+    caption={Trasposizione della funzione \texttt{connect} (\ref{lst:connect}) in Collektive.}
+]{listings/collektive/Connect.kt}
+
+\lstinputlisting[
+    language=Kotlin,
+    label={lst:wireck},
+    caption={Trasposizione della funzione \texttt{wire} (\ref{lst:wire}) in Collektive.}
 ]{listings/collektive/Wire.kt}
 
 
@@ -1214,7 +1218,8 @@ Nella funzione \texttt{track}, \texttt{target} sfrutta il canale di comunicazion
 \lstinputlisting[
     language=Lisp,
     label={lst:track},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/track-demo.proto}{track-demo.proto}}
+    caption={Codice Proto per l’esperimento di navigazione del gradiente,
+comprendente le funzioni \texttt{channel} e \texttt{track}.}
 ]{listings/proto/track.proto}
 
 \paragraph{Trasposizione in Collektive} È stata riutilizzata l'implementazione di \texttt{channel} (\cref{lst:channelck}), usata nella simulazione \href{https://github.com/Collektive/collektive-examples/blob/fc511935fa0cce9116cd6bb8e00088443c2cd506/simulation/src/main/kotlin/it/unibo/collektive/examples/channel/ChannelWithObstacles.kt#L28C1-L44}{ChannelWithObstacle}.
@@ -1224,13 +1229,13 @@ La propagazione delle coordinate del nodo \textit{target} all'interno della funz
 \lstinputlisting[
     language=Kotlin,
     label={lst:trackck},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/track-demo.proto}{Track.kt}}
+    caption={Trasposizione della funzione \texttt{track} (\ref{lst:track}) in Collektive.}
 ]{listings/collektive/Track.kt}
 
 \lstinputlisting[
     language=Kotlin,
     label={lst:channelck},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/track-demo.proto}{Channel.kt}}
+    caption={Funzione \texttt{channel} tratta dall'esperimento \href{https://github.com/Collektive/collektive-examples/blob/fc511935fa0cce9116cd6bb8e00088443c2cd506/simulation/src/main/kotlin/it/unibo/collektive/examples/channel/ChannelWithObstacles.kt\#L28C1-L44}{ChannelWithObstacles}.}
 ]{listings/collektive/Channel.kt}
 
 \newpage
@@ -1252,7 +1257,7 @@ La direzione risultante è data dalla somma ponderata dei contributi di ciascun 
 \lstinputlisting[
     language=Lisp,
     label={lst:flock},
-    caption={\href{https://github.com/jakebeal/MIT-Proto/blob/master/proto/demos/flock.proto}{flock.proto}},
+    caption={Codice della funzione \texttt{flock} in Proto.}
 ]{listings/proto/flock.proto}
 %
 L'evoluzione temporale della velocità dei nodi è gestita dall'istruzione \texttt{(rep v (tup 0 0 0) \dots)}.
@@ -1282,13 +1287,13 @@ In \cref{fig:flock-simulation} è mostrata una simulazione dell'esperimento.
 \lstinputlisting[
     language=Kotlin,
     label={lst:flockck},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/flock/Flock.kt}{Flock.kt}}
-    ]{listings/collektive/Flock.kt}
+    caption={Trasposizione della funzione \texttt{flock} (\ref{lst:flock}) in Collektive.}
+]{listings/collektive/Flock.kt}
 
 \lstinputlisting[
     language=Kotlin,
     label={lst:inthoodck},
-    caption={\href{https://github.com/Collektive/collektive-examples/blob/master/simulation/src/main/kotlin/it/unibo/collektive/examples/flock/Flock.kt}{Flock.kt}}
+    caption={Supporto per la simulazione di \texttt{int-hood} in Collektive.}
     ]{listings/collektive/IntHood.kt}
 
 \begin{figure}

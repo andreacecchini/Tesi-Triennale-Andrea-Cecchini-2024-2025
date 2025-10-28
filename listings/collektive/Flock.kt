@@ -1,9 +1,5 @@
 /**
  * Implements flocking behavior.
- * Each device computes a new direction based on its initial direction [initialDirection]
- * (which points towards the origin if the device is a leader, or is zero otherwise),
- * the distance to its neighbors [neighborDistances],
- * and the directions pointing to its neighbors [neighborDirectionVectors].
  * The behavior is defined as follows:
  * - If a neighbor is closer than [CLOSE_NEIGHBOR_THRESHOLD] units, steer away from it.
  * - If a neighbor is farther than [FAR_NEIGHBOR_THRESHOLD] units, steer slightly towards it.
@@ -15,6 +11,7 @@ fun Aggregate<Int>.flock(
     neighborDistances: () -> Field<Int, Double>,
     neighborDirectionVectors: () -> Field<Int, Vector2D>,
 ): Vector2D = share(vectorZero) { neighborVelocities ->
+    val weights = neighboring(spatialWeight(CONNECTIVITY_RADIUS))
     val direction = neighborVelocities.alignedMapValues(
         neighborDistances(),
         neighborDirectionVectors(),
@@ -27,6 +24,6 @@ fun Aggregate<Int>.flock(
             // align if at a good distance
             else -> vel.normalize()
         }
-    }.sumWeightedNeighbors(neighboring(spatialWeight(CONNECTIVITY_RADIUS))).normalize()
+    }.sumWeightedNeighbors(weights).normalize()
     (initialDirection + if (direction vdot direction > 0) direction else neighborVelocities.local.value).normalize()
 }
