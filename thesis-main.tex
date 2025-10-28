@@ -1111,13 +1111,13 @@ In questa traduzione, il programma non restituisce la coppia \texttt{(closest-sr
 \section{Connessione lungo l'albero di percorso minimo}
 \label{sec:wire}
 
-\paragraph{Obiettivo} Stabilire un collegamento tra due dispositivi, passando per i nodi che appartengono al \ac{SPT} tra di essi.
+\paragraph{Obiettivo} Stabilire un collegamento tra due dispositivi identificando e attraversando i nodi che compongono l'albero dei cammini minimi (\ac{SPT}) che li collega.
 
 \paragraph{Codice originale} Il programma è costituito da tre funzioni: \texttt{spath}, \texttt{connect} e \texttt{wire}.
 
-La funzione \texttt{spath} (\cref{lst:spath}) determina l'\ac{SPT} tra una sorgente (\texttt{src}) e una destinazione (\texttt{dest}), sfruttando la distanza \texttt{d} di ciascun dispositivo rispetto alla destinazione.
+La funzione \texttt{spath} (\cref{lst:spath}) determina l'\ac{SPT} tra sorgente (\texttt{src}) e destinazione (\texttt{dest}), sfruttando la distanza \texttt{d} di ciascun dispositivo rispetto alla destinazione.
 
-In fase iniziale, viene definita la variabile \texttt{min-id}, la quale memorizza l'identificatore del vicino che presenta la distanza minima \texttt{d}, come espresso da: \texttt{(2nd (min-hood (tup (nbr d) (nbr (mid)))))}.
+In fase iniziale, viene definita la variabile \texttt{min-id}, la quale memorizza l'identificatore del vicino che presenta la distanza minima \texttt{d}, come espresso da \texttt{(2nd (min-hood (tup (nbr d) (nbr (mid)))))}.
 
 Successivamente, l'istruzione iterativa \texttt{(rep ispath \dots)} è utilizzata per mantenere traccia dei dispositivi che appartengono all'\ac{SPT}. La variabile \texttt{ispath} è inizializzata a \texttt{0} (\texttt{false}) e viene aggiornata a ogni round mediante l'espressione:
 \[
@@ -1161,9 +1161,23 @@ La funzione \texttt{wire} (\cref{lst:wire}) invoca \texttt{connect} solo per i n
 ]{listings/proto/wire.proto}
 
 
-\paragraph{Trasposizione in Collektive} Le tre funzioni in Collektive sono riportate in \cref{lst:wireck}.
+\paragraph{Trasposizione in Collektive} In \Cref{lst:spathck} è mostrata la trasposizione della funzione \texttt{spath}. 
+%
+Si utilizza il costrutto \texttt{share} (\ref{lst:collektiveshare}) per mantenere lo stato di appartenenza all'albero, condividendolo allo stesso tempo con i nodi adiacenti e ottenendo così una vista sul loro stato (\texttt{nbrIsPath}).
+%
+L'identificatore del vicino con distanza minima dalla destinazione si ottiene costruendo un \texttt{Field} che associa a ciascun nodo del vicinato la sua distanza (\texttt{neighboring(toDestination)} (\ref{lst:collektivenbr})), e selezionando poi l'identificatore corrispondente al valore minimo tramite \texttt{.minBy \{ (\_, value) -> value \}.id}.
+%
+Successivamente, si costruisce un \texttt{Field} di \texttt{minId}, che viene trasformato in un campo di valori booleani: il valore è \texttt{true} per i nodi il cui \texttt{minId} coincide con il proprio identificatore. Questo campo viene quindi combinato con \texttt{nbrIsPath} tramite un'operazione logica \texttt{and}; se almeno un nodo adiacente restituisce \texttt{true}, il dispositivo viene considerato parte dell'albero.
 
-Si evidenzia l'utilizzo dell'operatore \texttt{share} per modellare lo stato di appartenenza all'\ac{SPT}, in quanto l'aggiornamento di tale stato a livello locale richiede la verifica dell'appartenenza dei nodi vicini all'albero.
+La corrispondente implementazione di \texttt{connect} è riportata in \Cref{lst:connectck}.
+%
+Ogni nodo calcola la distanza dalla destinazione tramite la funzione \texttt{distanceTo} (\ref{lst:distanceto}) e verifica la propria appartenenza all'albero di percorso minimo invocando la funzione \texttt{shortestPath}.
+%
+Per calcolare il vettore di connessione, si combinano le distanze dei nodi adiacenti dalla destinazione (\texttt{neighborDistances}) con i rispettivi vettori direzionali (\texttt{neighborVectors}), considerando esclusivamente il contributo del nodo la cui distanza corrisponde al valore minimo rilevato nel vicinato.
+
+La trasposizione della funzione \texttt{wire} è mostrata in \Cref{lst:wireck}. 
+%
+La presenza di ostacoli nei dintorni viene rilevata costruendo un \texttt{Field} booleano tramite \texttt{neighboring(obstacle)} (\ref{lst:collektivenbr}) e verificando, con la funzione \texttt{any(\dots)}, se almeno uno dei nodi adiacenti rappresenta un ostacolo.
 
 In \cref{fig:wire-simulation} è mostrata la simulazione dell'esperimento.
 
@@ -1171,13 +1185,13 @@ In \cref{fig:wire-simulation} è mostrata la simulazione dell'esperimento.
 
 \lstinputlisting[
     language=Kotlin,
-    label={lst:wireck},
+    label={lst:spathck},
     caption={Trasposizione della funzione \texttt{spath} (\ref{lst:spath}) in Collektive.}
 ]{listings/collektive/ShortestPath.kt}
 
 \lstinputlisting[
     language=Kotlin,
-    label={lst:wireck},
+    label={lst:connectck},
     caption={Trasposizione della funzione \texttt{connect} (\ref{lst:connect}) in Collektive.}
 ]{listings/collektive/Connect.kt}
 
