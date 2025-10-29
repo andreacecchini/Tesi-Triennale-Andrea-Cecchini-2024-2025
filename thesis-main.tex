@@ -753,33 +753,23 @@ Infine, sono disponibili un insieme di varianti delle funzioni \texttt{min} e \t
 \label{chap:trasposizione}
 %----------------------------------------------------------------------------------------
 
-In questo capitolo si analizza la trasposizione di una selezione di programmi aggregati originariamente sviluppati in Proto (\ref{sec:mitproto}) verso il linguaggio Collektive (\ref{sec:collektive}).
+In questo capitolo si presenta la trasposizione di una selezione di programmi aggregati, originariamente sviluppati in Proto (\ref{sec:mitproto}), nel linguaggio Collektive (\ref{sec:collektive}).
 %
-Per ciascuno vengono presentati: il codice sorgente originale, una descrizione dettagliata del funzionamento, la corrispondente implementazione in Collektive e immagini delle simulazioni implementate all'interno del simulatore Alchemist \cite{alchemist}.
-%
-I programmi selezionati sono i seguenti:
-%
-\begin{enumerate}
-    \item Media Locale (\cref{sec:localaverage})
-    \item Nel Cerchio (\cref{sec:incircle})
-    \item Anello (\cref{sec:ring})
-    \item Temperature (\cref{sec:temperature})
-    \item Navigazione del Gradiente (\cref{sec:navgrad})
-    \item Partizionamento di Voronoi (\cref{sec:voronoi})
-    \item Connessione lungo l'albero di percorso minimo (\cref{sec:wire})
-    \item Tracciamento (\cref{sec:track})
-    \item Dinamica di uno stormo (\cref{sec:flock})
-\end{enumerate}
+Per ciascun programma vengono illustrati il codice sorgente originale, una descrizione dettagliata del funzionamento, la relativa implementazione in Collektive e le immagini delle simulazioni realizzate tramite il simulatore Alchemist \cite{alchemist}.
+
+Gli esempi selezionati comprendono: calcolo della media locale (\Cref{sec:localaverage}), verifica dell’appartenenza a una regione circolare (\Cref{sec:incircle}), identificazione dei dispositivi lungo un anello (\Cref{sec:ring}), diffusione della temperatura (\Cref{sec:temperature}), navigazione lungo la discesa del gradiente (\Cref{sec:navgrad}), partizionamento di Voronoi (\Cref{sec:voronoi}), connessione lungo l’albero di percorso minimo (\Cref{sec:wire}), tracciamento di un dispositivo (\Cref{sec:track}) e dinamica di uno stormo (\Cref{sec:flock}).
+
+Il codice sviluppato per questo lavoro è reso disponibile pubblicamente nel repository ufficiale degli esempi di Collektive\footnote{\url{https://github.com/Collektive/collektive-examples}}.
 
 \newpage
 \section{Media Locale}
 \label{sec:localaverage}
 
-\paragraph{Obiettivo} Calcolare la media dei vettori presenti nel vicinato.
+\paragraph{Obiettivo} Calcolare la media dei vettori nel vicinato.
 
 % TODO (Richiede in ingresso il vettore v del dispositivo corrente)
 % filepath: /Users/andreacecchini/git/tesi/Tesi-Triennale-Andrea-Cecchini-2024-2025/thesis-main.tex
-\paragraph{Codice originale} La funzione \texttt{local-average} (\Cref{lst:localaverage}) accetta come parametro il vettore locale \texttt{v} del dispositivo, con \texttt{v} \(\in \mathbb{R}^3\).
+\paragraph{Codice originale} La funzione \texttt{local-average} (\Cref{lst:localaverage}) presenta come parametro il vettore locale \texttt{v} del dispositivo, con \texttt{v} \(\in \mathbb{R}^3\).
 
 \lstinputlisting[
     language=Lisp,
@@ -799,7 +789,7 @@ Il risultato del programma è quindi formalizzato come
 \], dove \(N\) rappresenta l'insieme dei dispositivi nel vicinato.
 
 % Aggiungere reference ai costrutti usati
-\paragraph{Trasposizione in Collektive} (\Cref{lst:localaverageck}) La trasposizione utilizza il costrutto \texttt{neighboring} (\ref{lst:collektivenbr}) per raccogliere i vettori locali dei dispositivi nel vicinato, sommandoli tramite la funzione \texttt{fold} (\ref{lst:collapsefold}); la media viene infine divisa la somma per il numero di dispositivi, ottenuto grazie alla proprietà \texttt{size}.
+\paragraph{Trasposizione in Collektive} (\Cref{lst:localaverageck}) La raccolta dei vettori locali dei dispositivi nel vicinato avviene tramite il costrutto \texttt{neighboring} (\ref{lst:collektivenbr}); la loro somma viene calcolata con la funzione \texttt{fold} (\ref{lst:collapsefold}) e, infine, la media si ottiene dividendo tale somma per il numero di dispositivi, determinato tramite la proprietà \texttt{size}.
 
 % TODO (Sostituire il link con il permalink, possible aggiunta di footnote)
 \lstinputlisting[
@@ -823,10 +813,10 @@ In \cref{fig:local-average-simulation} si illustra la simulazione dell'esperimen
 \section{Nel Cerchio}
 \label{sec:incircle}
 
-\paragraph{Obiettivo} Stabilire l'appartenenza di un dispositivo a una regione circolare di raggio \texttt{r} centrata su un nodo.
+\paragraph{Obiettivo} Determinare se un dispositivo appartiene a una regione circolare, dati il centro e il raggio del cerchio.
 
 % TODO (Richiede in ingresso un valore booleano che indica se il dispositivo è il centro del cerchio)
-\paragraph{Codice originale} La funzione \texttt{in-circle} (\Cref{lst:incircle}) richiede in ingresso le coordinate del centro (\texttt{o}) e il raggio del cerchio (\texttt{r}).
+\paragraph{Codice originale} La funzione \texttt{in-circle} (\Cref{lst:incircle}) richiede in ingresso le coordinate (\texttt{o}) e il raggio (\texttt{r}) del cerchio.
 
 % TODO (Permalink)
 \lstinputlisting[
@@ -841,11 +831,10 @@ depositando il risultato nella variabile \texttt{dv}.
 Successivamente, l'espressione \texttt{(< (probe (vdot dv dv) 0) (* r r))}  verifica che il prodotto scalare di \texttt{dv} con sè stesso sia inferiore al quadrato del raggio \texttt{r}, restituendo un valore booleano   che indica l'appartenenza al cerchio.
 
 % TODO (Aggiungere giuste reference, far vedere la funzione distanceToSquared)
-\paragraph{Trasposizione in Collektive} (\Cref{lst:incircleck}) Le coordinate del nodo centrale vengono propagate agli altri dispositivi tramite la funzione \texttt{gradientCast} (\ref{lst:gradientcast}). 
+\paragraph{Trasposizione in Collektive} (\Cref{lst:incircleck}) La propagazione delle coordinate del nodo centrale è realizzata tramite la funzione \texttt{gradientCast} (\ref{lst:gradientcast}). 
 In seguito, si verifica che il quadrato della distanza tra il dispositivo corrente e il centro sia inferiore al quadrato del raggio.
 
-In \cref{fig:in-circle-simulation} è riportata la simulazione dell'esperimento, in cui il dispositivo che rappresenta il centro \texttt{o} è evidenziato in verde, mentre i dispositivi che ricadono all'interno della regione circolare di raggio \texttt{r} sono colorati in rosso.
-
+In \cref{fig:in-circle-simulation} è mostrata la simulazione dell'esperimento: il centro \texttt{o} è evidenziato in verde, mentre i dispositivi all'interno del cerchio sono colorati in rosso.
 \lstinputlisting[
     language=Kotlin,
     label={lst:incircleck},
@@ -867,35 +856,30 @@ In \cref{fig:in-circle-simulation} è riportata la simulazione dell'esperimento,
 
 \paragraph{Obiettivo} Identificare i dispositivi disposti lungo un anello di raggio variabile nel tempo.
 
-% TODO (Aggiungere in chap 2 la funzione sense)
-\paragraph{Codice originale} La funzione \texttt{ring} (\Cref{lst:ring}) non prevede argomenti in ingresso, ma si avvale della funzione built-in \texttt{sense 1} per individuare i dispositivi che fungono da sorgente del segnale.
-% TODO (Permalink)
+\paragraph{Codice originale} La funzione \texttt{ring} (\Cref{lst:ring}) non prevede argomenti in ingresso, ma si avvale della funzione \texttt{sense} per individuare i dispositivi che fungono da sorgente del segnale.
+%
 \lstinputlisting[
     language=Lisp,
     label={lst:ring},
     caption={Codice della funzione \texttt{ring} in Proto.}
 ]{listings/proto/ring.proto}
-% TODO (Spiegare meglio quest'espressione)
-L'espressione \texttt{(let (\dots))} si compone di due parti principali. La prima,
+%
+L'espressione \texttt{(let (\dots))} si articola in due componenti principali. La prima,
 \[
-\texttt{((t(probe (broadcast (sense 1) (if (sense 1) (timer) 0)) 0)))} 
+\texttt{((t (probe (broadcast (sense 1) (if (sense 1) (timer) 0)) 0)))}
 \]
-% 
-, propaga il valore del \texttt{timer} dalle sorgenti del segnale, assegnando a ciascun dispositivo il valore proveniente da quella più prossima e memorizzandolo nella variabile \texttt{t}.
+, propaga il valore del \texttt{timer} dalle sorgenti del segnale: ogni dispositivo riceve il valore dalla sorgente più vicina e lo memorizza nella variabile \texttt{t}.
 %
-La seconda parte, \texttt{(d (probe (gradient (sense 1)) 1))}, calcola la distanza dalla sorgente più vicina, attribuendola alla variabile \texttt{d}.
+La seconda componente, \texttt{(d (probe (gradient (sense 1)) 1))}, calcola la distanza dalla sorgente più prossima, assegnandola alla variabile \texttt{d}.
 %
-Infine, l'espressione \texttt{(if (< (abs (- (* 5 t) d)) 4) (green 1) (blue 1))}
-verifica che \texttt{d} sia minore di \(4\) unità rispetto alla posizione dell'anello,
-che si muove con una velocità di \(5\) unità al secondo.
+Infine, l'espressione \texttt{(if (< (abs (- (* 5 t) d)) 4) (green 1) (blue 1))} verifica se la distanza \texttt{d} si discosta di meno di \(4\) unità dalla posizione dell'anello, che avanza con una velocità di \(5\) unità al secondo.
 %
 Se la condizione è soddisfatta, il dispositivo viene colorato di verde; altrimenti, di blu.
 
 \paragraph{Trasposizione in Collektive} (\Cref{lst:ringck}) 
-La propagazione del valore del timer dalle sorgenti è realizzata tramite la funzione \texttt{gradientCast} (\ref{lst:gradientcast}), mentre la funzione \texttt{distanceTo} (\ref{lst:distanceto}) consente di determinare, per ciascun dispositivo, la distanza rispetto alla sorgente più prossima.
+La propagazione del valore del timer dalle sorgenti avviene tramite la funzione \texttt{gradientCast} (\ref{lst:gradientcast}), mentre la funzione \texttt{distanceTo} (\ref{lst:distanceto}) permette a ciascun dispositivo di calcolare la distanza dalla sorgente più vicina.
 
-L’anello si propaga come un’onda, originata dalla sorgente, come illustrato in \cref{fig:ring-simulation}.
-Per evitare che la simulazione si concluda subito dopo la prima propagazione, è stata introdotta una dinamica periodica che permette all’anello di formarsi e dissolversi ciclicamente nel tempo.
+Come illustrato in \cref{fig:ring-simulation}, l’anello si propaga come un’onda, originata dalla sorgente. Per evitare che la simulazione si concluda subito dopo la prima propagazione, è stata introdotta una dinamica periodica che permette all’anello di formarsi e dissolversi ciclicamente nel tempo.
 
 \lstinputlisting[
     language=Kotlin,
@@ -933,9 +917,9 @@ L'istruzione \texttt{( rep temp 25 ( mux hot 30 ( mux cold 20 (/ (sum-hood(nbr t
 %
 Inizialmente, ogni dispositivo imposta la propria temperatura a \(25\) gradi (\texttt{rep temp 25 ...}).
 %
-Il valore della temperatura viene aggiornato a ogni round in base al ruolo del dispositivo: se il nodo agisce come sorgente di calore, viene impostato a \(30\) gradi (\texttt{mux hot 30 \dots}); se invece funge da sorgente di freddo, viene fissato a \(20\) gradi (\texttt{mux cold 20 \dots}); in tutti gli altri casi, si assume la media delle temperature rilevate nel vicinato (\texttt{(/ (sum-hood(nbr temp))(sum-hood 1))}).
+Tale valore viene aggiornato ad ogni round in base al ruolo del dispositivo: se il nodo agisce come sorgente di calore, viene impostato a \(30\) gradi (\texttt{mux hot 30 \dots}); se invece funge da sorgente di freddo, viene fissato a \(20\) gradi (\texttt{mux cold 20 \dots}); in tutti gli altri casi, si assume la media delle temperature rilevate nel vicinato (\texttt{(/ (sum-hood(nbr temp))(sum-hood 1))}).
 
-\paragraph{Trasposizione in Collektive} (\Cref{lst:temperatureck}) L'evoluzione spazio-temporale della temperature è modellata tramite l'operatore \texttt{share} (\ref{sec:collektiveshare}).
+\paragraph{Trasposizione in Collektive} (\Cref{lst:temperatureck}) L'evoluzione spazio-temporale della temperatura è modellata tramite l'operatore \texttt{share} (\ref{sec:collektiveshare}).
 
 In \cref{fig:temperature-simulation} è riportata una simulazione dell'esperimento, in cui i dispositivi che agiscono come sorgenti di calore sono evidenziati da un rettangolo rosso, mentre quelli che fungono da sorgenti di freddo sono evidenziati da un rettangolo blu. Il colore di ciascun dispositivo rappresenta la temperatura locale, secondo una scala cromatica che va dal nero (freddo) al rosso (caldo).
 
@@ -986,9 +970,9 @@ Il contributo di ciascun nodo viene determinato mediante l'espressione \texttt{i
 %
 Per ogni membro del vicinato, viene valutata la condizione \texttt{(or (= (nbr-range) 0) (not (< (abs (- v (nbr v))) (inf))))}. Se la distanza è nulla (indicando il dispositivo stesso) oppure se la differenza tra il valore locale \texttt{v} e quello del vicino è indefinita, il contributo viene azzerato per evitare singolarità.%
 %
-Altrimenti, il contributo viene calcolato mediante l’espressione \texttt{(* (/ (- v (nbr v)) (nbr-range)) (normalize (nbr-vec))))}, che corrisponde al prodotto tra la differenza dei valori del campo, normalizzata rispetto alla distanza tra i due dispositivi, e il vettore normalizzato che punta verso il vicino.
+Altrimenti, si calcola mediante l’espressione \texttt{(* (/ (- v (nbr v)) (nbr-range)) (normalize (nbr-vec))))}, che corrisponde al prodotto tra la differenza dei valori del campo, normalizzata rispetto alla distanza tra i due dispositivi, e il vettore normalizzato direzionato verso il vicino.
 
-\texttt{share-distance-to} calcola e condivide una stima della distanza dalla sorgente all’interno della rete di dispositivi. Essa accetta due campi booleani come argomenti: \texttt{is-calculating}, che indica se il dispositivo è abilitato al calcolo della distanza, e \texttt{source}, che identifica i dispositivi sorgente.
+\texttt{share-distance-to} calcola e condivide una stima della distanza dalla sorgente all’interno della rete. Essa richiede due argomenti booleani: \texttt{is-calculating}, che indica se il dispositivo è abilitato al calcolo della distanza, e \texttt{source}, che identifica i dispositivi sorgente.
 %
 I dispositivi abilitati al calcolo, sfruttano la funzione \texttt{distance-to} per stimare la distanza dalla sorgente, memorizzando il risultato nella variabile \texttt{base}.
 %
@@ -1000,7 +984,7 @@ Se \texttt{is-calculating} è vero, la funzione restituisce \texttt{base}; altri
 
 La funzione \texttt{nav-grad} combina le funzionalità di \texttt{share-distance-to} e \texttt{grad} per calcolare il vettore di navigazione verso la sorgente.
 %
-Accetta come argomenti due campi booleani: \texttt{is-mover}, che indica se il dispositivo è mobile, e \texttt{source}, che identifica i dispositivi sorgente del campo di distanza.
+Richiede in ingresso \texttt{is-mover}, il quale indica la mobilità del dispositivo, e \texttt{source}, che identifica i dispositivi sorgente del campo di distanza.
 %
 Il gradiente rispetto al campo di distanza viene calcolato tramite l’espressione \texttt{(grad (share-distance-to (not is-mover) source))} e il risultato viene memorizzato nella variabile \texttt{g}.
 %
@@ -1010,7 +994,7 @@ Se il dispositivo è mobile e \texttt{g} ha una lunghezza positiva, il risultato
 
 \paragraph{Trasposizione in Collektive} La funzione \texttt{grad} (\ref{lst:gradck}) è stata tradotta come segue : si calcolano le differenze (\texttt{differences}) tra il valore locale e quelli dei vicini tramite l'espressione \texttt{mapNeighborhood \{ v \} - neighboring(v)} (\ref{lst:collektivenbrexamples}), quindi si determinano distanze e direzioni rispetto ai vicini e si combinano questi campi di vicinato (\texttt{alignedMapValues} (\ref{lst:fieldmap})) per ottenere il gradiente.
 
-La funzione \texttt{share-distance-to} (\Cref{lst:sharedistancetock}) utilizza la funzione \texttt{distanceTo} (\ref{lst:distanceto}) per calcolare la distanza dalla sorgente; i dispositivi incapaci di calcolarla determinano il minimo tra la somma delle distanze ai vicini e le rispettive stime di distanza dalla sorgente (\texttt{neighborDistances() + neighboring(myDist)} (\ref{lst:fieldinfix})) , grazie all'espressione \texttt{potentialDist.all.valueOfMinBy(\dots)} (\ref{lst:fieldfold}).
+La funzione \texttt{share-distance-to} (\Cref{lst:sharedistancetock}) utilizza la funzione \texttt{distanceTo} (\ref{lst:distanceto}) per calcolare le distanze dalla sorgente; i dispositivi incapaci di calcolarla determinano il minimo tra la somma delle distanze dai vicini e le rispettive stime (\texttt{neighborDistances() + neighboring(myDist)} (\ref{lst:fieldinfix})) , grazie all'espressione \texttt{potentialDist.all.valueOfMinBy(\dots)} (\ref{lst:fieldfold}).
 
 In \Cref{lst:navgradck} si mostra la trasposizione della funzione \texttt{nav-grad} che, come l'originale, combina le funzionalità delle due funzioni precedenti per calcolare il vettore di navigazione verso la sorgente.
 
@@ -1033,8 +1017,7 @@ In \Cref{lst:navgradck} si mostra la trasposizione della funzione \texttt{nav-gr
     caption={Trasposizione della funzione \texttt{nav-grad} (\ref{lst:navgrad}) in Collektive.}
 ]{listings/collektive/NavGrad.kt}
 
-% filepath: /Users/andreacecchini/git/tesi/Tesi-Triennale-Andrea-Cecchini-2024-2025/thesis-main.tex
-In \cref{fig:navgrad-simulation} è riportata una simulazione dell'esperimento, in cui ogni nodo è colorato in base alla distanza dalla sorgente (evidenziata in rosso), mentre i dispositivi mobili sono contrassegnati da un cerchio blu. La figura mostra come i nodi mobili seguano il gradiente del campo delle distanze per raggiungere la sorgente. 
+In \cref{fig:navgrad-simulation} è riportata la simulazione dell'esperimento, in cui ogni nodo è colorato in base alla distanza dalla sorgente (evidenziata in rosso), mentre i dispositivi mobili sono contrassegnati da un cerchio blu. La figura mostra come i nodi mobili seguano la discesa del gradiente del campo delle distanze per raggiungere la sorgente. 
 
 \begin{figure}
     \centering
@@ -1068,7 +1051,7 @@ La colorazione dei nodi riflette questa classificazione.
     caption={Codice della funzione \texttt{voronoi} in Proto.}
 ]{listings/proto/voronoi.proto}
 %
-Tramite il costrutto \texttt{let}, vengono definite tre variabili in modo sequenziale:
+Tramite il costrutto \texttt{let*}, si definiscono tre variabili in modo sequenziale:
 \begin{itemize}
     \item \texttt{closest-src}: identificatore del dispositivo sorgente più vicino, sfruttando la funzione \texttt{broardcast src (mid)}.
     \item \texttt{edge}: indica se il dispositivo corrente si trova su un bordo tra due celle, verificando se ha almeno un vicino (\texttt{any-hood}) la cui sorgente più vicina (\texttt{nbr closest-src}) è diversa dalla propria (\texttt{closest-src}).
@@ -1085,7 +1068,7 @@ I vicini condividono il valore calcolato tramite \texttt{neighboring} (\ref{lst:
 %
 Se \texttt{distinctSources >= 3}, il dispositivo è un vertice; se \texttt{distinctSources == 2}, è su un bordo.
 
-In questa traduzione, il programma non restituisce la coppia \texttt{(closest-src edge)}, bensì si limita a restituire il colore (\ref{fig:voronoi-simulation}) associato al dispositivo: non vi è nessuna perdita di informazione in quanto il colore codifica sia la cella di appartenenza, sia se il dispositivo è su un bordo.
+In questa traduzione, il programma non restituisce la coppia \texttt{(closest-src edge)}, bensì si limita a restituire il colore (\Cref{fig:voronoi-simulation}) associato al dispositivo.
 
 \newpage
 \lstinputlisting[
@@ -1111,22 +1094,22 @@ In questa traduzione, il programma non restituisce la coppia \texttt{(closest-sr
 \section{Connessione lungo l'albero di percorso minimo}
 \label{sec:wire}
 
-\paragraph{Obiettivo} Stabilire un collegamento tra due dispositivi identificando e attraversando i nodi che compongono l'albero dei cammini minimi (\ac{SPT}) che li collega.
+\paragraph{Obiettivo} Stabilire un collegamento tra due dispositivi identificando e attraversando i nodi che compongono l'albero di percorso minimo che li collega.
 
 \paragraph{Codice originale} Il programma è costituito da tre funzioni: \texttt{spath}, \texttt{connect} e \texttt{wire}.
 
-La funzione \texttt{spath} (\cref{lst:spath}) determina l'\ac{SPT} tra sorgente (\texttt{src}) e destinazione (\texttt{dest}), sfruttando la distanza \texttt{d} di ciascun dispositivo rispetto alla destinazione.
+La funzione \texttt{spath} (\cref{lst:spath}) determina l'albero di percorso minimo tra sorgente (\texttt{src}) e destinazione (\texttt{dest}), sfruttando la distanza \texttt{d} di ciascun dispositivo rispetto alla destinazione.
 
 In fase iniziale, viene definita la variabile \texttt{min-id}, la quale memorizza l'identificatore del vicino che presenta la distanza minima \texttt{d}, come espresso da \texttt{(2nd (min-hood (tup (nbr d) (nbr (mid)))))}.
 
-Successivamente, l'istruzione iterativa \texttt{(rep ispath \dots)} è utilizzata per mantenere traccia dei dispositivi che appartengono all'\ac{SPT}. La variabile \texttt{ispath} è inizializzata a \texttt{0} (\texttt{false}) e viene aggiornata a ogni round mediante l'espressione:
+Successivamente, l'espressione \texttt{(rep ispath \dots)} tiene traccia dei dispositivi che appartengono all'albero. La variabile \texttt{ispath} è inizializzata a \texttt{0} (\texttt{false}) e viene aggiornata a ogni round mediante l'espressione:
 \[
 \texttt{(mux src 1 (any-hood (muxand (= (mid) (nbr min-id) (nbr ispath)))))}
 \]
 Questa logica opera come segue:
 \begin{itemize}
     \item Se il dispositivo corrente è la sorgente (\texttt{src}), \texttt{ispath} è impostato a \texttt{1} (\texttt{true}).
-    \item Altrimenti, il dispositivo verifica se almeno un vicino (\texttt{any-hood}) soddisfa congiuntamente due condizioni: che il proprio identificatore (\texttt{(mid)}) sia il \texttt{min-id} del vicino (\texttt{= (mid) (nbr min-id)}), e che tale vicino faccia già parte dell'\ac{SPT} (\texttt{(nbr ispath)}).
+    \item Altrimenti, il dispositivo verifica se almeno un vicino (\texttt{any-hood}) soddisfa congiuntamente due condizioni: che il proprio identificatore (\texttt{(mid)}) sia il \texttt{min-id} del vicino (\texttt{= (mid) (nbr min-id)}), e che tale vicino faccia già parte dell'albero (\texttt{(nbr ispath)}).
 \end{itemize}
 
 La funzione restituisce \texttt{ispath}.
@@ -1140,9 +1123,9 @@ La funzione restituisce \texttt{ispath}.
 
 La funzione \texttt{connect} (\cref{lst:connect}) stabilisce il collegamento logico tra sorgente (\texttt{src}) e destinazione (\texttt{dest}), computando un vettore di connessione che indica il prossimo dispositivo lungo l'albero di percorso minimo.
 
-Ogni dispositivo calcola innanzitutto la propria distanza \texttt{d} dalla destinazione mediante la funzione \texttt{distance-to}. Successivamente, tutti i dispositivi verificano la propria appartenenza all'albero di percorso minimo, invocando la funzione \texttt{spath}.
+Ogni dispositivo calcola innanzitutto la propria distanza \texttt{d} dalla destinazione mediante la funzione \texttt{distance-to}. Successivamente, tutti i dispositivi verificano la propria appartenenza all'albero, invocando \texttt{spath}.
 
-Attraverso l'espressione \texttt{if thepath \dots}, i dispositivi che risultano parte dell'albero collaborano per calcolare il vettore di connessione. Questo calcolo è basato sulla ricerca della distanza minima rispetto alla destinazione tra i nodi vicini (\texttt{(min-hood (nbr d))}). Vengono poi sommati i contributi di quei vicini per i quali la distanza \texttt{(nbr d)} coincide con tale distanza minima (\texttt{= (nbr d) min-d}).
+Attraverso l'espressione \texttt{if thepath \dots}, i dispositivi che risultano parte dell'albero collaborano per calcolare il vettore di connessione. Questo calcolo è basato sulla ricerca della distanza minima rispetto alla destinazione tra i nodi vicini (\texttt{(min-hood (nbr d))}). Vengono poi sommati i contributi di quei vicini per cui la distanza \texttt{(nbr d)} coincide con tale distanza minima (\texttt{= (nbr d) min-d}).
 
 Se tale condizione è verificata, l'espressione \texttt{mux \dots} restituisce il vettore che punta verso il vicino in questione (\texttt{(nbr-vec)}); in caso contrario, restituisce il vettore nullo.
 
@@ -1152,7 +1135,7 @@ Se tale condizione è verificata, l'espressione \texttt{mux \dots} restituisce i
     caption={Codice della funzione \texttt{connect} in Proto.}
 ]{listings/proto/connect.proto}
 
-La funzione \texttt{wire} (\cref{lst:wire}) invoca \texttt{connect} solo per i nodi che non hanno un ostacolo vicino (\texttt{near-obst}) e che non siano né la sorgente né la destinazione (\texttt{(and (not src) (not dest))}).
+La funzione \texttt{wire} (\cref{lst:wire}) invoca \texttt{connect} solo per i nodi che non hanno un ostacolo vicino (\texttt{near-obst}) oppure che siano la sorgente o la destinazione (\texttt{(and (not src) (not dest))}).
 
 \lstinputlisting[
     language=Lisp,
@@ -1165,13 +1148,13 @@ La funzione \texttt{wire} (\cref{lst:wire}) invoca \texttt{connect} solo per i n
 %
 Si utilizza il costrutto \texttt{share} (\ref{lst:collektiveshare}) per mantenere lo stato di appartenenza all'albero, condividendolo allo stesso tempo con i nodi adiacenti e ottenendo così una vista sul loro stato (\texttt{nbrIsPath}).
 %
-L'identificatore del vicino con distanza minima dalla destinazione si ottiene costruendo un \texttt{Field} che associa a ciascun nodo del vicinato la sua distanza (\texttt{neighboring(toDestination)} (\ref{lst:collektivenbr})), e selezionando poi l'identificatore corrispondente al valore minimo tramite \texttt{.minBy \{ (\_, value) -> value \}.id}.
+L'identificatore del vicino con distanza minima dalla destinazione si ottiene costruendo un \texttt{Field} che associa a ciascun nodo del vicinato la sua distanza (\texttt{neighboring(toDestination)} (\ref{lst:collektivenbr})), e selezionando l'identificatore corrispondente al valore minimo tramite \texttt{.minBy \{ (\_, value) -> value \}.id}.
 %
 Successivamente, si costruisce un \texttt{Field} di \texttt{minId}, che viene trasformato in un campo di valori booleani: il valore è \texttt{true} per i nodi il cui \texttt{minId} coincide con il proprio identificatore. Questo campo viene quindi combinato con \texttt{nbrIsPath} tramite un'operazione logica \texttt{and}; se almeno un nodo adiacente restituisce \texttt{true}, il dispositivo viene considerato parte dell'albero.
 
 La corrispondente implementazione di \texttt{connect} è riportata in \Cref{lst:connectck}.
 %
-Ogni nodo calcola la distanza dalla destinazione tramite la funzione \texttt{distanceTo} (\ref{lst:distanceto}) e verifica la propria appartenenza all'albero di percorso minimo invocando la funzione \texttt{shortestPath}.
+Ogni nodo calcola la distanza dalla destinazione tramite \texttt{distanceTo} (\ref{lst:distanceto}) e verifica la propria appartenenza all'albero di percorso minimo invocando la funzione \texttt{shortestPath}.
 %
 Per calcolare il vettore di connessione, si combinano le distanze dei nodi adiacenti dalla destinazione (\texttt{neighborDistances}) con i rispettivi vettori direzionali (\texttt{neighborVectors}), considerando esclusivamente il contributo del nodo la cui distanza corrisponde al valore minimo rilevato nel vicinato.
 
@@ -1217,17 +1200,19 @@ In \cref{fig:wire-simulation} è mostrata la simulazione dell'esperimento.
 \section{Tracciamento}
 \label{sec:track}
 
-\paragraph{Obiettivo} Implementare un sistema di tracciamento in cui un dispositivo (destinazione) segue un altro dispositivo (target) stabilendo un canale di comunicazione tra di essi.
+\paragraph{Obiettivo} Progettare un sistema di tracciamento in cui un dispositivo (destinazione) ne segua un altro (target), sfruttando un canale di comunicazione dedicato.
 
-\paragraph{Codice originale} Il programma (\cref{lst:track}) si compone di due funzioni: 
+\paragraph{Codice originale} Il programma (\Cref{lst:track}) si compone di due funzioni: 
 \\
 \texttt{channel} e \texttt{track}.
 
-\texttt{channel} stabilisce un canale di comunicazione tra una sorgente (\texttt{src}) e una destinazione (\texttt{dest}).
+La funzione \texttt{channel} ha lo scopo di creare un "canale" di dispositivi che collega la sorgente (\texttt{src}) alla destinazione (\texttt{dest}), restituendo \texttt{true} per tutti i nodi che fanno parte di questo percorso e \texttt{false} per gli altri. 
 %
-Un dispositivo appartiene al canale se la sua distanza dalla sorgente (\texttt{gradient src}) sommata alla distanza dalla destinazione (\texttt{gradient dst}) è minore o uguale alla distanza tra sorgente e destinazione (\texttt{(distance src dst)}), più un margine di tolleranza di \(1\) unità (\texttt{(+ d 1)}).
+In particolare, la funzione calcola la distanza tra sorgente e destinazione (\texttt{(distance src dst)}) e identifica come appartenenti al canale tutti i dispositivi per cui la somma delle distanze dalla sorgente e dalla destinazione è minore o uguale alla distanza tra le due, aumentata di un margine di tolleranza (\texttt{(<= (+ (gradient src) (gradient dst)) (+ d 1)))}. 
+%
+Infine, la funzione restituisce \texttt{true} solo per i dispositivi effettivamente raggiungibili sia dalla sorgente sia dalla destinazione e che rientrano nella larghezza specificata dal canale, ampliata tramite la funzione \texttt{dilate}.
 
-Nella funzione \texttt{track}, \texttt{target} sfrutta il canale di comunicazione per propagare la propria posizione verso \texttt{dst}, il quale le usa per calcolare la direzione verso cui puntare (\texttt{(- (broadcast target coord) coord)}).
+La funzione \texttt{track} permette alla destinazione di seguire il target sfruttando il canale creato da \texttt{channel}: si propaga la posizione del target lungo il canale e, una volta ricevuta, la destinazione ne calcola la differenza rispetto le proprie coordinate, determinando così il verso cui puntare (\texttt{(- (broadcast target coord) coord)}).
 
 \lstinputlisting[
     language=Lisp,
@@ -1236,9 +1221,10 @@ Nella funzione \texttt{track}, \texttt{target} sfrutta il canale di comunicazion
 comprendente le funzioni \texttt{channel} e \texttt{track}.}
 ]{listings/proto/track.proto}
 
-\paragraph{Trasposizione in Collektive} È stata riutilizzata l'implementazione di \texttt{channel} (\cref{lst:channelck}), usata nella simulazione \href{https://github.com/Collektive/collektive-examples/blob/fc511935fa0cce9116cd6bb8e00088443c2cd506/simulation/src/main/kotlin/it/unibo/collektive/examples/channel/ChannelWithObstacles.kt#L28C1-L44}{ChannelWithObstacle}.
+\paragraph{Trasposizione in Collektive} Per l'implementazione di \texttt{channel} è stata adottata la versione già utilizzata nella simulazione \href{https://github.com/Collektive/collektive-examples/blob/fc511935fa0cce9116cd6bb8e00088443c2cd506/simulation/src/main/kotlin/it/unibo/collektive/examples/channel/ChannelWithObstacles.kt#L28C1-L44}{ChannelWithObstacle} (\Cref{lst:channelck}).
 
-La propagazione delle coordinate del nodo \textit{target} all'interno della funzione \texttt{track} è implementata sfruttando l'operatore \texttt{gradientCast}. Si evidenzia che l'operazione collettiva coinvolge solamente i nodi appartenenti al canale, grazie alla suddivisone della rete dovuta al costrutto \texttt{when}.
+La propagazione delle coordinate del nodo target nella funzione \texttt{track} (\Cref{lst:trackck}) avviene tramite la funzione \texttt{gradientCast} (\ref{lst:gradientcast}), che diffonde le informazioni esclusivamente tra i nodi appartenenti al canale, grazie al partizionamento derivato dal costrutto \texttt{when}.
+
 \newpage
 \lstinputlisting[
     language=Kotlin,
@@ -1258,15 +1244,15 @@ La propagazione delle coordinate del nodo \textit{target} all'interno della funz
 
 \paragraph{Obiettivo} Simulare la dinamica di uno stormo.
 
-Ciascun dispositivo calcola una nuova direzione di movimento in funzione della direzione iniziale, della distanza dai nodi vicini e delle loro rispettive direzioni di movimento.
+Ciascun dispositivo calcola la propria velocità in funzione della direzione iniziale, della distanza dai nodi vicini e delle loro rispettive direzioni di movimento.
 %
 La direzione iniziale è determinata dal ruolo del nodo: se il dispositivo è un "leader", viene orientato verso l'origine del sistema di coordinate; in caso contrario, la direzione iniziale è nulla.
 %
-La direzione, che evolve dinamicamente nel tempo, viene aggiornata secondo logiche di repulsione, coesione e allineamento, in base alla distanza dai vicini.
+La velocità, che evolve dinamicamente nel tempo, viene aggiornata secondo logiche di repulsione, coesione e allineamento, in base alla distanza dai vicini.
 %
 La direzione risultante è data dalla somma ponderata dei contributi di ciascun vicino, insieme alla direzione iniziale.
 
-\paragraph{Codice originale} La funzione \texttt{flock} (\cref{lst:flock}) inizializza il sistema accettando in input un campo vettoriale \texttt{dir}, che definisce una direzione di partenza per ogni dispositivo.
+\paragraph{Codice originale} La funzione \texttt{flock} (\cref{lst:flock}) richiede in ingresso la direzione di partenza (\texttt{dir}) del dispositivo.
 %
 \lstinputlisting[
     language=Lisp,
@@ -1278,25 +1264,25 @@ L'evoluzione temporale della velocità dei nodi è gestita dall'istruzione \text
 %
 Ad ogni round, viene determinato il vettore risultante \texttt{d} come somma dei contributi di repulsione, coesione e allineamento, provenienti dai dispositivi nel vicinato.
 %
-I contributi dei vicini vengono calcolati e aggregati tramite la funzione \texttt{int-hood \dots}, seguendo queste regole di interazione:
+I contributi dei vicini vengono calcolati e aggregati tramite la funzione \texttt{int-hood \dots}, seguendo queste regole:
 \begin{itemize}
-    \item Se la distanza da un vicino è inferiore a $5$ unità (\texttt{(if (< (nbr-range) 5) \dots)}), il contributo è un vettore che allontana dall'entità vicina. Si calcola come il vettore unitario diretto verso il vicino, moltiplicato per \(-1\) (\texttt{(* -1 (normalize (nbr-vec)))}).
-    \item Se la distanza è superiore a $10$ unità (\texttt{(if (> (nbr-range) 10) \dots)}), si esercita un'attrazione. Il contributo è il vettore unitario orientato verso il vicino, scalato di $0.2$ (\texttt{* 0.2 (normalize (nbr-vec))}).
-    \item Se la distanza è compresa tra $5$ e $10$ unità, l'entità si allinea alla direzione attuale del vicino. Il contributo è dato dalla direzione attuale del vicino normalizzata (\texttt{normalize (nbr v)}).
+    \item Se la distanza da un vicino è inferiore a $5$ unità (\texttt{(if (< (nbr-range) 5) \dots)}), il contributo è un vettore che allontana dall'entità vicina. Si calcola come il versore diretto verso il vicino, moltiplicato per \(-1\) (\texttt{(* -1 (normalize (nbr-vec)))}).
+    \item Se la distanza è superiore a $10$ unità (\texttt{(if (> (nbr-range) 10) \dots)}), si esercita un'attrazione. Il contributo è il versore orientato verso il vicino, scalato di $0.2$ (\texttt{* 0.2 (normalize (nbr-vec))}).
+    \item Se la distanza è compresa tra $5$ e $10$ unità, l'entità si allinea alla direzione attuale del vicino. Il contributo è dato dalla velocità attuale del vicino normalizzata (\texttt{normalize (nbr v)}).
 \end{itemize}
 %
-Infine, la nuova velocità viene calcolata con l'espressione \texttt{(+ dir (mux (> (vdot d d) 0) d v))}. Questa istruzione somma la direzione iniziale \texttt{dir} al vettore risultante \texttt{d}, se la norma di quest'ultimo è positiva; altrimenti, mantiene la velocità precedente calcolata \texttt{v}.
-
+Infine, la nuova velocità viene calcolata tramite l’espressione \texttt{(+ dir (mux (> (vdot d d) 0) d v))}: questa istruzione somma la direzione iniziale \texttt{dir} al vettore risultante \texttt{d} se la sua norma è positiva; in caso contrario, mantiene la velocità precedente \texttt{v}.
 \paragraph{Trasposizione in Collektive} La traduzione in Collektive è riportata in \cref{lst:flockck}.
 
-Per modellare l'evoluzione della velocità dei dispositivi, viene utilizzato l'operatore \texttt{share}, poiché esiste una dipendenza sia spaziale sia temporale.
+L’evoluzione della velocità dei nodi viene gestita tramite l’operatore \texttt{share} (\ref{lst:collektiveshare}) , poiché la dinamica dipende sia dallo stato dei vicini sia dallo stato calcolato nel round precedente.
+%
+La necessità di una migliore approssimazione contigua del campo ha portato all’introduzione delle funzioni ausiliarie \texttt{sumWeightedNeighbors} e \texttt{spatialWeight} (\cref{lst:inthoodck}), che calcolano rispettivamente la somma pesata dei contributi dei vicini e il peso attribuito a ciascun nodo adiacente.
+%
+Il peso assegnato si ottiene dividendo l'area del cerchio, il cui raggio è pari a quello di comunicazione, per il numero di dispositivi presenti nel vicinato.
 
-Per simulare l'istruzione built-in \texttt{int-hood}, sono state create due funzioni ausiliarie, \texttt{sumWeightedNeighbors} e \texttt{spatialWeight} (\cref{lst:inthoodck}), che calcolano rispettivamente la somma pesata dei contributi dei vicini e il peso associato a ciascun vicino.
-
-Il peso assegnato a ogni vicino si ottiene dividendo l'area del cerchio, il cui raggio è pari a quello di comunicazione, per il numero di dispositivi presenti nel vicinato.
-
-In \cref{fig:flock-simulation} è mostrata una simulazione dell'esperimento.
-
+La simulazione dell’esperimento (\Cref{fig:flock-simulation}) mostra i nodi coordinatori evidenziati in rosso. 
+%
+Si osserva come i dispositivi si organizzino spontaneamente in tre stormi, ciascuno dei quali si dirige verso l’origine grazie alla presenza di un numero sufficiente di leader che guidano il movimento collettivo.
 \newpage
 \lstinputlisting[
     language=Kotlin,
@@ -1313,8 +1299,9 @@ In \cref{fig:flock-simulation} è mostrata una simulazione dell'esperimento.
 \begin{figure}
     \centering
     \includegraphics[width=.8\linewidth]{figures/flock.pdf}
-    \caption{Simulazione dell'esperimento ``Flock'' in Alchemist.
-    I dispositivi ``leader'' sono evidenziati in rosso. 
+    \caption{Simulazione dell’esperimento in \cref{sec:flock}.
+    I dispositivi leader sono colorati in rosso, mentre gli altri sono colorati in blu.
+    Si osserva come i nodi si organizzino spontaneamente in tre stormi, ciascuno dei quali si dirige verso l’origine grazie alla presenza di un numero sufficiente di leader che guidano il movimento collettivo.
     }
     \label{fig:flock-simulation}
 \end{figure}

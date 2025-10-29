@@ -1,5 +1,6 @@
 /**
- * Compute the channel between the [source] and the [destination] with a specific [channelWidth].
+ * Compute the channel between the [source] and the [destination]
+ * with a specific [channelWidth].
  */
 fun Aggregate<Int>.channel(
     collektiveDevice: CollektiveDevice<*>,

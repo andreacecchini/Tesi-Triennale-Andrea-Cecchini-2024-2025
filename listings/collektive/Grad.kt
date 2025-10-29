@@ -1,7 +1,11 @@
 /**
  * Compute the gradient of a scalar field [v].
  */
-fun Aggregate<Int>.grad(v: Double, neighborDistances: () -> Field<Int, Double>, neighborDirectionVectors: () -> Field<Int, Vector2D>): Vector2D {
+fun Aggregate<Int>.grad(
+    v: Double,
+    neighborDistances: () -> Field<Int, Double>,
+    neighborDirectionVectors: () -> Field<Int, Vector2D>,
+): Vector2D {
     val differences = mapNeighborhood { v } - neighboring(v)
     val directions = neighborDirectionVectors()
     val distances = neighborDistances()
