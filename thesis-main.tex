@@ -175,14 +175,14 @@ I costrutti fondamentali di \ac{FC} \cite{AC,HFC,Share} sono:
 Se un dispositivo \(\delta\) appartiene a \(D_{true}\), valuta esclusivamente l’espressione \(e_1\), ignorando \(e_2\); viceversa, se appartiene a \(D_{false}\), valuta solo \(e_2\). In entrambi i casi, le informazioni di stato e i valori scambiati con i vicini non vengono condivisi tra i due rami: quando un dispositivo passa da un ramo all’altro, le variabili di stato vengono reinizializzate e i valori precedenti vengono persi.
 
 \paragraph{Share}
-La combinazione dei costrutti \texttt{rep} e \texttt{nbr} permette di modellare l'evoluzione sia spaziale che temporale di un campo. Tuttavia, come evidenziato in \cite{UniversalityFC}, la loro integrazione introduce un ritardo implicito nel sistema che può causare la perdita di intere esecuzioni dei round.
+La combinazione dei costrutti \texttt{rep} e \texttt{nbr} permette di modellare l'evoluzione sia spaziale che temporale di un campo. Tuttavia, come evidenziato in \cite{UniversalityFC}, la loro integrazione introduce un ritardo implicito nel sistema che può causare la perdita di round.
 
 Per risolvere questo problema, l'approccio presentato in \cite{Share} introduce il costrutto \texttt{share}:
 \[
 \texttt{share(e1) \{(x) => e2\}}
 \]
 
-Nonostante la sintassi sia identica a quella del costrutto \texttt{rep}, i due si distinguono radicalmente per l'interpretazione della variabile \texttt{x} ad ogni round. Nel caso di \texttt{share}, \texttt{x} non rappresenta un valore locale (come in \texttt{rep}) ma un campo di vicinato ($\phi$) che contiene i valori condivisi dai vicini nel round precedente. L'espressione \texttt{\(e_2\)} ha quindi il compito di elaborare questo campo di vicinato per produrre il nuovo valore locale. Tale nuovo valore sarà poi utilizzato come \texttt{\(e_1\)} nel round successivo e condiviso con i vicini.
+Nonostante la sintassi sia identica a quella di \texttt{rep}, i due si distinguono radicalmente per l'interpretazione della variabile \texttt{x} ad ogni round. Nel caso di \texttt{share}, \texttt{x} non rappresenta un valore locale (come in \texttt{rep}), bensì un campo di vicinato ($\phi$) che contiene i valori condivisi dai vicini nel round precedente. L'espressione \texttt{\(e_2\)} ha quindi il compito di elaborare questo campo di vicinato per produrre il nuovo valore locale. Tale valore sarà poi utilizzato come \texttt{\(e_1\)} nel round successivo e condiviso con i vicini.
 
 \subsection{XC Calculus}
 \label{sec:xc}
@@ -194,7 +194,7 @@ Nonostante la sintassi sia identica a quella del costrutto \texttt{rep}, i due s
 \paragraph{Modello di Esecuzione}
 Ogni dispositivo, indicato con \(\delta_i\), comunica con i propri vicini tramite uno scambio di messaggi. Il funzionamento dei nodi si articola in round di esecuzione asincroni. In ogni round, ciascun dispositivo esegue un programma \ac{XC}, elabora i messaggi ricevuti e produce nuovi messaggi da inviare al vicinato, gestendo l'intero processo attraverso una coda locale.
 
-Questo modello è illustrato in \Cref{fig:xc-rounds}: il dispositivo \(\delta_i\) esegue il programma \ac{XC} nei round \(\varepsilon_n\) e invia i messaggi ai vicini al termine di ciascuno \cite{XC}.
+Questo modello è illustrato in \cref{fig:xc-rounds}: il dispositivo \(\delta_i\) esegue il programma \ac{XC} nei round \(\varepsilon_n\) e invia i messaggi ai vicini al termine di ciascuno \cite{XC}.
 
 Data la natura asincrona del sistema, può verificarsi che un dispositivo completi più round prima che un vicino ne termini uno. In questi casi, il vicino considererà solo l'ultimo messaggio ricevuto, sovrascrivendo i precedenti.\begin{figure}
     \centering
@@ -235,7 +235,7 @@ Ogni costrutto di \ac{FC} può essere espresso in termini di \texttt{exchange}, 
 \section{Motivazione}
 \label{sec:motivazione}
 
-Il panorama della programmazione aggregata è caratterizzato da diversi linguaggi e framework che implementano i concetti fondamentali di \ac{FC}, ognuno con specifiche caratteristiche, vantaggi e svantaggi. 
+Il panorama della programmazione aggregata è caratterizzato da diversi linguaggi e framework che implementano i concetti fondamentali del field calculus, ognuno con specifiche caratteristiche, vantaggi e svantaggi. 
 Tra le soluzioni più note e consolidate si annoverano MIT Proto \cite{proto} (\cref{sec:mitproto}), Protelis \cite{protelis} (\cref{sec:protelis}), ScaFi \cite{scafi} (\cref{sec:scafi}) e FCPP \cite{fcpp} (\cref{sec:fcpp}). 
 
 In questo scenario, l'ultima proposta è Collektive (\cref{sec:collektive}), un \ac{DSL} sviluppato in Kotlin. Collektive si pone l'obiettivo di sintetizzare i punti di forza dei linguaggi esistenti, superandone al contempo le limitazioni strutturali, rappresentando così un passo in avanti nel contesto della programmazione aggregata.
@@ -282,18 +282,18 @@ Attualemente il linguaggio è attivamente mantenuto, ma lo sviluppo di nuove fun
 \subsection{ScaFi}
 \label{sec:scafi}
 
-ScaFi \cite{scafi} (Scala with Fields) è un framework basato su Scala per la programmazione aggregata, implementato come \ac{DSL} interno al linguaggio.
+ScaFi \cite{scafi} (Scala Fields) è un framework basato su Scala per la programmazione aggregata, implementato come \ac{DSL} interno al linguaggio.
 
 Esso pone le proprie basi su \ac{FC} (\ref{sec:fieldcalculus}), in particolare su una sua variante denominata FScaFi \cite{fscafi}.
 
-Il framework offre un ambiente completo per lo sviluppo di programmi aggregati, inclusivo di librerie, un ambiente di simulazione con $\text{GUI}$ integrato con $\text{Alchemist}$ e un runtime basato su attori, con la possibilità di prototipazione rapida anche su browser web tramite lo strumento ScaFi Web \cite{scafiweb}.
+Il framework offre un ambiente completo per lo sviluppo di programmi aggregati, inclusivo di librerie, un ambiente di simulazione e un runtime basato su attori, con la possibilità di prototipazione rapida anche su browser web tramite lo strumento ScaFi Web \cite{scafiweb}.
 
 L'implementazione come \ac{DSL} interno conferisce al linguaggio diversi vantaggi: beneficia direttamente della sintassi (\ref{lst:scafiexample}), del compilatore e degli strumenti di Scala, risultando così più semplice da mantenere e immediatamente familiare per gli sviluppatori che già conoscono il linguaggio ospite. 
 Inoltre, sfrutta pienamente il potente sistema di tipi di Scala.
 
 Tuttavia, questa scelta comporta anche alcune limitazioni.
 %
-In quanto \ac{DSL} interno, la sintassi di ScaFi è vincolata ai costrutti validi di Scala e, aspetto cruciale per la programmazione aggregata, si rischia l'emersione involontaria di meccanismi di basso livello che non dovrebbero essere esposti all'utente finale, come la gestione dell'allineamento, rendendo così la scrittura dei programmi aggregati meno fluida e naturale.
+In quanto \ac{DSL} interno, la sintassi di ScaFi è vincolata ai costrutti validi di Scala e, aspetto cruciale per la programmazione aggregata, si rischia l'emersione involontaria di meccanismi di basso livello che non dovrebbero essere esposti all'utente finale, come la gestione dell'allineamento.
 %
 Inoltre, ScaFi è prevalentemente progettato per l'esecuzione sulla Java Virtual Machine causando una limitazione della sua applicabilità, evidenziando le stesse limitazioni riscontrate in Protelis (\ref{sec:protelis}).
 
@@ -306,13 +306,13 @@ Inoltre, ScaFi è prevalentemente progettato per l'esecuzione sulla Java Virtual
 \subsection{FCPP}
 \label{sec:fcpp}
 
-\emph{FCPP} \cite{fcpp} rappresenta la prima implementazione nativa di Aggregate Computing (\ac{AC}) in \texttt{C++} (\texttt{C++14}). 
+\emph{FCPP} \cite{fcpp} rappresenta la prima implementazione nativa per la programmazione aggregata in \texttt{C++} (\texttt{C++14}). 
 
-Il fatto che FCPP si basi su \texttt{C++} è un aspetto cruciale, poiché targettizza direttamente il dispositivo senza dipendere da nessuna macchina virtuale.
+Il fatto che FCPP si basi su \texttt{C++} è un aspetto cruciale, poiché permette l'esecuzione del codice direttamente sul dispositivo senza dipendere da nessuna macchina virtuale.
 Questa scelta offre due vantaggi significativi: in primo luogo, è particolarmente adatta per l'esecuzione su dispositivi con risorse limitate, tipici dell'Internet of Things (\ac{IoT}), superando così le limitazioni legate alla dipendenza dalla \ac{JVM} riscontrate in framework come Protelis (\ref{sec:protelis}) e ScaFi (\ref{sec:scafi}); in secondo luogo, garantisce un'implementazione del paradigma aggregato molto performante. 
 
 L'adozione di \texttt{C++}, come linguaggio host, comporta anche sfide e limitazioni.
-La complessità intrinseca della sintassi di \texttt{C++} (\ref{lst:fcppexample}) e la scarsa ergonomia di \texttt{FCPP} rispetto ad altri framework rendono improbabile che possa raggiungere un vasto pubblico di sviluppatori. Inoltre, l'allineamento dei dati non è trasparente, ma viene gestito manualmente tramite macro. Sebbene FCPP sia concepito come una piattaforma flessibile ed estensibile, la gamma di funzionalità attualmente supportate risulta più limitata rispetto a quelle offerte rispetto le alternative.
+La complessità intrinseca della sintassi di \texttt{C++} (\ref{lst:fcppexample}) e la scarsa ergonomia di \texttt{FCPP} rispetto ad altri framework rendono improbabile che possa raggiungere un vasto pubblico di sviluppatori. Inoltre, l'allineamento dei dati non è trasparente, ma viene gestito manualmente tramite macro. Sebbene FCPP sia concepito come una piattaforma flessibile ed estensibile, la gamma di funzionalità attualmente supportate risulta più limitata rispetto a quelle offerte dalle alternative.
 
 \lstinputlisting[
     language=C++,
@@ -327,12 +327,12 @@ La complessità intrinseca della sintassi di \texttt{C++} (\ref{lst:fcppexample}
 
 \emph{Collektive} nasce dall’esigenza di disporre di un linguaggio che garantisca una gestione dell’allineamento robusta e completamente trasparente; sia multipiattaforma e quindi adatto a operare su reti di dispositivi eterogenei; offra una sintassi moderna, espressiva ed ergonomica; possa contare su un ecosistema maturo e ricco di strumenti grazie al linguaggio host.
 
-I linguaggi analizzati in precedenza non riescono a soddisfare tutti questi requisiti contemporaneamente: Protelis offre una buona gestione dell'allineamento ma dipende dalla \ac{JVM} \ref{sec:protelis}; ScaFi è anch'esso vincolato alla \ac{JVM} e presenta un allineamento debole e non trasparente \ref{sec:scafi}; FCPP è nativo e performante ma manca di ergonomia, semplicità d'uso e trasparenza \ref{sec:fcpp}.
+I linguaggi analizzati in precedenza non riescono a soddisfare tutti questi requisiti contemporaneamente: Protelis offre una buona gestione dell'allineamento ma dipende dalla \ac{JVM} \ref{sec:protelis}; ScaFi è anch'esso vincolato alla \ac{JVM} e presenta un allineamento debole\ref{sec:scafi}; FCPP è nativo e performante ma manca di ergonomia, semplicità d'uso e trasparenza \ref{sec:fcpp}.
 
 Come ScaFi, Collektive è implementato come un \ac{DSL} interno; tuttavia, a differenza di ScaFi, il compilatore del linguaggio host, Kotlin, è stato esteso per gestire automaticamente l’allineamento del codice aggregato. 
 Ciò è reso possibile dal design modulare del compilatore Kotlin, che consente l’aggiunta e la modifica di funzionalità tramite plugin.
 
-Se si volesse gestire manualmente l'allineamento, sarebbe sufficiente adottare un semplice \ac{DSL}; tuttavia, il codice risulterebbe esposto a meccanismi di basso livello, rendendo la scrittura dei programmi aggregati più complessa e soggetta a errori (\cref{lst:ckmanuallyaligned}).
+Se si volesse gestire manualmente l'allineamento, sarebbe sufficiente adottare un semplice \ac{DSL}; tuttavia, il codice risulterebbe esposto a meccanismi di basso livello, rendendo la scrittura dei programmi aggregati più complessa e soggetta ad errori (\Cref{lst:ckmanuallyaligned}).
 
 \lstinputlisting[
     language=Kotlin,
@@ -345,7 +345,7 @@ Il plugin del compilatore si occupa di iniettare automaticamente il codice neces
 \lstinputlisting[
     language=Kotlin,
     label={lst:ckexample},
-    caption={Dimostrazione della sintassi di Collektive, dove il compilatore si occupa automaticamente di gestire l'allineamento per conto dello sviluppatore.}
+    caption={Dimostrazione della sintassi di Collektive: il compilatore si occupa automaticamente di gestire l'allineamento per conto dello sviluppatore.}
 ]{listings/collektive/GradientAutomaticallyAligned.kt}
 
 
@@ -356,7 +356,7 @@ Il plugin del compilatore si occupa di iniettare automaticamente il codice neces
 \section{Obiettivo}
 \label{sec:obiettivo}
 
-Quando emerge un nuovo linguaggio o framework, è fondamentale che gli sviluppatori possano sfruttare le conoscenze acquisite con le tecnologie precedenti. I sistemi moderni, quindi, devono offrire una guida chiara su come realizzare soluzioni già sviluppate. Senza questa guida e senza esempi pratici, l'adozione di nuove tecnologie può essere rallentata dalla curva di apprendimento e dalla scarsa familiarità.
+Quando emerge un nuovo linguaggio o framework, è fondamentale che gli sviluppatori possano sfruttare le conoscenze acquisite con le tecnologie precedenti. I sistemi moderni, quindi, devono offrire una guida chiara su come realizzare soluzioni già presenti. Senza questa guida e senza esempi pratici, l'adozione di nuove tecnologie può essere rallentata dalla curva di apprendimento e dalla scarsa familiarità.
 
 Fornire esempi concreti di trasposizione di sistemi legacy a nuove soluzioni dimostra l'espressività del nuovo sistema rispetto ai precedenti, riduce significativamente il tempo di apprendimento e accresce la fiducia nella nuova tecnologia.
 
@@ -422,7 +422,7 @@ Se si desidera dichiarare più variabili contemporaneamente, si possono racchiud
 \section{Operatori}
 \label{sec:mitprotooperators}
 
-Proto fornisce un insieme di operatori che corrispondono ai costrutti fondamentali di \ac{FC} (\cref{sec:fieldcalculus}).
+Proto fornisce un insieme di operatori che corrispondono ai costrutti fondamentali del field calculus (\cref{sec:fieldcalculus}).
 
 \paragraph{Dinamica temporale} Per modellare lo stato di un dispositivo si sfrutta l'operatore \texttt{rep} (\cref{sec:fieldcalculus}), che segue la sintassi:
 
@@ -453,9 +453,9 @@ L'esempio in \cref{lst:mitprotoresp} illustra l'uso di \texttt{rep} per creare u
     \item Il tipo di ritorno dell'operatore è un \texttt{Field} che mappa l'identificatore di ogni vicino al valore locale risultante dalla valutazione di \texttt{expr} in quel dispositivo.
 \end{itemize}
 
-In \cref{lst:mitprotonbr} viene mostrato un esempio di utilizzo di \texttt{nbr} nel quale si costruice un campo di vicinato che associa a \(1\) ad ogni vicino.
+In \cref{lst:mitprotonbr} viene mostrato un esempio di utilizzo di \texttt{nbr} nel quale si costruice un campo di vicinato che associa \(1\) ad ogni vicino.
 
-Proto fornisce varianti dell'operatore \texttt{nbr} che permettono di raccogliere valori specifici dai vicini, \texttt{nbr-range} per ottenere la distanza fisica tra il dispositivo corrente e ciascun vicino e \texttt{nbr-vec} per ottenere un versore che indica la direzione verso ciascun vicino rispetto al dispositivo corrente.
+Proto fornisce varianti dell'operatore \texttt{nbr} che permettono di raccogliere specifici valori dai vicini come \texttt{nbr-range}, per ottenere la distanza fisica tra il dispositivo corrente e ciascun vicino, e \texttt{nbr-vec}, per ottenere un versore che indica la direzione verso ciascun vicino rispetto al dispositivo corrente.
 
 Vengono fornite anche delle funzioni di aggregazione che permettono di ridurre un \texttt{Field} a un singolo valore locale (\texttt{Local}) (\ref{lst:mitprotonbragg}).
 
@@ -485,12 +485,12 @@ Si noti che \texttt{fold-hood} non richiede in ingresso un \texttt{Field}, bens�
 
 \begin{itemize}
     \item \texttt{test} è l'espressione booleana che determina la partizione dello spazio.
-    \item \texttt{true} è l'espressione di qualsiasi tipo che viene valutata nei dispositivi in cui \texttt{test} risulta vera.
-    \item \texttt{false} è l'espressione di qualsiasi tipo che viene valutata nei dispositivi in cui \texttt{test} risulta falsa.
-    \item Il tipo di ritorno dell'operatore è lo stesso tipo di \texttt{true} e \texttt{false}, che devono essere dello stesso tipo.
+    \item \texttt{true} è l'espressione che viene valutata nei dispositivi in cui \texttt{test} risulta vera.
+    \item \texttt{false} è l'espressione che viene valutata nei dispositivi in cui \texttt{test} risulta falsa.
+    \item Il tipo di ritorno dell'operatore è lo stesso di \texttt{true} e \texttt{false}.
 \end{itemize}
 
-Anche se \texttt{true} e \texttt{false} risultano essere la stessa espressione, il loro valore può differire, in accordo a quanto detto in \cref{sec:fieldcalculus}.
+Anche se \texttt{true} e \texttt{false} dovessero risultare la stessa espressione, il loro valore potrebbe differire, in accordo a quanto detto in \cref{sec:fieldcalculus}.
 
 È possibile utilizzare l'operatore \texttt{mux} come alternativa a \texttt{if} quando si desidera che le due espressioni \texttt{true} e \texttt{false} vengano valutate prima del partizionamento, garantendo la partecipazione di tutti i dispositivi alla computazione (\cref{sec:fieldcalculus}).
 
@@ -507,7 +507,7 @@ Proto è equipaggiato con una libreria che fornisce diverse funzioni comuni dura
     \item \texttt{(timer) -> S}: restituisce il tempo trascorso durante la valutazione dell'espressione nel dispositivo corrente, ovvero il tempo in cui non sono stati percorsi rami alternativi di un costrutto \texttt{if}.
 \end{itemize}
 
-Inoltre sono fornite funzioni per operare con i tipi di dato elencati in \cref{fig:mitproto-types}, come operazioni aritmetiche, logiche, di confronto, di manipolazione delle tuple e dei vettori, nonché funzioni per la generazione di numeri casuali.
+Inoltre sono fornite funzioni per operare con i tipi di dato elencati in \cref{fig:mitproto-types}, come operazioni aritmetiche, logiche, di confronto, manipolazione di tuple e di vettori, nonché funzioni per la generazione di numeri casuali.
 
 \lstinputlisting[
     language=Lisp,
@@ -528,15 +528,15 @@ Il linguaggio, progettato per essere multipiattaforma grazie all’adesione al p
 \section{Field}
 \label{sec:collektivefields}
 
-In Collektive, un \texttt{Field} è una struttura dati che associa, per ogni dispositivo all’interno di un vicinato, l’identificatore del dispositivo al suo valore locale.
+In Collektive, un \texttt{Field} è una struttura dati che associa a ciascun dispositivo del vicinato il valore locale da lui calcolato.
 %
-A differenza del campo di vicinato definito in \cref{sec:fieldcalculus}, un \texttt{Field} tiene traccia anche del dispositivo locale, associando il proprio identificatore al proprio valore locale.
+A differenza del campo di vicinato (\cref{sec:fieldcalculus}), un \texttt{Field} tiene traccia anche del dispositivo locale.
 
-Ad esempio, un \texttt{Field} relativo a un dispositivo con identificativo \(0\) e vicini \(1\), \(2\) e \(3\), che assegna il valore \(1\) a ciascun dispositivo del vicinato (\ref{lst:collektivefield}), si rappresenta come:
+Ad esempio, un \texttt{Field} relativo a un dispositivo con identificativo \(0\) e vicini \(1\), \(2\) e \(3\), che assegna il valore \(1\) a ciascun dispositivo (\Cref{lst:collektivefield}), si rappresenta come:
 \begin{center}
 \texttt{\(\phi\)(localId=0, localValue=1, neighbors=\{1=1, 2=1, 3=1\})}
 \end{center}
-dove \texttt{localId} è l’identificatore del dispositivo locale, \texttt{localValue} è il valore locale associato al dispositivo e \texttt{neighbors} è una mappa che associa gli identificatori dei vicini ai loro rispettivi valori locali.
+dove \texttt{localId} è l’identificatore del dispositivo locale; \texttt{localValue} è il valore associato al dispositivo corrente; \texttt{neighbors} è una mappa che associa gli identificatori dei vicini ai loro rispettivi valori.
 
 \lstinputlisting[
     language=Kotlin,
@@ -544,7 +544,7 @@ dove \texttt{localId} è l’identificatore del dispositivo locale, \texttt{loca
     caption={Creazione di un campo di vicinato che associa il valore \(1\) a ogni dispositivo del vicinato, incluso se stesso.}
 ]{listings/collektive/MapNeighborhood.kt}
 
-Le proprietà \texttt{all} e \texttt{neighbors} (\ref{lst:collektivefield}) permettono di ottenere una vista sulle entry del \texttt{Field}: la prima include sia il dispositivo locale sia tutti i vicini, mentre la seconda restituisce solo i vicini, escludendo il nodo locale.
+Le proprietà \texttt{all} e \texttt{neighbors} (\Cref{lst:collektivefield}) permettono di ottenere una vista sulle entry del \texttt{Field}: la prima include il dispositivo locale, mentre la seconda restituisce solo i vicini.
 Forniscono inoltre metodi per convertire la vista sul \texttt{Field} in diverse strutture dati native di Kotlin, come \texttt{list}, \texttt{set}, \texttt{sequence} e \texttt{map} (\ref{lst:fieldsToKotlin}).
 \lstinputlisting[
     language=Kotlin,
@@ -552,23 +552,23 @@ Forniscono inoltre metodi per convertire la vista sul \texttt{Field} in diverse 
     caption={}
 ]{listings/collektive/FieldToKotlin.kt}
 
-I \texttt{Field} possono essere manipolati sfruttando \texttt{map/mapValues} e combinati tramite \texttt{alignedMap/alignedMapValues} (\ref{lst:fieldmap}).
+I \texttt{Field} possono essere manipolati sfruttando \texttt{map/mapValues} e combinati tramite \texttt{alignedMap/alignedMapValues} (\Cref{lst:fieldmap}).
 
+\newpage
 \lstinputlisting[
     language=Kotlin,
     label={lst:fieldmap},
     caption={Esempi di manipolazione e combinazione di \texttt{Field} in Collektive.}
 ]{listings/collektive/FieldManipulationAndCombination.kt}
 
-Data la verbosità delle operazioni che combinano più \texttt{Field}, Collektive fornisce operatori infissi per semplificare la scrittura del codice (\ref{lst:fieldinfix}).
+Data la verbosità delle operazioni che combinano più \texttt{Field}, Collektive fornisce operatori infissi per semplificare la scrittura del codice (\Cref{lst:fieldinfix}).
 \lstinputlisting[
     language=Kotlin,
     label={lst:fieldinfix},
     caption={Operatori infissi per la combinazione di \texttt{Field} in Collektive.}
 ]{listings/collektive/FieldInfixOperators.kt}
 
-I \texttt{Field} supportano anche operazioni di riduzione, come \texttt{fold}, oppure accedere alle funzioni di aggregazione standard di Kotlin, una volta convertiti in strutture dati native (\ref{lst:fieldfold}).
-
+I \texttt{Field} supportano anche operazioni di riduzione, come \texttt{fold}, e possono accedere alle funzioni di aggregazione standard di Kotlin una volta convertiti in strutture dati native (\Cref{lst:fieldfold}).
 \lstinputlisting[
     language=Kotlin,
     label={lst:fieldfold},
@@ -593,12 +593,10 @@ L’operatore \texttt{exchange} (\ref{lst:collektiveexchange}) è il cuore del D
     caption={Firma dell'operatore \texttt{exchange} in Collektive.}
 ]{listings/collektive/Exchange.kt}
 
-A partire da un valore iniziale (\texttt{initial}), \texttt{exchange} calcola un \texttt{Field} di valori condivisi che include sia il valore locale sia quelli dei vicini. Su questo \texttt{Field} viene applicata una funzione (\texttt{body}) che restituisce un nuovo \texttt{Field}, i cui valori vengono inviati come messaggi personalizzati ai rispettivi vicini. Il risultato evolve nel tempo: la funzione mantiene lo stato locale del campo, così che le invocazioni successive non ripartano dal valore iniziale, ma dal valore locale calcolato nel round precedente.
-
+A partire da un valore iniziale (\texttt{initial}), \texttt{exchange} calcola un \texttt{Field} che rappresenta i messaggi ricevuti. Su questo \texttt{Field} viene applicata una funzione (\texttt{body}) che restituisce un nuovo \texttt{Field}, i cui valori vengono inviati come messaggi personalizzati ai rispettivi vicini. Il risultato evolve nel tempo: la funzione mantiene lo stato locale del campo, così che le invocazioni successive non ripartano dal valore iniziale, ma dal valore locale calcolato nel round precedente.
 Questo costrutto, derivato dall’eXchange calculus (\cref{sec:xc}), permette di esprimere tutti gli altri operatori del field calculus.
 
-Un esempio di utilizzo dell’operatore \texttt{exchange} è riportato in \cref{lst:collektiveexchangeexample}.
-
+Un esempio di utilizzo dell’operatore \texttt{exchange} è riportato in \cref{lst:collektiveexchangeexample}: partendo dal valore \(0\), ogni dispositivo riceve i valori dai vicini e, in base al loro identificativo, invia a ciascuno il valore ricevuto incrementato di \(1\) oppure il suo doppio. Il valore locale viene aggiornato secondo la stessa logica, tenendo presente che il dispositivo corrente è incluso in \texttt{field}.
 \newpage
 \lstinputlisting[
     language=Kotlin,
@@ -618,11 +616,11 @@ L’operatore \texttt{share} (\cref{lst:collektiveshare}) modella l'evoluzione s
     caption={Firma dell'operatore \texttt{share} in Collektive.}
 ]{listings/collektive/Share.kt}
 
-A partire da un valore iniziale (\texttt{initial}), \texttt{share} calcola un \texttt{Field} di valori condivisi che viene processato alla funzione \texttt{body}. Il risultato prodotto da questa funzione viene memorizzato internamente e inviato a tutti i vicini. L’operatore mantiene lo stato tra i round: le invocazioni successive non ripartono dal valore iniziale, ma dal risultato calcolato nel round precedente.
+A partire da un valore iniziale (\texttt{initial}), \texttt{share} costruisce un \texttt{Field} di valori condivisi, che viene elaborato dalla funzione \texttt{body}. Il risultato prodotto da questa funzione viene memorizzato internamente e inviato a tutti i vicini. L’operatore mantiene lo stato tra i round: le invocazioni successive non ripartono dal valore iniziale, ma dal risultato calcolato nel round precedente.
 %
-Internamente è implementato tramite \texttt{exchange} (\ref{sec:collektiveexchange}).
+Internamente, è implementato tramite \texttt{exchange} (\ref{sec:collektiveexchange}).
 
-Un esempio di utilizzo dell’operatore \texttt{share} è riportato in \cref{lst:temperatureck}, dove ogni dispositivo calcola la propria temperatura in base a quella dei vicini e, una volta ottenuto il risultato, lo condivide con tutti i dispositivi adiacenti.
+Un esempio di utilizzo dell’operatore \texttt{share} è riportato in \cref{lst:temperatureck}, dove ogni dispositivo calcola la propria temperatura in base a quella dei vicini e, una volta ottenuto il risultato, lo condivide con tutti i nodi adiacenti.
 
 
 \paragraph{Neighboring} l'operatore \texttt{neighboring} (\cref{lst:collektivenbr}), corrispondente al costrutto \texttt{nbr} del field calculus (\cref{sec:fieldcalculus}), consente a un dispositivo di accedere ai valori calcolati dai vicini nell'ultimo round di esecuzione.
@@ -639,7 +637,7 @@ Per minimizzare la comunicazione, si usano le varianti $\texttt{neighborhood}$ e
 \\
 $\texttt{mapNeighborhood}$. La prima restituisce un $\texttt{Field}$ con i soli identificatori dei vicini, mentre la seconda consente di mappare ciascun vicino ad un valore calcolato dal dispositivo corrente.
 
-La \cref{lst:collektivenbrexamples} mostra la differenza tra i tre operatori, considerando un dispositivo con tre vicini identificati da \(1\), \(2\) e \(3\). L’operatore \texttt{neighboring} crea un \texttt{Field} in cui a ciascun nodo \(\delta_i\) del vicinato è associato il proprio valore locale \texttt{x\(_i\)}. Con \texttt{neighborhood} si ottiene invece un \texttt{Field} che associa a ogni vicino il valore \(0\), utile per identificare i dispositivi adiacenti senza scambiare informazioni aggiuntive. Infine, \texttt{mapNeighborhood} produce un \texttt{Field} che associa a ciascun vicino \(\delta_i\) il valore \texttt{x\(_0\)}, ovvero il valore locale del dispositivo corrente.
+La \cref{lst:collektivenbrexamples} illustra la differenza tra i tre operatori, considerando un dispositivo con tre vicini identificati da \(1\), \(2\) e \(3\). L’operatore \texttt{neighboring} crea un \texttt{Field} in cui a ciascun nodo \(\delta_i\) del vicinato è associato il proprio valore locale \texttt{x\(_i\)}. Con \texttt{neighborhood} si ottiene invece un \texttt{Field} che associa a ogni vicino il valore \(0\), utile per identificare i dispositivi adiacenti senza scambiare informazioni aggiuntive. Infine, \texttt{mapNeighborhood} produce un \texttt{Field} che associa a ciascun vicino \(\delta_i\) il valore \texttt{x\(_0\)}, cioè il valore locale del dispositivo corrente.
 %
 \lstinputlisting[
     language=Kotlin,
@@ -657,7 +655,7 @@ La \cref{lst:collektivenbrexamples} mostra la differenza tra i tre operatori, co
 %
 A partire da un valore iniziale (\texttt{initial}), a ogni round di esecuzione ciascun dispositivo applica la funzione \texttt{transform} al valore corrente per determinare il valore del round successivo.
 
-In \cref{lst:collektiveevolveexample} si mostra come utilizzare l'operatore \texttt{evolve} per creare un campo che associa ad ogni dispositivo un contatore che si incrementa ad ogni round di esecuzione.
+In \cref{lst:collektiveevolveexample} si mostra come utilizzare l'operatore \texttt{evolve} per creare un campo che associa ad ogni dispositivo un contatore che incrementa ad ogni round.
 %
 \lstinputlisting[
     language=Kotlin,
@@ -676,11 +674,11 @@ In questa sezione verranno presentate solamente le funzionalità utilizzate nel 
 
 Tra le principali, troviamo \texttt{gradientCast}, \texttt{multiGradientCast} e \texttt{distanceTo}.
 %
-La funzione \texttt{gradientCast} (\cref{lst:gradientcast}) permette di diffondere un valore locale da una sorgente a tutta la rete, assegnando a ciascun dispositivo il valore proveniente dalla sorgente più vicina.
+La funzione \texttt{gradientCast} (\Cref{lst:gradientcast}) permette di diffondere un valore locale da una sorgente a tutta la rete, assegnando a ciascun dispositivo il valore proveniente dalla sorgente più vicina.
 %
-\texttt{multiGradientCast} (\cref{lst:multigradientcast}) amplia questa funzionalità, consentendo a ogni dispositivo di ottenere una mappa dei valori propagati da tutte le sorgenti presenti nella rete.
+\texttt{multiGradientCast} (\Cref{lst:multigradientcast}) amplia questa funzionalità, consentendo a ogni dispositivo di ottenere una mappa dei valori propagati da tutte le sorgenti presenti nella rete.
 %
-Infine, \texttt{distanceTo} (\cref{lst:distanceto}) calcola la distanza minima dalla sorgente più vicina.
+Infine, \texttt{distanceTo} (\Cref{lst:distanceto}) calcola la distanza minima dalla sorgente più vicina.
 
 \lstinputlisting[
     language=Kotlin,
@@ -701,8 +699,6 @@ Infine, \texttt{distanceTo} (\cref{lst:distanceto}) calcola la distanza minima d
     caption={Firma della funzione distanceTo dalla libreria standard di Collektive}
 ]{listings/collektive/DistanceTo.kt}
 
-\paragraph{Accumulation} Questo package implementa funzioni per accumulare valori su alcuni nodi della rete.
-
 \paragraph{Accumulation} Questo package offre funzioni per l’accumulo di valori su specifici nodi della rete.
 
 La funzione \texttt{convergeCast} (\cref{lst:convergeCast}) permette di aggregare un campo computazionale verso una destinazione, seguendo la discesa del gradiente di un campo potenziale fornito e applicando una funzione di accumulo a ciascun nodo attraversato.
@@ -721,9 +717,7 @@ La funzione \texttt{countDevices} (\cref{lst:countDevices}), basata su \texttt{c
 ]{listings/collektive/CountDevices.kt}
 
 
-\paragraph{Collapse} Questo package fornisce funzioni per ridurre un \texttt{Field} a un singolo valore.
-
-\paragraph{Collapse} Questo package fornisce funzioni per ridurre un \texttt{Field} a un singolo valore.
+\paragraph{Collapse} Questo package mette a disposizione funzioni di riduzione per ottenere un singolo valore a partire da un \texttt{Field}.
 
 \texttt{all}, \texttt{any} e \texttt{countMatching} (\cref{lst:collapsebypredicate}) valutano un predicato su tutti i valori di un \texttt{Field}: \texttt{all} restituisce \texttt{true} se tutti i valori lo soddisfano, \texttt{any} restituisce \texttt{true} se almeno uno lo soddisfa, mentre \texttt{countMatching} restituisce il numero di valori che soddisfano il predicato.
 
