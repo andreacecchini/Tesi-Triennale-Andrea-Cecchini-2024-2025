@@ -36,7 +36,13 @@
 \frontmatter\frontispiece
 
 \begin{abstract}	
-Max 2000 characters, strict.
+
+La rapida diffusione di dispositivi intelligenti ha reso sempre più centrale la programmazione di sistemi distribuiti su larga scala. I paradigmi tradizionali, incentrati sul singolo dispositivo, evidenziano limiti in termini di modularità, scalabilità e resilienza, rendendo complessa la progettazione di applicazioni collettive. La programmazione aggregata affronta queste criticità adottando una prospettiva globale: il comportamento dell’intera rete viene descritto tramite un unico programma aggregato, fondato su formalismi come il Field Calculus e le sue estensioni.
+
+Nel corso degli anni sono stati sviluppati diversi linguaggi e framework per supportare questo paradigma, ciascuno con punti di forza e debolezze. MIT Proto ha rappresentato una pietra miliare storica, ma soffre di limitazioni legate a ergonomia e portabilità. Collektive, un Domain-Specific Language interno a Kotlin, si propone come soluzione moderna, offrendo una sintassi espressiva, gestione trasparente dell’allineamento e supporto multipiattaforma grazie a Kotlin Multiplatform.
+
+Questo lavoro presenta la trasposizione di una selezione di programmi aggregati, originariamente sviluppati in Proto, nell’ecosistema Collektive. L’obiettivo è fornire una guida pratica alla migrazione di sistemi esistenti verso soluzioni più moderne e robuste, facilitando l’adozione delle nuove tecnologie.
+
 \end{abstract}
 
 \begin{dedication} % this is optional
@@ -209,7 +215,7 @@ Ogni costrutto di \ac{FC} può essere espresso in termini di \texttt{exchange}, 
 \section{Motivazione}
 \label{sec:motivazione}
 
-Il panorama della programmazione aggregata è caratterizzato da diversi linguaggi e framework che implementano i concetti fondamentali del field calculus, ognuno con specifiche caratteristiche, vantaggi e svantaggi. 
+Il panorama della programmazione aggregata è caratterizzato da diversi linguaggi e framework che implementano i concetti fondamentali del field calculus, ognuno con specifici vantaggi e svantaggi. 
 Tra le soluzioni più note e consolidate si annoverano MIT Proto \cite{proto} (\cref{sec:mitproto}), Protelis \cite{protelis} (\cref{sec:protelis}), ScaFi \cite{scafi} (\cref{sec:scafi}) e FCPP \cite{fcpp} (\cref{sec:fcpp}). 
 
 In questo scenario, l'ultima proposta è Collektive (\cref{sec:collektive}), un \ac{DSL} sviluppato in Kotlin. Collektive si pone l'obiettivo di sintetizzare i punti di forza dei linguaggi esistenti, superandone al contempo le limitazioni strutturali, rappresentando così un passo in avanti nel contesto della programmazione aggregata.
@@ -220,30 +226,29 @@ In questo scenario, l'ultima proposta è Collektive (\cref{sec:collektive}), un 
 
 \emph{Proto} \cite{proto}, riconosciuto come il precursore della programmazione aggregata, fu concepito originariamente da Jonathan Bachrach e Jacob Beal e si basa sui principi teorici dell'\emph{Amorphous Computing} \cite{Amorphous}. 
 
-Proto è caratterizzato come un linguaggio puramente funzionale con una sintassi ispirata al Lisp (\Cref{lst:mitprotoexample}).
-
+È un linguaggio puramente funzionale, con una sintassi ispirata al Lisp (\Cref{lst:mitprotoexample}).
 \lstinputlisting[
     language=Lisp,
     label={lst:mitprotoexample},
     caption={Dimostrazione della sintassi di Proto}
 ]{listings/proto/gradient.proto}
 
-%
-A supporto della sua funzionalità, veniva fornito un simulatore integrato che consentiva di eseguire e testare i programmi in ambienti simulati. Inoltre, fu successivamente sviluppato WebProto, un ambiente di prototipazione web che permetteva di scrivere e testare codice Proto direttamente nei browser.
+A supporto delle sue funzionalità, veniva fornito un simulatore integrato che consentiva di eseguire e testare i programmi in ambienti simulati. Successivamente fu sviluppato anche WebProto, un ambiente di prototipazione web che permetteva di scrivere e testare codice aggregato direttamente dal browser.
 
-Lo sviluppo del linguaggio è stato interrotto nel 2016 e il linguaggio è stato ufficialmente dismesso in favore di Protelis \cite{protelis}  (\Cref{sec:protelis}), che ne ha raccolto l'eredità concettuale e operativa.
+Lo sviluppo del linguaggio è stato interrotto nel 2016 e Proto è stato ufficialmente dismesso in favore di Protelis \cite{protelis} (\Cref{sec:protelis}), che ne ha raccolto l'eredità concettuale e operativa.
 
-La sintassi e i costrutti del linguaggio veranno esaminati in dettaglio nel \cref{chap:mitproto}.
+La sintassi e i costrutti del linguaggio verranno esaminati in dettaglio nel \cref{chap:mitproto}.
 
 \subsection{Protelis}
 \label{sec:protelis}
 
-\emph{Protelis} \cite{protelis} è un linguaggio di programmazione funzionale noto per essere il primo ad aver implementato i concetti del \ac{HFC} (\Cref{sec:fieldcalculus}). La sua sintassi è ispirata al linguaggio C, il che lo rende più accessibile rispetto al suo predecessore, Proto (\Cref{sec:mitproto}), ed è caratterizzato dall'essere debolmente tipizzato (\Cref{lst:protelisexample}).
+\emph{Protelis} \cite{protelis} è un linguaggio di programmazione funzionale ed è il primo noto ad aver implementato i concetti dell'High-Order Field Calculus (\Cref{sec:fieldcalculus}). La sua sintassi è ispirata al linguaggio $\text{C}$, il che lo rende più accessibile rispetto al suo predecessore Proto (\Cref{sec:mitproto}). È inoltre caratterizzato dall'essere debolmente tipizzato (\Cref{lst:protelisexample}).
 
-Protelis è un linguaggio stand-alone basato sulla JVM e completamente interoperabile con Java. Sfrutta Xtext, un framework per la creazione di \ac{DSL}, che fornisce gli strumenti e le librerie necessarie per lo sviluppo. Per questo motivo, la sua esecuzione richiede la presenza di una Java Virtual Machine. Questo requisito, sebbene garantisca l'integrazione con l'ampio ecosistema Java, rappresenta una limitazione per l'impiego in ambienti con risorse estremamente ristrette, come quelli tipici dell'\ac{IoT}.
+$\text{Protelis}$ è un linguaggio stand-alone basato sulla Java Virtual Machine (JVM). Sfrutta $\text{Xtext}$, un framework per la creazione di \ac{DSL}, che fornisce strumenti e librerie essenziali per lo sviluppo.
+%
+L'esecuzione dei programmi avviene tramite un interprete che valuta periodicamente il codice pre-parsato. Questo gestisce in modo automatico la comunicazione tra dispositivi e l'interazione con l'ambiente. Poiché l'interprete è stato scritto da zero, i meccanismi di basso livello, come l'allineamento, sono gestiti in modo trasparente per l'utente finale.
 
-Nonostante questa dipendenza dalla JVM, Protelis offre caratteristiche fondamentali e desiderabili per la programmazione aggregata proprio grazie al suo essere un DSL esterno. Questa natura gli permette di impedire che meccanismi di linguaggio di basso livello - come la gestione esplicita dell'allineamento - possano affiorare durante la scrittura del codice, preservando efficacemente il principio di information hiding e incapsulamento.
-
+L'integrazione con la JVM garantisce portabilità tra sistemi e dispositivi, oltre a facilitare l'importazione di numerose librerie e API tramite i meccanismi di reflection di Java. Tuttavia, la necessità di una Java Virtual Machine rappresenta una limitazione per l'impiego in ambienti con risorse estremamente ristrette, come quelli tipici dell'\ac{IoT}, riducendo l'eterogeneità dei dispositivi utilizzabili.
 
 Attualemente il linguaggio è attivamente mantenuto, ma lo sviluppo di nuove funzionalità è stato congelato.
 
@@ -256,20 +261,13 @@ Attualemente il linguaggio è attivamente mantenuto, ma lo sviluppo di nuove fun
 \subsection{ScaFi}
 \label{sec:scafi}
 
-ScaFi \cite{scafi} (Scala Fields) è un framework basato su Scala per la programmazione aggregata, implementato come \ac{DSL} interno al linguaggio.
+\emph{ScaFi} \cite{scafi} (Scala Fields) è un framework per la programmazione aggregata, realizzato come \ac{DSL} interno al linguaggio Scala e basato su \ac{FC} (\ref{sec:fieldcalculus}), in particolare sulla variante FScaFi \cite{fscafi}.
 
-Esso pone le proprie basi su \ac{FC} (\ref{sec:fieldcalculus}), in particolare su una sua variante denominata FScaFi \cite{fscafi}.
+Offre un ecosistema completo per lo sviluppo di programmi aggregati, comprendente librerie, strumenti di simulazione e la possibilità di prototipazione rapida anche via browser grazie a ScaFi Web \cite{scafiweb}.
 
-Il framework offre un ambiente completo per lo sviluppo di programmi aggregati, inclusivo di librerie, un ambiente di simulazione e un runtime basato su attori, con la possibilità di prototipazione rapida anche su browser web tramite lo strumento ScaFi Web \cite{scafiweb}.
+L’integrazione come \ac{DSL} interno consente a ScaFi di beneficiare direttamente della sintassi (\Cref{lst:scafiexample}), del compilatore e degli strumenti di Scala, risultando così più semplice da mantenere, immediatamente familiare per chi già conosce il linguaggio ospite e in grado di sfruttare appieno il potente sistema di tipi di Scala.
 
-L'implementazione come \ac{DSL} interno conferisce al linguaggio diversi vantaggi: beneficia direttamente della sintassi (\ref{lst:scafiexample}), del compilatore e degli strumenti di Scala, risultando così più semplice da mantenere e immediatamente familiare per gli sviluppatori che già conoscono il linguaggio ospite. 
-Inoltre, sfrutta pienamente il potente sistema di tipi di Scala.
-
-Tuttavia, questa scelta comporta anche alcune limitazioni.
-%
-In quanto \ac{DSL} interno, la sintassi di ScaFi è vincolata ai costrutti validi di Scala e, aspetto cruciale per la programmazione aggregata, si rischia l'emersione involontaria di meccanismi di basso livello che non dovrebbero essere esposti all'utente finale, come la gestione dell'allineamento.
-%
-Inoltre, ScaFi è prevalentemente progettato per l'esecuzione sulla Java Virtual Machine causando una limitazione della sua applicabilità, evidenziando le stesse limitazioni riscontrate in Protelis (\ref{sec:protelis}).
+Questa scelta, tuttavia, comporta anche alcune limitazioni: la sintassi è vincolata ai costrutti validi di Scala e, aspetto cruciale per la programmazione aggregata, possono emergere involontariamente dettagli di basso livello che non dovrebbero essere esposti all’utente finale, come la gestione dell’allineamento. Inoltre, essendo pensato principalmente per l’esecuzione sulla Java Virtual Machine, ScaFi condivide le stesse limitazioni di applicabilità già riscontrate in Protelis (\ref{sec:protelis}).
 
 \lstinputlisting[
     language=Scala,
@@ -280,13 +278,11 @@ Inoltre, ScaFi è prevalentemente progettato per l'esecuzione sulla Java Virtual
 \subsection{FCPP}
 \label{sec:fcpp}
 
-\emph{FCPP} \cite{fcpp} rappresenta la prima implementazione nativa per la programmazione aggregata in \texttt{C++} (\texttt{C++14}). 
+\emph{FCPP} \cite{fcpp} rappresenta la prima implementazione nativa della programmazione aggregata in \(\text{C++}\).
 
-Il fatto che FCPP si basi su \texttt{C++} è un aspetto cruciale, poiché permette l'esecuzione del codice direttamente sul dispositivo senza dipendere da nessuna macchina virtuale.
-Questa scelta offre due vantaggi significativi: in primo luogo, è particolarmente adatta per l'esecuzione su dispositivi con risorse limitate, tipici dell'Internet of Things (\ac{IoT}), superando così le limitazioni legate alla dipendenza dalla \ac{JVM} riscontrate in framework come Protelis (\ref{sec:protelis}) e ScaFi (\ref{sec:scafi}); in secondo luogo, garantisce un'implementazione del paradigma aggregato molto performante. 
+L’utilizzo di \(\text{C++}\) come linguaggio di base è un elemento chiave, poiché consente l’esecuzione diretta del codice sui dispositivi, senza la necessità di una macchina virtuale. Questo approccio offre due vantaggi principali: da un lato, risulta particolarmente adatto a dispositivi con risorse limitate, tipici dell'\ac{IoT}, superando così le restrizioni imposte dalla dipendenza dalla \ac{JVM} che caratterizzano soluzioni come Protelis e ScaFi; dall’altro, permette di ottenere prestazioni elevate nell’implementazione del paradigma aggregato.
 
-L'adozione di \texttt{C++}, come linguaggio host, comporta anche sfide e limitazioni.
-La complessità intrinseca della sintassi di \texttt{C++} (\ref{lst:fcppexample}) e la scarsa ergonomia di \texttt{FCPP} rispetto ad altri framework rendono improbabile che possa raggiungere un vasto pubblico di sviluppatori. Inoltre, l'allineamento dei dati non è trasparente, ma viene gestito manualmente tramite macro. Sebbene FCPP sia concepito come una piattaforma flessibile ed estensibile, la gamma di funzionalità attualmente supportate risulta più limitata rispetto a quelle offerte dalle alternative.
+Tuttavia, la scelta di \(\text{C++}\) comporta anche alcune criticità. La complessità della sintassi (\Cref{lst:fcppexample}) e la limitata ergonomia rispetto ad altre soluzioni rendono difficile l’adozione da parte di un ampio pubblico di sviluppatori. Inoltre, la gestione dell’allineamento non è trasparente, ma richiede interventi manuali tramite macro. Sebbene FCPP sia pensato come una piattaforma flessibile ed estensibile, il numero di funzionalità attualmente disponibili risulta inferiore rispetto alle alternative.
 
 \lstinputlisting[
     language=C++,
@@ -299,9 +295,9 @@ La complessità intrinseca della sintassi di \texttt{C++} (\ref{lst:fcppexample}
 \subsection{Collektive}
 \label{sec:collektive}
 
-\emph{Collektive} nasce dall’esigenza di disporre di un linguaggio che garantisca una gestione dell’allineamento robusta e completamente trasparente; sia multipiattaforma e quindi adatto a operare su reti di dispositivi eterogenei; offra una sintassi moderna, espressiva ed ergonomica; possa contare su un ecosistema maturo e ricco di strumenti grazie al linguaggio host.
+\emph{Collektive} nasce dall’esigenza di disporre di un linguaggio che garantisca una gestione dell’allineamento robusta e completamente trasparente; sia multipiattaforma e quindi adatto a operare su reti di dispositivi eterogenei; offra una sintassi moderna, espressiva ed ergonomica; possa contare su un ecosistema maturo e funzionalità del linguaggio host.
 
-I linguaggi analizzati in precedenza non riescono a soddisfare tutti questi requisiti contemporaneamente: Protelis offre una buona gestione dell'allineamento ma dipende dalla \ac{JVM} \ref{sec:protelis}; ScaFi è anch'esso vincolato alla \ac{JVM} e presenta un allineamento debole\ref{sec:scafi}; FCPP è nativo e performante ma manca di ergonomia, semplicità d'uso e trasparenza \ref{sec:fcpp}.
+I linguaggi analizzati in precedenza non riescono a soddisfare tutti questi requisiti contemporaneamente: Protelis offre una buona gestione dell'allineamento ma dipende dalla \ac{JVM}; ScaFi è anch'esso vincolato alla \ac{JVM} e presenta un allineamento debole; FCPP è nativo e performante ma manca di ergonomia, semplicità d'uso e trasparenza.
 
 Come ScaFi, Collektive è implementato come un \ac{DSL} interno; tuttavia, a differenza di ScaFi, il compilatore del linguaggio host, Kotlin, è stato esteso per gestire automaticamente l’allineamento del codice aggregato. 
 Ciò è reso possibile dal design modulare del compilatore Kotlin, che consente l’aggiunta e la modifica di funzionalità tramite plugin.
@@ -311,7 +307,7 @@ Se si volesse gestire manualmente l'allineamento, sarebbe sufficiente adottare u
 \lstinputlisting[
     language=Kotlin,
     label={lst:ckmanuallyaligned},
-    caption={Gestione manuale dell'allineamento in Collektive, se non fosse stato esteso il compilatore di Kotlin.}
+    caption={Come apparirebbe un programma aggregato in Collektive se l'allineamento fosse gestito manualmente dallo sviluppatore invece che automaticamente dal compilatore.}
 ]{listings/collektive/GradientManuallyAligned.kt}
 
 Il plugin del compilatore si occupa di iniettare automaticamente il codice necessario per gestire l’allineamento e la proiezione dei campi di vicinato, permettendo agli sviluppatori di scrivere programmi aggregati in Kotlin in modo naturale.
@@ -334,7 +330,7 @@ Quando emerge un nuovo linguaggio o framework, è fondamentale che gli sviluppat
 
 Fornire esempi concreti di trasposizione di sistemi legacy a nuove soluzioni dimostra l'espressività del nuovo sistema rispetto ai precedenti, riduce significativamente il tempo di apprendimento e accresce la fiducia nella nuova tecnologia.
 
-Questo lavoro si propone di trasporre una serie di esempi di programmazione aggregata realizzati originariamente in Proto (\ref{sec:mitproto}) al linguaggio Collektive (\cref{chap:trasposizione}).
+Questo lavoro si propone di trasporre una serie di esempi di programmazione aggregata realizzati originariamente in Proto (\Cref{sec:mitproto}) al linguaggio Collektive (\Cref{chap:trasposizione}).
 
 %----------------------------------------------------------------------------------------
 \chapter{MIT-Proto}
@@ -1274,6 +1270,16 @@ Si osserva come i dispositivi si organizzino spontaneamente in tre stormi, ciasc
     \label{fig:flock-simulation}
 \end{figure}
 
+\newpage
+
+\chapter{Conclusioni}
+\label{sec:conclusions}
+
+L’obiettivo di questa tesi è stato trasporre una selezione di programmi aggregati, originariamente sviluppati in Proto, nel linguaggio Collektive, con l’intento di offrire una guida pratica alla migrazione di sistemi legacy verso soluzioni più moderne e accessibili.
+
+L’esperienza maturata ha evidenziato come Collektive sia in grado di esprimere in modo chiaro ed efficace le logiche dei programmi originali, migliorando la leggibilità del codice e semplificando lo sviluppo grazie a una libreria standard ricca e versatile. La gestione trasparente di aspetti complessi, come l’allineamento, contribuisce inoltre a ridurre la complessità e il rischio di errori, rendendo il linguaggio particolarmente adatto all’adozione in contesti reali.
+
+Un naturale sviluppo futuro di questo lavoro potrebbe consistere in un confronto sistematico tra Collektive e altri linguaggi di programmazione aggregata, come Protelis e ScaFi. Inoltre, per favorire la diffusione e l’utilizzo di Collektive, sarebbe opportuno completare e aggiornare la guida presente sulla pagina ufficiale del progetto.
 
 \backmatter
 
