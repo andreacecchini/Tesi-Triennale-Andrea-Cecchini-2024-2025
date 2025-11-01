@@ -39,14 +39,15 @@
 
 La rapida diffusione di dispositivi intelligenti ha reso sempre più centrale la programmazione di sistemi distribuiti su larga scala. I paradigmi tradizionali, incentrati sul singolo dispositivo, evidenziano limiti in termini di modularità, scalabilità e resilienza, rendendo complessa la progettazione di applicazioni collettive. La programmazione aggregata affronta queste criticità adottando una prospettiva globale: il comportamento dell’intera rete viene descritto tramite un unico programma aggregato, fondato su formalismi come il Field Calculus e le sue estensioni.
 
-Nel corso degli anni sono stati sviluppati diversi linguaggi e framework per supportare questo paradigma, ciascuno con punti di forza e debolezze. MIT Proto ha rappresentato una pietra miliare storica, ma soffre di limitazioni legate a ergonomia e portabilità. Collektive, un Domain-Specific Language interno a Kotlin, si propone come soluzione moderna, offrendo una sintassi espressiva, gestione trasparente dell’allineamento e supporto multipiattaforma grazie a Kotlin Multiplatform.
+Nel corso degli anni sono stati sviluppati diversi linguaggi e framework per supportare questo paradigma, ciascuno con punti di forza e debolezze. MIT Proto ha rappresentato una pietra miliare storica, ma soffre di limitazioni legate ad ergonomia e portabilità. Collektive, un Domain-Specific Language interno a Kotlin, si propone come soluzione moderna, offrendo una sintassi espressiva, gestione trasparente dell’allineamento e supporto multipiattaforma.
 
 Questo lavoro presenta la trasposizione di una selezione di programmi aggregati, originariamente sviluppati in Proto, nell’ecosistema Collektive. L’obiettivo è fornire una guida pratica alla migrazione di sistemi esistenti verso soluzioni più moderne e robuste, facilitando l’adozione delle nuove tecnologie.
 
 \end{abstract}
 
 \begin{dedication} % this is optional
-Alla mia patatina.
+Alla mia famiglia, per il supporto incondizionato e l'incoraggiamento costante.
+A Maria Chiara e ai miei amici, per la pazienza e la comprensione dimostrate durante questo percorso.
 \end{dedication}
 
 %----------------------------------------------------------------------------------------
@@ -128,7 +129,7 @@ Dal punto di vista locale, la computazione è vista dal singolo dispositivo \(\d
 %
 In questa visione, il dispositivo \(\delta_i\) non può percepire l'intero campo globale, ma solo una proiezione limitata ai dispositivi entro il proprio raggio di comunicazione, definita come \textit{campo di vicinato}, ovvero una mappa \(\phi: \delta \to v\) che associa a ciascun vicino \(\delta_j\) il valore \(v_j\) più recente.
 %
-In ogni round, il dispositivo i) raccoglie i valori dal proprio campo di vicinato \(\phi_i\); ii) ottiene le informazioni dall'ambiente (eg. sensori); iii) recupera lo stato interno memorizzato nell’ultimo round, se disponibile; (iv) valuta il programma \texttt{P} utilizzando queste informazioni; v) aggiorna il proprio stato e invia il valore risultante ai vicini; vi) attende il successivo round di esecuzione \cite{HFC}.
+In ogni round, il dispositivo i) raccoglie i valori dal proprio campo di vicinato \(\phi_i\); ii) ottiene le informazioni dall'ambiente (eg. sensori); iii) recupera lo stato interno; (iv) valuta il programma \texttt{P} utilizzando queste informazioni; v) aggiorna il proprio stato e invia il valore risultante ai vicini; vi) attende il successivo round di esecuzione \cite{HFC}.
 
 
 \paragraph{Sintassi}
@@ -137,9 +138,9 @@ I costrutti fondamentali di \ac{FC} \cite{AC} sono:
 \begin{itemize}
     \item Chiamate a funzione: \texttt{b(\(e_1, \dots, e_n\))} applica la funzione \texttt{b} agli argomenti \texttt{\(e_1, \dots, e_n\)}, restituendo un nuovo campo computazionale.
 
-    \item Dinamica Temporale: $\texttt{rep(e0) \{(x) => e\}}$ è fondamentale per modellare l'evoluzione nel tempo di un campo computazionale. Inizializza una variabile di stato locale $\texttt{x}$ con il valore iniziale $\texttt{e}_0$ e, a ogni round di esecuzione, aggiorna $\texttt{x}$ con il risultato dell'espressione $\texttt{e}$. L'espressione $\texttt{e}$ può fare riferimento al valore precedente di $\texttt{x}$, consentendo la definizione di processi iterativi.
+    \item Dinamica Temporale: $\texttt{rep(\(e_0\)) \{(x) => e\}}$ è fondamentale per modellare l'evoluzione nel tempo di un campo. Inizializza una variabile di stato locale $\texttt{x}$ con il valore iniziale $\texttt{e}_0$ e, ad ogni round di esecuzione, aggiorna $\texttt{x}$ con il risultato dell'espressione $\texttt{e}$. L'espressione $\texttt{e}$ può fare riferimento al valore precedente di $\texttt{x}$, consentendo la definizione di processi iterativi.
 
-    \item Interazione Spaziale: $\texttt{nbr\{e\}}$ modella l'evoluzione spaziale del campo computazionale, consentendo a un dispositivo di accedere ai valori calcolati dai vicini nell'ultimo round di esecuzione. Restituisce un campo di vicinato ($\phi$) che mappa l'identificatore di ogni vicino all'espressione $\texttt{e}$ valutata in quel dispositivo. I campi di vicinato così ottenuti possono essere manipolati tramite funzioni di aggregazione spaziale, come $\texttt{min-hood}$, $\texttt{max-hood}$, $\texttt{sum-hood}$ e altre.
+    \item Interazione Spaziale: $\texttt{nbr\{e\}}$ modella l'evoluzione spaziale del campo, consentendo a un dispositivo di accedere ai valori calcolati dai vicini nell'ultimo round di esecuzione. Restituisce un campo di vicinato ($\phi$) che mappa l'identificatore di ogni vicino all'espressione $\texttt{e}$ valutata in quel dispositivo. I campi di vicinato così ottenuti possono essere manipolati tramite funzioni di aggregazione spaziale, come $\texttt{min-hood}$, $\texttt{max-hood}$, $\texttt{sum-hood}$ e altre.
 
     \item Restrizione dello spazio: \texttt{if (\(e_0\)) \{\(e_1\)\} else \{\(e_2\)\}} partiziona lo spazio dei dispositivi in due sottoinsiemi \(D_{true}\) e \(D_{false}\) in base alla valutazione di \texttt{\(e_0\)}. Se un dispositivo \(\delta\) appartiene a \(D_{true}\), valuta esclusivamente l’espressione \(e_1\), ignorando \(e_2\); viceversa, se appartiene a \(D_{false}\), valuta solo \(e_2\). In entrambi i casi, le informazioni di stato e i valori scambiati con i vicini non vengono condivisi tra i due rami: quando un dispositivo passa da un ramo all’altro, le variabili di stato vengono reinizializzate e i valori precedenti vengono persi. Se è necessario condividere informazioni tra i rami, si può utilizzare il costrutto \texttt{mux(\(e_0, e_1, e_2\))}, che valuta entrambe le espressioni \texttt{\(e_1\)} e \texttt{\(e_2\)}, senza partizionare lo spazio, restituendo il valore corrispondente a \texttt{\(e_0\)}.
 
@@ -150,7 +151,7 @@ I costrutti fondamentali di \ac{FC} \cite{AC} sono:
     Nonostante la sintassi sia identica a quella di \texttt{rep}, i due si distinguono radicalmente per l'interpretazione della variabile \texttt{x} ad ogni round. Nel caso di \texttt{share}, \texttt{x} non rappresenta un valore locale (come in \texttt{rep}), bensì un campo di vicinato ($\phi$) che contiene i valori condivisi dai vicini nel round precedente. L'espressione \texttt{\(e_2\)} ha quindi il compito di elaborare questo campo di vicinato per produrre il nuovo valore locale, che sarà poi utilizzato come \texttt{\(e_1\)} nel round successivo e condiviso con i vicini.
 \end{itemize}
 
-\paragraph{Allineamento} Ogni dispositivo deve comunicare esclusivamente con i dispositivi che si trovano nello stesso contesto di esecuzione, ossia che hanno seguito lo stesso percorso di valutazione del programma: hanno invocato le stesse funzioni e preso le stesse decisioni. Tali dispositivi si definiscono \textit{allineati}.
+\paragraph{Allineamento} Ogni nodo deve comunicare esclusivamente con i dispositivi che si trovano nello stesso contesto di esecuzione, ossia che hanno seguito lo stesso percorso di valutazione del programma: hanno invocato le stesse funzioni e preso le stesse decisioni. Tali dispositivi si definiscono \textit{allineati}.
 
 Si consideri l'esempio in \cref{lst:alignment}, in cui sono definite due funzioni, \texttt{f1} e \texttt{f2}, entrambe contenenti il costrutto \texttt{nbr} applicato alla stessa espressione \texttt{e1}. Quando un dispositivo esegue \texttt{nbr \{e1\}} all'interno di \texttt{f1}, deve recuperare i valori dei vicini che hanno valutato quella stessa espressione nello stesso contesto, ovvero all'interno di \texttt{f1}. Se invece un vicino ha calcolato \texttt{nbr \{e1\}} all'interno di \texttt{f2}, il suo valore non è rilevante per il dispositivo che sta eseguendo \texttt{nbr \{e1\}} in \texttt{f1}.
 
@@ -162,17 +163,17 @@ Si consideri l'esempio in \cref{lst:alignment}, in cui sono definite due funzion
 
 Questo aspetto risulta particolarmente evidente nel costrutto \texttt{if}, che non si limita a determinare quale ramo eseguire, ma suddivide lo spazio dei dispositivi in due gruppi distinti, ciascuno con il proprio contesto di esecuzione. In questi casi, l’allineamento diventa fondamentale per garantire che la comunicazione avvenga solo tra dispositivi che hanno scelto lo stesso ramo.
 
-Poiché i nodi non possiedono una memoria condivisa per tenere traccia dello stato della computazione su ciascuno, è necessario introdurre meccanismi di allineamento che permettano di monitorare lo stato computazionale di ogni dispositivo e di individuare quali sono effettivamente allineati tra loro. In un linguaggio di programmazione ideale, questi dettagli di basso livello dovrebbero rimanere trasparenti all’utente finale.
+Poiché i nodi non possiedono una memoria condivisa per tenere traccia dello stato della computazione su ciascuno, è necessario introdurre meccanismi di allineamento che permettano di monitorare lo stato computazionale di ogni dispositivo e di individuare quali siano effettivamente allineati tra loro. In un linguaggio di programmazione ideale, questi dettagli di basso livello dovrebbero rimanere trasparenti all’utente finale.
 
-\paragraph{High-Order Field Calculus} \ac{FC} è stato esteso in \cite{HFC} con l’introduzione dell'\ac{HFC}, che consente di trattare le funzioni come cittadini di prima classe, ovvero come qualsiasi altro valore. Questa estensione abilita alcune capacità fondamentali: i) le funzioni possono accettare altre funzioni come argomenti e restituirle come risultati; ii) possono essere create dinamicamente; iii) possono essere trasferite tra dispositivi (tramite \texttt{nbr}) e memorizzate o modificate nel tempo (tramite \texttt{rep}); iv) inoltre, durante un partizionamento spaziale, i dispositivi possono eseguire funzioni diverse in base alla valutazione di una condizione.
+\paragraph{High-Order Field Calculus} \ac{FC} è stato esteso in \cite{HFC} con l’introduzione dell'\ac{HFC}, che consente di trattare le funzioni come cittadini di prima classe, ovvero come qualsiasi altro valore. Questa estensione abilita alcune capacità fondamentali: i) le funzioni possono accettare altre funzioni come argomenti e restituirle come risultati; ii) possono essere create dinamicamente; iii) possono essere trasferite tra dispositivi (tramite \texttt{nbr}) e memorizzate o modificate nel tempo (tramite \texttt{rep}).
 
-\subsection{XC Calculus}
+\subsection{XC}
 \label{sec:xc}
 
 \ac{XC} è un linguaggio di programmazione funzionale sperimentale che generalizza ed estende le capacità di \ac{FC} \cite{XC}, formalizzando un insieme di meccanismi chiave, ancora più minimali rispetto a \ac{FC}, per esprimere in modo essenziale il comportamento complessivo dei sistemi collettivi distribuiti.
 
 \paragraph{Modello di Esecuzione}
-Ogni dispositivo, indicato con \(\delta_i\), comunica con i propri vicini tramite uno scambio di messaggi. Il funzionamento dei nodi si articola in round di esecuzione asincroni. In ogni round, ciascun dispositivo esegue un programma \ac{XC}, elabora i messaggi ricevuti e produce nuovi messaggi da inviare al vicinato, gestendo l'intero processo attraverso una coda locale.
+Ogni dispositivo, indicato con \(\delta_i\), comunica con i propri vicini tramite uno scambio di messaggi. Il funzionamento dei nodi si articola in round di esecuzione asincroni. In ogni round, ciascun dispositivo esegue un programma \ac{XC}, elabora i messaggi ricevuti e produce nuovi messaggi da inviare al vicinato.
 
 Questo modello è illustrato in \cref{fig:xc-rounds}: il dispositivo \(\delta_i\) esegue il programma \ac{XC} nei round \(\varepsilon_n\) e invia i messaggi ai vicini al termine di ciascuno \cite{XC}.
 
@@ -183,7 +184,7 @@ Data la natura asincrona del sistema, può verificarsi che un dispositivo comple
     \label{fig:xc-rounds}
 \end{figure}
 
-\paragraph{Tipi di dato} Nel formalismo \ac{FC}, si distinguono due categorie di valori: i valori locali \(\ell\) e i campi di vicinato \(\phi\). Questi ultimi sono mappe che associano un valore locale a ciascun identificatore di dispositivo e vengono impiegati per rappresentare i messaggi ricevuti dai vicini. Tuttavia, \ac{FC} impone che solo i valori locali \(\ell\) possano essere inviati. Ciò implica che ogni nodo trasmetta necessariamente lo stesso messaggio a tutti i suoi vicini (comunicazione \textit{isotropica}), limitando l'espressività del linguaggio e impedendo l'invio di messaggi differenziati.
+\paragraph{Tipi di dato} Nel formalismo \ac{FC}, si distinguono due categorie di valori: i valori locali \(\ell\) e i campi di vicinato \(\phi\). Quest'ultimi sono mappe che associano un valore locale a ciascun identificatore di dispositivo e vengono impiegati per rappresentare i messaggi ricevuti dai vicini. Tuttavia, \ac{FC} impone che solo i valori locali \(\ell\) possano essere inviati. Ciò implica che ogni nodo trasmetta necessariamente lo stesso messaggio a tutti i suoi vicini (comunicazione \textit{isotropica}), limitando l'espressività del linguaggio e impedendo l'invio di messaggi differenziati.
 
 Il linguaggio \ac{XC} risolve questa limitazione unificando le due categorie in una singola classe di valori, denominata \texttt{nvalues} (\(v\)). Un \texttt{nvalue} è una struttura dati che associa un valore locale \(\ell_i\) a ciascun identificatore di dispositivo \(\delta_i\) specificato e include un valore di default \(\ell\):
 
@@ -204,7 +205,7 @@ La sintassi è la seguente:
 Dove:
 \begin{itemize}
     \item \(\mathbf{e_i}\): È l'espressione che determina il valore locale iniziale. Tale valore funge da default per l'$\texttt{nvalue}$ dei messaggi nel primo round o quando non sono ancora stati ricevuti messaggi dai vicini.
-    \item \(\mathbf{n}\): È una variabile che, ad ogni round di esecuzione, viene automaticamente sostituita con l'\texttt{nvalue} che incapsula i messaggi ricevuti dai vicini nell'ultimo round.
+    \item \(\mathbf{n}\): È una variabile che, ad ogni round di esecuzione, viene automaticamente sostituita con l'\texttt{nvalue} che incapsula i messaggi ricevuti dai vicini.
     \item \(\mathbf{e_r}\): È l'espressione che definisce il valore locale di ritorno del costrutto, che rappresenta il risultato del round corrente del dispositivo.
     \item \(\mathbf{e_s}\): È l'espressione che definisce l'\texttt{nvalue} dei messaggi che il dispositivo invierà ai vicini al termine del round corrente.
 \end{itemize}
@@ -248,7 +249,7 @@ $\text{Protelis}$ è un linguaggio stand-alone basato sulla Java Virtual Machine
 %
 L'esecuzione dei programmi avviene tramite un interprete che valuta periodicamente il codice pre-parsato. Questo gestisce in modo automatico la comunicazione tra dispositivi e l'interazione con l'ambiente. Poiché l'interprete è stato scritto da zero, i meccanismi di basso livello, come l'allineamento, sono gestiti in modo trasparente per l'utente finale.
 
-L'integrazione con la JVM garantisce portabilità tra sistemi e dispositivi, oltre a facilitare l'importazione di numerose librerie e API tramite i meccanismi di reflection di Java. Tuttavia, la necessità di una Java Virtual Machine rappresenta una limitazione per l'impiego in ambienti con risorse estremamente ristrette, come quelli tipici dell'\ac{IoT}, riducendo l'eterogeneità dei dispositivi utilizzabili.
+L'integrazione con la JVM garantisce portabilità tra sistemi e dispositivi, oltre a facilitare l'importazione di numerose librerie e API tramite i meccanismi di reflection di Java. Tuttavia, la necessità di una JVM rappresenta una limitazione per l'impiego in ambienti con risorse estremamente ristrette, come quelli tipici dell'\ac{IoT}, riducendo l'eterogeneità dei dispositivi utilizzabili.
 
 Attualemente il linguaggio è attivamente mantenuto, ma lo sviluppo di nuove funzionalità è stato congelato.
 
@@ -267,7 +268,7 @@ Offre un ecosistema completo per lo sviluppo di programmi aggregati, comprendent
 
 L’integrazione come \ac{DSL} interno consente a ScaFi di beneficiare direttamente della sintassi (\Cref{lst:scafiexample}), del compilatore e degli strumenti di Scala, risultando così più semplice da mantenere, immediatamente familiare per chi già conosce il linguaggio ospite e in grado di sfruttare appieno il potente sistema di tipi di Scala.
 
-Questa scelta, tuttavia, comporta anche alcune limitazioni: la sintassi è vincolata ai costrutti validi di Scala e, aspetto cruciale per la programmazione aggregata, possono emergere involontariamente dettagli di basso livello che non dovrebbero essere esposti all’utente finale, come la gestione dell’allineamento. Inoltre, essendo pensato principalmente per l’esecuzione sulla Java Virtual Machine, ScaFi condivide le stesse limitazioni di applicabilità già riscontrate in Protelis (\ref{sec:protelis}).
+Questa scelta, tuttavia, comporta anche alcune limitazioni: la sintassi è vincolata ai costrutti validi di Scala e, aspetto cruciale per la programmazione aggregata, possono emergere involontariamente dettagli di basso livello che non dovrebbero essere esposti all’utente, come la gestione dell’allineamento. Inoltre, essendo pensato principalmente per l’esecuzione sulla JVM, ScaFi condivide le stesse limitazioni di applicabilità già riscontrate in Protelis (\ref{sec:protelis}).
 
 \lstinputlisting[
     language=Scala,
@@ -280,7 +281,7 @@ Questa scelta, tuttavia, comporta anche alcune limitazioni: la sintassi è vinco
 
 \emph{FCPP} \cite{fcpp} rappresenta la prima implementazione nativa della programmazione aggregata in \(\text{C++}\).
 
-L’utilizzo di \(\text{C++}\) come linguaggio di base è un elemento chiave, poiché consente l’esecuzione diretta del codice sui dispositivi, senza la necessità di una macchina virtuale. Questo approccio offre due vantaggi principali: da un lato, risulta particolarmente adatto a dispositivi con risorse limitate, tipici dell'\ac{IoT}, superando così le restrizioni imposte dalla dipendenza dalla \ac{JVM} che caratterizzano soluzioni come Protelis e ScaFi; dall’altro, permette di ottenere prestazioni elevate nell’implementazione del paradigma aggregato.
+L’utilizzo di \(\text{C++}\) come linguaggio di base è un elemento chiave, poiché consente l’esecuzione diretta del codice sui dispositivi, senza la necessità di una macchina virtuale. Questo approccio offre due vantaggi principali: da un lato, risulta particolarmente adatto a dispositivi con risorse limitate, tipici dell'\ac{IoT}, superando così le restrizioni imposte dalla dipendenza dalla JVM che caratterizzano soluzioni come Protelis e ScaFi; dall’altro, permette di ottenere prestazioni elevate nell’implementazione del paradigma aggregato.
 
 Tuttavia, la scelta di \(\text{C++}\) comporta anche alcune criticità. La complessità della sintassi (\Cref{lst:fcppexample}) e la limitata ergonomia rispetto ad altre soluzioni rendono difficile l’adozione da parte di un ampio pubblico di sviluppatori. Inoltre, la gestione dell’allineamento non è trasparente, ma richiede interventi manuali tramite macro. Sebbene FCPP sia pensato come una piattaforma flessibile ed estensibile, il numero di funzionalità attualmente disponibili risulta inferiore rispetto alle alternative.
 
@@ -295,12 +296,11 @@ Tuttavia, la scelta di \(\text{C++}\) comporta anche alcune criticità. La compl
 \subsection{Collektive}
 \label{sec:collektive}
 
-\emph{Collektive} nasce dall’esigenza di disporre di un linguaggio che garantisca una gestione dell’allineamento robusta e completamente trasparente; sia multipiattaforma e quindi adatto a operare su reti di dispositivi eterogenei; offra una sintassi moderna, espressiva ed ergonomica; possa contare su un ecosistema maturo e funzionalità del linguaggio host.
+\emph{Collektive} nasce dall’esigenza di disporre di un linguaggio che garantisca una gestione dell’allineamento robusta e completamente trasparente; sia multipiattaforma e quindi adatto a operare su reti di dispositivi eterogenei; offra una sintassi moderna, espressiva ed ergonomica; possa contare su un ecosistema maturo e ricco di funzionalità grazie al linguaggio host.
 
-I linguaggi analizzati in precedenza non riescono a soddisfare tutti questi requisiti contemporaneamente: Protelis offre una buona gestione dell'allineamento ma dipende dalla \ac{JVM}; ScaFi è anch'esso vincolato alla \ac{JVM} e presenta un allineamento debole; FCPP è nativo e performante ma manca di ergonomia, semplicità d'uso e trasparenza.
+I linguaggi analizzati in precedenza non riescono a soddisfare tutti questi requisiti contemporaneamente: Protelis offre una buona gestione dell'allineamento ma dipende dalla JVM; ScaFi è anch'esso vincolato alla JVM e presenta un allineamento debole; FCPP è nativo e performante ma manca di ergonomia, semplicità d'uso e trasparenza.
 
-Come ScaFi, Collektive è implementato come un \ac{DSL} interno; tuttavia, a differenza di ScaFi, il compilatore del linguaggio host, Kotlin, è stato esteso per gestire automaticamente l’allineamento del codice aggregato. 
-Ciò è reso possibile dal design modulare del compilatore Kotlin, che consente l’aggiunta e la modifica di funzionalità tramite plugin.
+Analogamente a ScaFi, Collektive è implementato come un \ac{DSL} interno. A differenza di ScaFi, però, il compilatore del linguaggio host, Kotlin, è stato esteso tramite plugin per gestire automaticamente l'allineamento del codice aggregato.
 
 Se si volesse gestire manualmente l'allineamento, sarebbe sufficiente adottare un semplice \ac{DSL}; tuttavia, il codice risulterebbe esposto a meccanismi di basso livello, rendendo la scrittura dei programmi aggregati più complessa e soggetta ad errori (\Cref{lst:ckmanuallyaligned}).
 
@@ -337,8 +337,8 @@ Questo lavoro si propone di trasporre una serie di esempi di programmazione aggr
 \label{chap:mitproto}
 %----------------------------------------------------------------------------------------
 In questo capitolo viene presentata la sintassi e i costrutti principali di Proto, al fine di fornire le basi necessarie per comprendere il \cref{chap:trasposizione}.
-
-Per ulteriori dettagli sul linguaggio, si rimanda alla documentazione ufficiale\footnote{\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/man/proto-language-reference.pdf}}, da cui sono tratte le sezioni seguenti.
+ 
+Per ulteriori dettagli sul linguaggio, si rimanda alla documentazione ufficiale\footnote{\url{https://github.com/jakebeal/MIT-Proto/blob/master/proto/man/proto-language-reference.pdf}}, da cui sono tratte le seziogni seguenti.
 
 \section{Introduzione alla sintassi}
 \label{sec:mitprotosyntax}
@@ -346,12 +346,12 @@ Per ulteriori dettagli sul linguaggio, si rimanda alla documentazione ufficiale\
 
 \paragraph{Valutazione delle espressioni}
 
-Proto è un linguaggio puramente funzionale caratterizzato dall'utilizzo di \ac{sexp} (\ref{lst:mitprotosexp}),  ovvero espressioni in notazione polacca, seguendo una sintassi molto simile a quella di Scheme\footnote{\url{https://www.scheme.org/}}.
+Proto è un linguaggio puramente funzionale caratterizzato dall'utilizzo di \ac{sexp} (\Cref{lst:mitprotosexp}),  ovvero espressioni in notazione polacca racchiuse tra parentesi, adottando una sintassi molto simile a quella di Scheme\footnote{\url{https://www.scheme.org/}}.
 
 \lstinputlisting[
     language=Lisp,
     label={lst:mitprotosexp},
-    caption={Le espressioni in Proto sono scritte in notazione polacca, ovvero prima viene specificato l'operatore seguito dagli operandi.}
+    caption={Le espressioni in Proto sono scritte in notazione polacca, specificando l'operatore seguito dagli operandi.}
 ]{listings/proto/sexp.proto}
 
 La valutazione di un'espressione Proto produce un programma rappresentato sotto forma di \textit{dataflow graph}.
@@ -383,18 +383,20 @@ Questa architettura consente di esprimere il comportamento collettivo del sistem
     \end{itemize}
 \end{itemize}
 
+Nel seguito, i tipi di dato saranno indicati con la prima lettera maiuscola: ad esempio, una variabile \texttt{x} di tipo \texttt{Local} sarà denotata come \texttt{x|L}, mentre \texttt{y} di tipo \texttt{Field} come \texttt{y|F}.
+
 \paragraph{Dichiarazione di funzioni e variabili} Le funzioni vengono dichiarate utilizzando la forma \texttt{(def \(nome\) (\(parametri\)) (\(corpo\)))}, dove \texttt{\(nome\)} è il nome della funzione, \texttt{\(parametri\)} è una lista di parametri formali e \texttt{\(corpo\)} è l'espressione che definisce il comportamento della funzione. Il tipo di ritorno della funzione è dedotto automaticamente in base al tipo dell'espressione \texttt{\(corpo\)}.
 
 Le variabili vengono dichiarate tramite la parola chiave \texttt{let}, seguendo la sintassi \texttt{(let (\(nome\) (\(valore\))))}, dove \texttt{\(nome\)} è il nome della variabile, \texttt{\(valore\)} è l'espressione che ne determina il valore.
 
-Se si desidera dichiarare più variabili contemporaneamente, si possono racchiudere le coppie \texttt{(\(nome\) (\(valore\)))} dentro il corpo di \texttt{let}. Se per definire le variabili successive si fa riferimento a quelle precedentemente dichiarate, dando importanza all'ordine di dichiarazione, si utilizza la parola chiave \texttt{let*}.
+Se si desidera dichiarare più variabili contemporaneamente, si possono racchiudere più coppie \texttt{(\(nome\) (\(valore\)))} dentro il corpo di \texttt{let}. Se per definire le variabili successive si fa riferimento a quelle precedentemente dichiarate, dando importanza all'ordine di dichiarazione, si utilizza la parola chiave \texttt{let*}.
 
 \section{Operatori}
 \label{sec:mitprotooperators}
 
 Proto fornisce un insieme di operatori che corrispondono ai costrutti fondamentali del field calculus (\cref{sec:fieldcalculus}).
 
-\paragraph{Dinamica temporale} Per modellare lo stato di un dispositivo si sfrutta l'operatore \texttt{rep} (\cref{sec:fieldcalculus}), che segue la sintassi:
+\paragraph{Dinamica temporale} Per modellare lo stato di un dispositivo si sfrutta l'operatore \texttt{rep}, che segue la sintassi:
 
 \lstinputlisting[
     language=Lisp,
@@ -410,7 +412,7 @@ Proto fornisce un insieme di operatori che corrispondono ai costrutti fondamenta
 \end{itemize} 
 L'esempio in \cref{lst:mitprotoresp} illustra l'uso di \texttt{rep} per creare un contatore che incrementa il proprio valore ad ogni round di esecuzione. 
 
-\paragraph{Interazione Spaziale} L'operatore \texttt{nbr} (\cref{sec:fieldcalculus}) consente a un dispositivo di accedere ai valori calcolati dai vicini nell'ultimo round di esecuzione. La sintassi è la seguente:
+\paragraph{Interazione Spaziale} L'operatore \texttt{nbr} consente a un dispositivo di accedere ai valori calcolati dai vicini nell'ultimo round di esecuzione. La sintassi è la seguente:
 
 \lstinputlisting[
     language=Lisp,
@@ -425,9 +427,9 @@ L'esempio in \cref{lst:mitprotoresp} illustra l'uso di \texttt{rep} per creare u
 
 In \cref{lst:mitprotonbr} viene mostrato un esempio di utilizzo di \texttt{nbr} nel quale si costruice un campo di vicinato che associa \(1\) ad ogni vicino.
 
-Proto fornisce varianti dell'operatore \texttt{nbr} che permettono di raccogliere specifici valori dai vicini come \texttt{nbr-range}, per ottenere la distanza fisica tra il dispositivo corrente e ciascun vicino, e \texttt{nbr-vec}, per ottenere un versore che indica la direzione verso ciascun vicino rispetto al dispositivo corrente.
+Proto fornisce varianti dell'operatore \texttt{nbr} che permettono di raccogliere specifici valori dai vicini come \texttt{nbr-range}, per ottenere la distanza fisica tra il dispositivo corrente e ciascun vicino, e \texttt{nbr-vec}, per ottenere un vettore che indica la direzione verso ciascun vicino rispetto al dispositivo corrente.
 
-Vengono fornite anche delle funzioni di aggregazione che permettono di ridurre un \texttt{Field} a un singolo valore locale (\texttt{Local}) (\ref{lst:mitprotonbragg}).
+Vengono fornite anche delle funzioni di aggregazione che permettono di ridurre un \texttt{Field} a un singolo valore locale (\texttt{Local}) (\Cref{lst:mitprotonbragg}).
 
 \lstinputlisting[
     language=Lisp,
@@ -435,7 +437,7 @@ Vengono fornite anche delle funzioni di aggregazione che permettono di ridurre u
     caption={Esempi di funzioni di aggregazione spaziale in Proto.}
 ]{listings/proto/summary-functions.proto}
 
-Queste funzioni sono implementate sfruttando una funzione più generale chiamata \texttt{fold-hood} (\cref{lst:mitprotofoldhood}), che consente di specificare una funzione di combinazione personalizzata. 
+Queste funzioni si basano su \texttt{fold-hood} (\Cref{lst:mitprotofoldhood}), un operatore più generale che consente di specificare una funzione di combinazione personalizzata.
 
 \lstinputlisting[
     language=Lisp,
@@ -445,7 +447,7 @@ Queste funzioni sono implementate sfruttando una funzione più generale chiamata
 
 Si noti che \texttt{fold-hood} non richiede in ingresso un \texttt{Field}, bensì \texttt{value} è un valore locale (\texttt{Local}). Internamente, \texttt{fold-hood} utilizza l'operatore \texttt{nbr} per raccogliere i valori dai vicini in modo trasparente al programmatore e applica la funzione di combinazione specificata per aggregarli.
 
-\paragraph{Restrizione dello spazio} L'operatore \texttt{if} (\cref{sec:fieldcalculus}) consente di eseguire una valutazione condizionale, partizionando lo spazio dei dispositivi in due sottoinsiemi in base alla valutazione di una condizione booleana. La sintassi è la seguente (\ref{lst:mitprotoif}):
+\paragraph{Restrizione dello spazio} L'operatore \texttt{if} partiziona lo spazio dei dispositivi in due sottoinsiemi in base alla valutazione di una condizione. La sintassi è la seguente (\Cref{lst:mitprotoif}):
 
 \lstinputlisting[
     language=Lisp,
@@ -455,8 +457,8 @@ Si noti che \texttt{fold-hood} non richiede in ingresso un \texttt{Field}, bens�
 
 \begin{itemize}
     \item \texttt{test} è l'espressione booleana che determina la partizione dello spazio.
-    \item \texttt{true} è l'espressione che viene valutata nei dispositivi in cui \texttt{test} risulta vera.
-    \item \texttt{false} è l'espressione che viene valutata nei dispositivi in cui \texttt{test} risulta falsa.
+    \item \texttt{true} è l'espressione che viene valutata nei dispositivi per cui \texttt{test} è vera.
+    \item \texttt{false} è l'espressione che viene valutata nei dispositivi per cui \texttt{test} è falsa.
     \item Il tipo di ritorno dell'operatore è lo stesso di \texttt{true} e \texttt{false}.
 \end{itemize}
 
@@ -470,11 +472,11 @@ Anche se \texttt{true} e \texttt{false} dovessero risultare la stessa espression
 Proto è equipaggiato con una libreria che fornisce diverse funzioni comuni durante lo sviluppo di programmi aggregati. 
 
 \begin{itemize}
-    \item \texttt{(distance-to ,source|B) -> S}: calcola la distanza minima dalla sorgente per ogni dispositivo. I dispositivi in cui \texttt{source} è \texttt{\#t} fungono da origine; gli altri ricevono la distanza dalla sorgente più vicina. \texttt{gradient} è un alias di questa funzione.
-    \item \texttt{(broadcast ,source|B ,value|L) -> L}: propaga il valore locale \texttt{value} dai dispositivi sorgente (dove \texttt{source} è \texttt{\#t}) verso l'intera rete. Ogni dispositivo riceve il valore dalla sorgente più vicina.
+    \item \texttt{(distance-to ,source|B) -> S}: calcola la distanza minima dalla sorgente per ogni dispositivo. I nodi in cui \texttt{source} è \texttt{\#t} fungono da origine, mentre gli altri ricevono la distanza dalla sorgente più vicina. \texttt{gradient} è un alias di questa funzione.
+    \item \texttt{(broadcast ,source|B ,value|L) -> L}: propaga il valore locale \texttt{value} dai dispositivi sorgente verso l'intera rete. Ogni dispositivo riceve il valore dalla sorgente più vicina.
     \item \texttt{(dilate ,source|B ,d|S) -> B}: Verifica quali dispositivi si trovano entro una distanza \texttt{d} dalla sorgente più vicina.
     \item \texttt{(distance ,r1|B ,r2|B) -> S}: calcola la distanza tra le due regioni \texttt{r1} e \texttt{r2} e la propaga in tutta la rete.
-    \item \texttt{(timer) -> S}: restituisce il tempo trascorso durante la valutazione dell'espressione nel dispositivo corrente, ovvero il tempo in cui non sono stati percorsi rami alternativi di un costrutto \texttt{if}.
+    \item \texttt{(timer) -> S}: restituisce il tempo trascorso durante la valutazione dell'espressione nel dispositivo corrente.
 \end{itemize}
 
 Inoltre sono fornite funzioni per operare con i tipi di dato elencati in \cref{fig:mitproto-types}, come operazioni aritmetiche, logiche, di confronto, manipolazione di tuple e di vettori, nonché funzioni per la generazione di numeri casuali.
@@ -485,24 +487,30 @@ Inoltre sono fornite funzioni per operare con i tipi di dato elencati in \cref{f
     caption={Funzioni di built-in in Proto.}
 ]{listings/proto/utilities.proto}
 
+Nel simulatore di Proto, ciascun nodo è dotato di sensori e sonde per interagire con l'ambiente. Le istruzioni \texttt{sense} e \texttt{probe} permettono rispettivamente la lettura dai sensori e la scrittura sulle sonde. In particolare, \texttt{(probe (e1) idx)} invia il valore di \texttt{e1} alla sonda \texttt{idx} e lo restituisce come risultato.
 
 %----------------------------------------------------------------------------------------
 \chapter{Collektive}
 \label{chap:collektive}
 %----------------------------------------------------------------------------------------
-Collektive è composto da tre componenti indipendenti: il \ac{DSL} (\cref{sec:collektiveaggregateops}), che definisce la sintassi e la semantica del linguaggio; una libreria standard (\cref{sec:collektivelibrary}) che fornisce funzionalità comuni per la programmazione aggregata; e un plugin per il compilatore che si occupa della gestione automatica dell’allineamento e della comunicazione.
+Collektive si articola in tre componenti indipendenti: il \ac{DSL} (\Cref{sec:collektiveaggregateops}), che definisce sintassi e semantica del linguaggio; una libreria standard (\Cref{sec:collektivelibrary}), che fornisce funzionalità comuni per la programmazione aggregata; un plugin per il compilatore, che gestisce automaticamente l'allineamento e la comunicazione.
 
-Il linguaggio, progettato per essere multipiattaforma grazie all’adesione al progetto \ac{KTM}\footnote{\url{https://kotlinlang.org/docs/multiplatform.html}}, permette di eseguire il codice su diverse piattaforme (ad esempio JVM, JavaScript e nativo) con modifiche minime. L’intero processo di build è gestito tramite Gradle\footnote{\url{https://gradle.com/}}.
+Progettato per essere multipiattaforma grazie all'adesione al progetto \ac{KTM}\footnote{\url{https://kotlinlang.org/docs/multiplatform.html}}, il linguaggio consente di eseguire il codice su diverse piattaforme (JVM, JavaScript e nativo) con modifiche minime. L'intero processo di build è gestito tramite Gradle\footnote{\url{https://gradle.com/}}.
+
+Collektive è inoltre integrato con Alchemist \cite{alchemist}, un simulatore che permette di sviluppare, testare e validare programmi aggregati in ambienti controllati, prima del loro deployment sui dispositivi reali.
+
+Il linguaggio supporta \ac{XC} (\Cref{sec:xc}), consentendo agli sviluppatori di sfruttare l'operatore \texttt{exchange} per modellare comunicazioni anisotropiche tra dispositivi.
 
 \newpage
 \section{Field}
 \label{sec:collektivefields}
 
-In Collektive, un \texttt{Field} è una struttura dati che associa a ciascun dispositivo del vicinato il valore locale da lui calcolato.
+In Collektive, un \texttt{Field} è una struttura dati che associa a ciascun dispositivo del vicinato un valore.
 %
-A differenza del campo di vicinato (\cref{sec:fieldcalculus}), un \texttt{Field} tiene traccia anche del dispositivo locale.
+A differenza del campo di vicinato (\cref{sec:fieldcalculus}), tiene traccia anche del dispositivo locale.
 
-Ad esempio, un \texttt{Field} relativo a un dispositivo con identificativo \(0\) e vicini \(1\), \(2\) e \(3\), che assegna il valore \(1\) a ciascun dispositivo (\Cref{lst:collektivefield}), si rappresenta come:
+Ad esempio, per un dispositivo con identificativo \(0\) e vicini \(1\), \(2\) e \(3\), che assegna il valore \(1\) a ciascuno (\Cref{lst:collektivefield}), la rappresentazione è:
+
 \begin{center}
 \texttt{\(\phi\)(localId=0, localValue=1, neighbors=\{1=1, 2=1, 3=1\})}
 \end{center}
@@ -515,7 +523,7 @@ dove \texttt{localId} è l’identificatore del dispositivo locale; \texttt{loca
 ]{listings/collektive/MapNeighborhood.kt}
 
 Le proprietà \texttt{all} e \texttt{neighbors} (\Cref{lst:collektivefield}) permettono di ottenere una vista sulle entry del \texttt{Field}: la prima include il dispositivo locale, mentre la seconda restituisce solo i vicini.
-Forniscono inoltre metodi per convertire la vista sul \texttt{Field} in diverse strutture dati native di Kotlin, come \texttt{list}, \texttt{set}, \texttt{sequence} e \texttt{map} (\ref{lst:fieldsToKotlin}).
+Forniscono inoltre metodi per convertire la vista in diverse strutture dati native di Kotlin, come \texttt{list}, \texttt{set}, \texttt{sequence} e \texttt{map} (\ref{lst:fieldsToKotlin}).
 \lstinputlisting[
     language=Kotlin,
     label={lst:fieldsToKotlin},
@@ -531,7 +539,7 @@ I \texttt{Field} possono essere manipolati sfruttando \texttt{map/mapValues} e c
     caption={Esempi di manipolazione e combinazione di \texttt{Field} in Collektive.}
 ]{listings/collektive/FieldManipulationAndCombination.kt}
 
-Data la verbosità delle operazioni che combinano più \texttt{Field}, Collektive fornisce operatori infissi per semplificare la scrittura del codice (\Cref{lst:fieldinfix}).
+Data la verbosità di queste operazioni, Collektive fornisce operatori più concisi per la loro combinazione (\Cref{lst:fieldinfix}).
 \lstinputlisting[
     language=Kotlin,
     label={lst:fieldinfix},
@@ -547,7 +555,8 @@ I \texttt{Field} supportano anche operazioni di riduzione, come \texttt{fold}, e
 
 \section{Operatori}
 \label{sec:collektiveaggregateops}
-Collektive mette a disposizione l’interfaccia \texttt{Aggregate}, che definisce il set minimo di operazioni fondamentali per la programmazione aggregata. Queste operazioni sono accessibili sia come metodi interni sia tramite extension functions, e l’interfaccia mantiene l’identificativo locale (\texttt{localId}) del dispositivo che esegue il programma aggregato.
+Collektive mette a disposizione l'interfaccia \texttt{Aggregate}, che definisce il set minimo di operazioni fondamentali per la programmazione aggregata. Tali operazioni sono accessibili sia come metodi dell'interfaccia sia tramite extension functions. L'interfaccia mantiene inoltre l'identificativo locale (\texttt{localId}) del dispositivo che esegue il programma aggregato.
+%
 Per utilizzare i costrutti di programmazione aggregata, i programmi devono estendere \texttt{Aggregate}.
 
 I nomi degli operatori sono stati scelti privilegiando una sintassi più adatta a Kotlin, piuttosto che i termini usati in letteratura. In particolare, \texttt{rep} è stato rinominato in \texttt{evolve} e \texttt{nbr} in \texttt{neighboring}.
@@ -555,7 +564,7 @@ I nomi degli operatori sono stati scelti privilegiando una sintassi più adatta 
 \paragraph{Exchange}
 \label{sec:collektiveexchange}
 
-L’operatore \texttt{exchange} (\ref{lst:collektiveexchange}) è il cuore del DSL: consente a ciascun dispositivo di inviare valori differenti ai propri vicini, permettendo così interazioni personalizzate e modellando l’evoluzione spazio-temporale del sistema tramite una comunicazione anisotropica.
+L’operatore \texttt{exchange} (\Cref{lst:collektiveexchange}) è il cuore del DSL: consente a ciascun dispositivo di inviare valori differenti ai propri vicini, permettendo così interazioni personalizzate e modellando l’evoluzione spazio-temporale del sistema tramite una comunicazione anisotropica.
 
 \lstinputlisting[
     language=Kotlin,
@@ -563,11 +572,12 @@ L’operatore \texttt{exchange} (\ref{lst:collektiveexchange}) è il cuore del D
     caption={Firma dell'operatore \texttt{exchange} in Collektive.}
 ]{listings/collektive/Exchange.kt}
 
-A partire da un valore iniziale (\texttt{initial}), \texttt{exchange} calcola un \texttt{Field} che rappresenta i messaggi ricevuti. Su questo \texttt{Field} viene applicata una funzione (\texttt{body}) che restituisce un nuovo \texttt{Field}, i cui valori vengono inviati come messaggi personalizzati ai rispettivi vicini. Il risultato evolve nel tempo: la funzione mantiene lo stato locale del campo, così che le invocazioni successive non ripartano dal valore iniziale, ma dal valore locale calcolato nel round precedente.
-Questo costrutto, derivato dall’eXchange calculus (\cref{sec:xc}), permette di esprimere tutti gli altri operatori del field calculus.
+A partire da un valore iniziale (\texttt{initial}), che funge da default quando non sono ancora stati ricevuti messaggi dai vicini, \texttt{exchange} costruisce un campo contenente i messaggi ricevuti nell'ultimo round. Su questo viene applicata una funzione (\texttt{body}) che restituisce un nuovo campo, i cui valori vengono inviati come messaggi personalizzati ai rispettivi vicini al termine del round corrente.
+%
+Questo costrutto, derivato dall’eXchange calculus (\Cref{sec:xc}), permette di esprimere tutti gli altri operatori del field calculus.
 
-Un esempio di utilizzo dell’operatore \texttt{exchange} è riportato in \cref{lst:collektiveexchangeexample}: partendo dal valore \(0\), ogni dispositivo riceve i valori dai vicini e, in base al loro identificativo, invia a ciascuno il valore ricevuto incrementato di \(1\) oppure il suo doppio. Il valore locale viene aggiornato secondo la stessa logica, tenendo presente che il dispositivo corrente è incluso in \texttt{field}.
-\newpage
+Un esempio di utilizzo dell’operatore \texttt{exchange} è riportato in \cref{lst:collektiveexchangeexample}: partendo dal valore \(1\), ogni dispositivo riceve i valori dai vicini e, in base al loro identificativo, invia a ciascuno il valore ricevuto incrementato di \(1\) oppure il suo doppio. Il valore locale viene aggiornato secondo la stessa logica, tenendo presente che il dispositivo corrente è incluso in \texttt{field}.
+
 \lstinputlisting[
     language=Kotlin,
     label={lst:collektiveexchangeexample},
@@ -578,7 +588,7 @@ Un esempio di utilizzo dell’operatore \texttt{exchange} è riportato in \cref{
 \label{sec:collektiveshare}
 
 
-L’operatore \texttt{share} (\cref{lst:collektiveshare}) modella l'evoluzione spazio-temporale del dispositivo, consentendogli  di condividere la stessa informazione con tutti i vicini.
+L’operatore \texttt{share} (\Cref{lst:collektiveshare}) modella l'evoluzione spazio-temporale del dispositivo, consentendogli  di condividere la stessa informazione con tutti i vicini.
 
 \lstinputlisting[
     language=Kotlin,
@@ -586,14 +596,14 @@ L’operatore \texttt{share} (\cref{lst:collektiveshare}) modella l'evoluzione s
     caption={Firma dell'operatore \texttt{share} in Collektive.}
 ]{listings/collektive/Share.kt}
 
-A partire da un valore iniziale (\texttt{initial}), \texttt{share} costruisce un \texttt{Field} di valori condivisi, che viene elaborato dalla funzione \texttt{body}. Il risultato prodotto da questa funzione viene memorizzato internamente e inviato a tutti i vicini. L’operatore mantiene lo stato tra i round: le invocazioni successive non ripartono dal valore iniziale, ma dal risultato calcolato nel round precedente.
+A partire da un valore iniziale (\texttt{initial}), \texttt{share} costruisce un \texttt{Field} di valori condivisi che viene elaborato dalla funzione \texttt{body}. Il risultato viene memorizzato internamente e inviato a tutti i vicini; ad ogni round, l'operatore restituisce lo stato aggiornato in base ai messaggi ricevuti.
 %
-Internamente, è implementato tramite \texttt{exchange} (\ref{sec:collektiveexchange}).
+Internamente, è implementato tramite \texttt{exchange} (\Cref{sec:collektiveexchange}).
 
-Un esempio di utilizzo dell’operatore \texttt{share} è riportato in \cref{lst:temperatureck}, dove ogni dispositivo calcola la propria temperatura in base a quella dei vicini e, una volta ottenuto il risultato, lo condivide con tutti i nodi adiacenti.
+Un esempio di utilizzo di \texttt{share} è riportato in \cref{lst:temperatureck}, dove ogni dispositivo calcola la propria temperatura in base a quella dei vicini e, una volta ottenuto il risultato, lo condivide con tutti i nodi adiacenti.
 
 
-\paragraph{Neighboring} l'operatore \texttt{neighboring} (\cref{lst:collektivenbr}), corrispondente al costrutto \texttt{nbr} del field calculus (\cref{sec:fieldcalculus}), consente a un dispositivo di accedere ai valori calcolati dai vicini nell'ultimo round di esecuzione.
+\paragraph{Neighboring} l'operatore \texttt{neighboring} (\Cref{lst:collektivenbr}), corrispondente al costrutto \texttt{nbr} del field calculus (\Cref{sec:fieldcalculus}), consente a un dispositivo di accedere ai valori calcolati dai vicini nell'ultimo round di esecuzione.
 %
 \lstinputlisting[
     language=Kotlin,
@@ -607,7 +617,7 @@ Per minimizzare la comunicazione, si usano le varianti $\texttt{neighborhood}$ e
 \\
 $\texttt{mapNeighborhood}$. La prima restituisce un $\texttt{Field}$ con i soli identificatori dei vicini, mentre la seconda consente di mappare ciascun vicino ad un valore calcolato dal dispositivo corrente.
 
-La \cref{lst:collektivenbrexamples} illustra la differenza tra i tre operatori, considerando un dispositivo con tre vicini identificati da \(1\), \(2\) e \(3\). L’operatore \texttt{neighboring} crea un \texttt{Field} in cui a ciascun nodo \(\delta_i\) del vicinato è associato il proprio valore locale \texttt{x\(_i\)}. Con \texttt{neighborhood} si ottiene invece un \texttt{Field} che associa a ogni vicino il valore \(0\), utile per identificare i dispositivi adiacenti senza scambiare informazioni aggiuntive. Infine, \texttt{mapNeighborhood} produce un \texttt{Field} che associa a ciascun vicino \(\delta_i\) il valore \texttt{x\(_0\)}, cioè il valore locale del dispositivo corrente.
+La \cref{lst:collektivenbrexamples} illustra la differenza tra i tre operatori, considerando un dispositivo con tre vicini identificati da \(1\), \(2\) e \(3\). L’operatore \texttt{neighboring} crea un \texttt{Field} in cui a ciascun nodo \(\delta_i\) è associato il proprio valore locale \texttt{x\(_i\)}. Con \texttt{neighborhood} si ottiene invece un \texttt{Field} che associa a ogni vicino il valore \(0\), utile per identificare i dispositivi adiacenti senza scambiare informazioni aggiuntive. Infine, \texttt{mapNeighborhood} produce un \texttt{Field} che associa a ciascun vicino \(\delta_i\) il valore \texttt{x\(_0\)}, cioè il valore locale del dispositivo corrente.
 %
 \lstinputlisting[
     language=Kotlin,
@@ -615,7 +625,7 @@ La \cref{lst:collektivenbrexamples} illustra la differenza tra i tre operatori, 
     caption={Varianti dell'operatore \texttt{neighboring} in Collektive.}
 ]{listings/collektive/NeighboringExample.kt}
 
-\paragraph{Evolve} L'operatore \texttt{evolve} (\cref{lst:collektiveevolve}) corrisponde al costrutto \texttt{rep} del field calculus (\cref{sec:fieldcalculus}) e consente di modellare lo stato locale di un dispositivo che evolve nel tempo.
+\paragraph{Evolve} L'operatore \texttt{evolve} (\Cref{lst:collektiveevolve}) corrisponde al costrutto \texttt{rep} del field calculus (\Cref{sec:fieldcalculus}) e consente di modellare l'evoluzione temporale dello stato di un dispositivo.
 %
 \lstinputlisting[
     language=Kotlin,
@@ -638,7 +648,7 @@ In \cref{lst:collektiveevolveexample} si mostra come utilizzare l'operatore \tex
 
 Collektive dispone di una libreria standard, sviluppata a partire dai costrutti del \ac{DSL}, che mette a disposizione funzionalità comuni utili alla realizzazione di programmi aggregati.
 
-In questa sezione verranno presentate solamente le funzionalità utilizzate nel \cref{chap:trasposizione}; per un elenco completo si rimanda alla \href{https://javadoc.io/doc/it.unibo.collektive/collektive-stdlib/latest/index.html}{documentazione ufficiale}.
+In questa sezione verranno presentate solamente le funzionalità utilizzate nel \cref{chap:trasposizione}; per un elenco completo si rimanda alla documentazione ufficiale\footnote{https://javadoc.io/doc/it.unibo.collektive/collektive-stdlib/latest/index.html}.
 
 \paragraph{Spreading} Questo package offre funzioni per la propagazione di informazioni all’interno della rete di dispositivi.
 
@@ -646,52 +656,52 @@ Tra le principali, troviamo \texttt{gradientCast}, \texttt{multiGradientCast} e 
 %
 La funzione \texttt{gradientCast} (\Cref{lst:gradientcast}) permette di diffondere un valore locale da una sorgente a tutta la rete, assegnando a ciascun dispositivo il valore proveniente dalla sorgente più vicina.
 %
-\texttt{multiGradientCast} (\Cref{lst:multigradientcast}) amplia questa funzionalità, consentendo a ogni dispositivo di ottenere una mappa dei valori propagati da tutte le sorgenti presenti nella rete.
+\texttt{multiGradientCast} (\Cref{lst:multigradientcast}) amplia questa funzionalità, consentendo a ogni dispositivo di ottenere una mappa dei valori propagati da tutte le sorgenti.
 %
 Infine, \texttt{distanceTo} (\Cref{lst:distanceto}) calcola la distanza minima dalla sorgente più vicina.
 
 \lstinputlisting[
     language=Kotlin,
     label={lst:gradientcast},
-    caption={Firma della funzione gradientCast dalla libreria standard di Collektive}
+    caption={Firma della funzione \texttt{gradientCast} dalla libreria standard di Collektive}
 ]{listings/collektive/GradientCast.kt}
 
 \newpage
 \lstinputlisting[
     language=Kotlin,
     label={lst:multigradientcast},
-    caption={Firma della funzione multiGradientCast dalla libreria standard di Collektive}
+    caption={Firma della funzione \texttt{multiGradientCast} dalla libreria standard di Collektive}
 ]{listings/collektive/MultiGradientCast.kt}
 
 \lstinputlisting[
     language=Kotlin,
     label={lst:distanceto},
-    caption={Firma della funzione distanceTo dalla libreria standard di Collektive}
+    caption={Firma della funzione \texttt{distanceTo} dalla libreria standard di Collektive}
 ]{listings/collektive/DistanceTo.kt}
 
 \paragraph{Accumulation} Questo package offre funzioni per l’accumulo di valori su specifici nodi della rete.
 
-La funzione \texttt{convergeCast} (\cref{lst:convergeCast}) permette di aggregare un campo computazionale verso una destinazione, seguendo la discesa del gradiente di un campo potenziale fornito e applicando una funzione di accumulo a ciascun nodo attraversato.
+La funzione \texttt{convergeCast} (\Cref{lst:convergeCast}) permette di aggregare un campo computazionale verso una destinazione, seguendo la discesa del gradiente di un campo potenziale fornito e applicando una funzione di accumulo a ciascun nodo attraversato.
 %
-La funzione \texttt{countDevices} (\cref{lst:countDevices}), basata su \texttt{convergeCast}, conta il numero di dispositivi presenti nella rete, aggregando i valori verso il nodo destinazione (\texttt{sink}).
+La funzione \texttt{countDevices} (\Cref{lst:countDevices}), basata su \texttt{convergeCast}, conta il numero di dispositivi presenti nella rete, aggregando i valori verso il nodo destinazione (\texttt{sink}).
 
 \lstinputlisting[
     language=Kotlin,
     label={lst:convergeCast},
-    caption={Firma della funzione convergeCast dalla libreria standard di Collektive}
+    caption={Firma della funzione \texttt{convergeCast} dalla libreria standard di Collektive}
 ]{listings/collektive/ConvergeCast.kt}
 \lstinputlisting[
     language=Kotlin,
     label={lst:countDevices},
-    caption={Firma della funzione countDevices dalla libreria standard di Collektive}
+    caption={Firma della funzione \texttt{countDevices} dalla libreria standard di Collektive}
 ]{listings/collektive/CountDevices.kt}
 
 
 \paragraph{Collapse} Questo package mette a disposizione funzioni di riduzione per ottenere un singolo valore a partire da un \texttt{Field}.
 
-\texttt{all}, \texttt{any} e \texttt{countMatching} (\cref{lst:collapsebypredicate}) valutano un predicato su tutti i valori di un \texttt{Field}: \texttt{all} restituisce \texttt{true} se tutti i valori lo soddisfano, \texttt{any} restituisce \texttt{true} se almeno uno lo soddisfa, mentre \texttt{countMatching} restituisce il numero di valori che soddisfano il predicato.
+\texttt{all}, \texttt{any} e \texttt{countMatching} (\Cref{lst:collapsebypredicate}) valutano un predicato su tutti i valori di un \texttt{Field}: \texttt{all} restituisce \texttt{true} se tutti i valori lo soddisfano, \texttt{any} restituisce \texttt{true} se almeno uno lo soddisfa, mentre \texttt{countMatching} restituisce il numero di valori che soddisfano il predicato.
 
-\texttt{fold} e \texttt{reduce} (\cref{lst:collapsefold}) riducono un \texttt{Field} a un singolo valore sfruttando una funzione di accumulo; la differenza è che \texttt{fold} consente di specificare un valore iniziale, mentre \texttt{reduce} utilizza il primo elemento come punto di partenza e non considera il dispositivo locale.
+\texttt{fold} e \texttt{reduce} (\Cref{lst:collapsefold}) riducono un \texttt{Field} a un singolo valore sfruttando una funzione di accumulo; la differenza è che \texttt{fold} consente di specificare un valore iniziale, mentre \texttt{reduce} utilizza il primo elemento come punto di partenza e non considera il dispositivo locale.
 
 Infine, sono disponibili un insieme di varianti delle funzioni \texttt{min} e \texttt{max} per ottenere rispettivamente il valore minimo e massimo all’interno di un \texttt{Field}.
 
@@ -717,11 +727,11 @@ Infine, sono disponibili un insieme di varianti delle funzioni \texttt{min} e \t
 \label{chap:trasposizione}
 %----------------------------------------------------------------------------------------
 
-In questo capitolo si presenta la trasposizione di una selezione di programmi aggregati, originariamente sviluppati in Proto (\ref{sec:mitproto}), nel linguaggio Collektive (\ref{sec:collektive}).
+In questo capitolo si presenta la trasposizione di una selezione di programmi aggregati, originariamente sviluppati in Proto (\Cref{chap:mitproto}), nel linguaggio Collektive (\Cref{chap:collektive}).
 %
-Per ciascun programma vengono illustrati il codice sorgente originale, una descrizione dettagliata del funzionamento, la relativa implementazione in Collektive e le immagini delle simulazioni realizzate tramite il simulatore Alchemist \cite{alchemist}.
+Per ciascun esempio viene illustrato il codice sorgente originale, una descrizione dettagliata del funzionamento, la relativa implementazione in Collektive e le immagini delle simulazioni realizzate.
 
-Gli esempi selezionati comprendono: calcolo della media locale (\Cref{sec:localaverage}), verifica dell’appartenenza a una regione circolare (\Cref{sec:incircle}), identificazione dei dispositivi lungo un anello (\Cref{sec:ring}), diffusione della temperatura (\Cref{sec:temperature}), navigazione lungo la discesa del gradiente (\Cref{sec:navgrad}), partizionamento di Voronoi (\Cref{sec:voronoi}), connessione lungo l’albero di percorso minimo (\Cref{sec:wire}), tracciamento di un dispositivo (\Cref{sec:track}) e dinamica di uno stormo (\Cref{sec:flock}).
+Gli esempi selezionati comprendono: calcolo della media locale (\Cref{sec:localaverage}), verifica dell’appartenenza a una regione circolare (\Cref{sec:incircle}), identificazione dei dispositivi lungo un anello (\Cref{sec:ring}), diffusione della temperatura (\Cref{sec:temperature}), navigazione lungo la discesa del gradiente (\Cref{sec:navgrad}), partizionamento di Voronoi (\Cref{sec:voronoi}), connessione lungo l’albero dei cammini minimi (\Cref{sec:wire}), tracciamento di un dispositivo (\Cref{sec:track}) e dinamica di uno stormo (\Cref{sec:flock}).
 
 Il codice sviluppato per questo lavoro è reso disponibile pubblicamente nel repository ufficiale degli esempi di Collektive\footnote{\url{https://github.com/Collektive/collektive-examples}}.
 
@@ -733,7 +743,7 @@ Il codice sviluppato per questo lavoro è reso disponibile pubblicamente nel rep
 
 % TODO (Richiede in ingresso il vettore v del dispositivo corrente)
 % filepath: /Users/andreacecchini/git/tesi/Tesi-Triennale-Andrea-Cecchini-2024-2025/thesis-main.tex
-\paragraph{Codice originale} La funzione \texttt{local-average} (\Cref{lst:localaverage}) presenta come parametro il vettore locale \texttt{v} del dispositivo, con \texttt{v} \(\in \mathbb{R}^3\).
+\paragraph{Codice originale} La funzione \texttt{local-average} (\Cref{lst:localaverage}) accetta come parametro il vettore locale \texttt{v} del dispositivo, con \texttt{v} \(\in \mathbb{R}^3\).
 
 \lstinputlisting[
     language=Lisp,
@@ -753,21 +763,21 @@ Il risultato del programma è quindi formalizzato come
 \], dove \(N\) rappresenta l'insieme dei dispositivi nel vicinato.
 
 % Aggiungere reference ai costrutti usati
-\paragraph{Trasposizione in Collektive} (\Cref{lst:localaverageck}) La raccolta dei vettori locali dei dispositivi nel vicinato avviene tramite il costrutto \texttt{neighboring} (\ref{lst:collektivenbr}); la loro somma viene calcolata con la funzione \texttt{fold} (\ref{lst:collapsefold}) e, infine, la media si ottiene dividendo tale somma per il numero di dispositivi, determinato tramite la proprietà \texttt{size}.
+\paragraph{Trasposizione in Collektive} (\Cref{lst:localaverageck}) La raccolta dei vettori nel vicinato avviene tramite il costrutto \texttt{neighboring} (\ref{lst:collektivenbr}); la loro somma viene calcolata con la funzione \texttt{fold} (\ref{lst:collapsefold}) e, infine, la media si ottiene dividendo tale somma per il numero di dispositivi, determinato tramite la proprietà \texttt{size}.
 
 % TODO (Sostituire il link con il permalink, possible aggiunta di footnote)
 \lstinputlisting[
     language=Kotlin,
     label={lst:localaverageck},
-    caption={Codice della funzione \texttt{localAverage} in Collektive.}
+    caption={Trasposizione di \texttt{local-average} in Collektive.}
 ]{listings/collektive/localAverage.kt}
 
-In \cref{fig:local-average-simulation} si illustra la simulazione dell'esperimento, dove per ogni nodo viene calcolata la norma euclidea del vettore risultante dal programma.
+In \cref{fig:local-average-simulation} si illustra la simulazione dell'esperimento, dove ogni nodo è etichettato con la norma euclidea del vettore risultante.
 
 \begin{figure}
     \centering
     \includegraphics[width=.8\linewidth]{figures/localAverageSimulation.pdf}
-    \caption{Simulazione dell'esperimento in \cref{sec:localaverage}.
+    \caption{Simulazione dell'esperimento in \cref{lst:localaverageck}.
      I dispositivi inizializzano \texttt{v} casualmente e convergono verso il valore medio locale.
      Il colore dei nodi dipende dalla norma euclidea del vettore calcolato, il cui intensità è indicata a fianco.}
     \label{fig:local-average-simulation}
@@ -780,7 +790,7 @@ In \cref{fig:local-average-simulation} si illustra la simulazione dell'esperimen
 \paragraph{Obiettivo} Determinare se un dispositivo appartiene a una regione circolare, dati il centro e il raggio del cerchio.
 
 % TODO (Richiede in ingresso un valore booleano che indica se il dispositivo è il centro del cerchio)
-\paragraph{Codice originale} La funzione \texttt{in-circle} (\Cref{lst:incircle}) richiede in ingresso le coordinate (\texttt{o}) e il raggio (\texttt{r}) del cerchio.
+\paragraph{Codice originale} La funzione \texttt{in-circle} (\Cref{lst:incircle}) richiede in ingresso le coordinate del centro (\texttt{o}) e il raggio (\texttt{r}) del cerchio.
 
 % TODO (Permalink)
 \lstinputlisting[
@@ -795,20 +805,20 @@ depositando il risultato nella variabile \texttt{dv}.
 Successivamente, l'espressione \texttt{(< (probe (vdot dv dv) 0) (* r r))}  verifica che il prodotto scalare di \texttt{dv} con sè stesso sia inferiore al quadrato del raggio \texttt{r}, restituendo un valore booleano   che indica l'appartenenza al cerchio.
 
 % TODO (Aggiungere giuste reference, far vedere la funzione distanceToSquared)
-\paragraph{Trasposizione in Collektive} (\Cref{lst:incircleck}) La propagazione delle coordinate del nodo centrale è realizzata tramite la funzione \texttt{gradientCast} (\ref{lst:gradientcast}). 
+\paragraph{Trasposizione in Collektive} (\Cref{lst:incircleck}) La propagazione delle coordinate del nodo centrale è realizzata tramite la funzione \texttt{gradientCast} (\Cref{lst:gradientcast}). 
 In seguito, si verifica che il quadrato della distanza tra il dispositivo corrente e il centro sia inferiore al quadrato del raggio.
 
 In \cref{fig:in-circle-simulation} è mostrata la simulazione dell'esperimento: il centro \texttt{o} è evidenziato in verde, mentre i dispositivi all'interno del cerchio sono colorati in rosso.
 \lstinputlisting[
     language=Kotlin,
     label={lst:incircleck},
-    caption={Trasposizione della funzione \texttt{in-circle} (\ref{lst:incircle}) in Collektive.}
+    caption={Trasposizione della funzione \texttt{in-circle} in Collektive.}
 ]{listings/collektive/inCircle.kt}
 
 \begin{figure}
     \centering
-    \includegraphics[width=.8\linewidth]{figures/incircle.pdf}
-    \caption{Simulazione dell'esperimento in \cref{sec:incircle}.
+    \includegraphics[width=.8\linewidth]{figures/in-circle.pdf}
+    \caption{Simulazione dell'esperimento in \cref{lst:incircleck}.
     Il centro \texttt{o} è rappresentato dal dispositivo in verde, mentre i dispositivi
     all'interno del cerchio sono colorati in rosso.}
     \label{fig:in-circle-simulation}
@@ -841,14 +851,14 @@ Infine, l'espressione \texttt{(if (< (abs (- (* 5 t) d)) 4) (green 1) (blue 1))}
 Se la condizione è soddisfatta, il dispositivo viene colorato di verde; altrimenti, di blu.
 
 \paragraph{Trasposizione in Collektive} (\Cref{lst:ringck}) 
-La propagazione del valore del timer dalle sorgenti avviene tramite la funzione \texttt{gradientCast} (\ref{lst:gradientcast}), mentre la funzione \texttt{distanceTo} (\ref{lst:distanceto}) permette a ciascun dispositivo di calcolare la distanza dalla sorgente più vicina.
+La propagazione del valore del timer dalle sorgenti avviene tramite la funzione \texttt{gradientCast} (\Cref{lst:gradientcast}), mentre la funzione \texttt{distanceTo} (\Cref{lst:distanceto}) permette a ciascun dispositivo di calcolare la distanza dalla sorgente più vicina.
 
 Come illustrato in \cref{fig:ring-simulation}, l’anello si propaga come un’onda, originata dalla sorgente. Per evitare che la simulazione si concluda subito dopo la prima propagazione, è stata introdotta una dinamica periodica che permette all’anello di formarsi e dissolversi ciclicamente nel tempo.
 
 \lstinputlisting[
     language=Kotlin,
     label={lst:ringck},
-    caption={Trasposizione della funzione \texttt{ring} (\ref{lst:ring}) in Collektive.}
+    caption={Trasposizione della funzione \texttt{ring} in Collektive.}
 ]{listings/collektive/Ring.kt}
 
 \begin{figure}
@@ -883,7 +893,7 @@ Inizialmente, ogni dispositivo imposta la propria temperatura a \(25\) gradi (\t
 %
 Tale valore viene aggiornato ad ogni round in base al ruolo del dispositivo: se il nodo agisce come sorgente di calore, viene impostato a \(30\) gradi (\texttt{mux hot 30 \dots}); se invece funge da sorgente di freddo, viene fissato a \(20\) gradi (\texttt{mux cold 20 \dots}); in tutti gli altri casi, si assume la media delle temperature rilevate nel vicinato (\texttt{(/ (sum-hood(nbr temp))(sum-hood 1))}).
 
-\paragraph{Trasposizione in Collektive} (\Cref{lst:temperatureck}) L'evoluzione spazio-temporale della temperatura è modellata tramite l'operatore \texttt{share} (\ref{sec:collektiveshare}).
+\paragraph{Trasposizione in Collektive} (\Cref{lst:temperatureck}) L'evoluzione spazio-temporale della temperatura è modellata tramite l'operatore \texttt{share} (\Cref{sec:collektiveshare}).
 
 In \cref{fig:temperature-simulation} è riportata una simulazione dell'esperimento, in cui i dispositivi che agiscono come sorgenti di calore sono evidenziati da un rettangolo rosso, mentre quelli che fungono da sorgenti di freddo sono evidenziati da un rettangolo blu. Il colore di ciascun dispositivo rappresenta la temperatura locale, secondo una scala cromatica che va dal nero (freddo) al rosso (caldo).
 
@@ -894,13 +904,13 @@ In \cref{fig:temperature-simulation} è riportata una simulazione dell'esperimen
 \lstinputlisting[
     language=Kotlin,
     label={lst:temperatureck},
-    caption={Trasposizione della funzione \texttt{temperature} (\ref{lst:temperature}) in Collektive.}
+    caption={Trasposizione della funzione \texttt{temperature} in Collektive.}
 ]{listings/collektive/Temperature.kt}
 
 \begin{figure}
     \centering
-    \includegraphics[width=.8\linewidth]{figures/temperature.pdf}
-    \caption{Simulazione dell'esperimento ``Temperature'' in Alchemist.
+    \includegraphics[width=.8\linewidth]{figures/temperature2.pdf}
+    \caption{Simulazione dell'esperimento in \cref{lst:temperatureck}.
     I dispositivi che agiscono come sorgenti di calore sono evidenziati da
     un rettangolo rosso, mentre quelli che agiscono come sorgenti di freddo
     sono evidenziati da un rettangolo blu.
@@ -914,7 +924,7 @@ In \cref{fig:temperature-simulation} è riportata una simulazione dell'esperimen
 \section{Navigazione del Gradiente}
 \label{sec:navgrad}
 
-\paragraph{Obiettivo} Guidare i nodi mobili verso una fonte di interesse all’interno della rete, utilizzando la discesa del gradiente del campo delle distanze.
+\paragraph{Obiettivo} Guidare i nodi mobili verso una fonte di interesse all’interno della rete, muovendosi lungo la discesa del gradiente del campo delle distanze.
 
 \paragraph{Codice originale} Il programma (\Cref{lst:navgrad}) è composto da tre funzioni: \texttt{grad}, \texttt{share-distance-to} e \texttt{nav-grad}.
 %
@@ -938,13 +948,13 @@ Altrimenti, si calcola mediante l’espressione \texttt{(* (/ (- v (nbr v)) (nbr
 
 \texttt{share-distance-to} calcola e condivide una stima della distanza dalla sorgente all’interno della rete. Essa richiede due argomenti booleani: \texttt{is-calculating}, che indica se il dispositivo è abilitato al calcolo della distanza, e \texttt{source}, che identifica i dispositivi sorgente.
 %
-I dispositivi abilitati al calcolo, sfruttano la funzione \texttt{distance-to} per stimare la distanza dalla sorgente, memorizzando il risultato nella variabile \texttt{base}.
+I nodi abilitati al calcolo sfruttano la funzione \texttt{distance-to} per stimare la distanza dalla sorgente, memorizzando il risultato nella variabile \texttt{base}.
 %
 I dispositivi per cui \texttt{base} risulta finito vengono illuminati di verde.
 %
 La funzione restituisce il risultato dell'espressione \texttt{(mux is-calculating base (min-hood (+ (nbr-range) (nbr base))))}.
 \\
-Se \texttt{is-calculating} è vero, la funzione restituisce \texttt{base}; altrimenti, restituisce il minimo tra le somme delle distanze ai vicini e le rispettive stime di distanza dalla sorgente.
+Se \texttt{is-calculating} è vero, la funzione restituisce \texttt{base}; altrimenti, restituisce il minimo tra le somme delle distanze dai vicini e le rispettive stime di distanza dalla sorgente.
 
 La funzione \texttt{nav-grad} combina le funzionalità di \texttt{share-distance-to} e \texttt{grad} per calcolare il vettore di navigazione verso la sorgente.
 %
@@ -954,24 +964,23 @@ Il gradiente rispetto al campo di distanza viene calcolato tramite l’espressio
 %
 Si restituisce il risultato di \texttt{(mux (and is-mover (> (len g) 0)) (normalize g) (tup 0 0)}.
 %
-Se il dispositivo è mobile e \texttt{g} ha una lunghezza positiva, il risultato è il vettore normalizzato \texttt{g}; altrimenti, viene restituito il vettore nullo.
+Se il dispositivo è mobile e \texttt{g} ha lunghezza positiva, l'esito è il vettore normalizzato \texttt{g}; altrimenti, si ottiene il vettore nullo.
+\paragraph{Trasposizione in Collektive} La funzione \texttt{grad} (\Cref{lst:gradck}) è stata tradotta come segue : si calcolano le differenze (\texttt{differences}) tra il valore locale e quelli dei vicini tramite l'espressione \texttt{mapNeighborhood \{ v \} - neighboring(v)} (\Cref{lst:collektivenbrexamples}), quindi si determinano distanze e direzioni rispetto ai vicini e si combinano questi campi di vicinato (\texttt{alignedMapValues}) per ottenere il gradiente.
 
-\paragraph{Trasposizione in Collektive} La funzione \texttt{grad} (\ref{lst:gradck}) è stata tradotta come segue : si calcolano le differenze (\texttt{differences}) tra il valore locale e quelli dei vicini tramite l'espressione \texttt{mapNeighborhood \{ v \} - neighboring(v)} (\ref{lst:collektivenbrexamples}), quindi si determinano distanze e direzioni rispetto ai vicini e si combinano questi campi di vicinato (\texttt{alignedMapValues} (\ref{lst:fieldmap})) per ottenere il gradiente.
-
-La funzione \texttt{share-distance-to} (\Cref{lst:sharedistancetock}) utilizza la funzione \texttt{distanceTo} (\ref{lst:distanceto}) per calcolare le distanze dalla sorgente; i dispositivi incapaci di calcolarla determinano il minimo tra la somma delle distanze dai vicini e le rispettive stime (\texttt{neighborDistances() + neighboring(myDist)} (\ref{lst:fieldinfix})) , grazie all'espressione \texttt{potentialDist.all.valueOfMinBy(\dots)} (\ref{lst:fieldfold}).
+La funzione \texttt{share-distance-to} (\Cref{lst:sharedistancetock}) utilizza la funzione \texttt{distanceTo} (\Cref{lst:distanceto}) per calcolare le distanze dalla sorgente; i dispositivi incapaci di calcolarla determinano il minimo tra la somma delle distanze dai vicini e le rispettive stime (\texttt{neighborDistances() + neighboring(myDist)} (\Cref{lst:fieldinfix})) , grazie all'espressione \texttt{potentialDist.all.valueOfMinBy(\dots)} (\Cref{lst:fieldfold}).
 
 In \Cref{lst:navgradck} si mostra la trasposizione della funzione \texttt{nav-grad} che, come l'originale, combina le funzionalità delle due funzioni precedenti per calcolare il vettore di navigazione verso la sorgente.
 
 \lstinputlisting[
     language=Kotlin,
     label={lst:gradck},
-    caption={Trasposizione della funzione \texttt{grad} (\ref{lst:navgrad}) in Collektive.}
+    caption={Trasposizione della funzione \texttt{grad} in Collektive.}
 ]{listings/collektive/Grad.kt}
 
 \lstinputlisting[
     language=Kotlin,
     label={lst:sharedistancetock},
-    caption={Trasposizione della funzione \texttt{share-distance-to} (\ref{lst:navgrad}) in Collektive.}
+    caption={Trasposizione della funzione \texttt{share-distance-to} in Collektive.}
 ]{listings/collektive/ShareDistanceTo.kt}
 
 \newpage
@@ -981,12 +990,12 @@ In \Cref{lst:navgradck} si mostra la trasposizione della funzione \texttt{nav-gr
     caption={Trasposizione della funzione \texttt{nav-grad} (\ref{lst:navgrad}) in Collektive.}
 ]{listings/collektive/NavGrad.kt}
 
-In \cref{fig:navgrad-simulation} è riportata la simulazione dell'esperimento, in cui ogni nodo è colorato in base alla distanza dalla sorgente (evidenziata in rosso), mentre i dispositivi mobili sono contrassegnati da un cerchio blu. La figura mostra come i nodi mobili seguano la discesa del gradiente del campo delle distanze per raggiungere la sorgente. 
+In \cref{fig:navgrad-simulation} è riportata la simulazione dell'esperimento, in cui ogni nodo è colorato in base alla distanza dalla sorgente (evidenziata in rosso), mentre i dispositivi mobili sono evidenziati in blu. La figura mostra come i nodi mobili seguano la discesa del gradiente del campo delle distanze per raggiungere la sorgente. 
 
 \begin{figure}
     \centering
     \includegraphics[width=.8\linewidth]{figures/navgrad.pdf}
-    \caption{Simulazione dell'esperimento ``Navigazione del Gradiente'' in Alchemist.
+    \caption{Simulazione dell'esperimento in \cref{lst:navgradck}.
     Ogni nodo è colorato rispetto alla distanza dalla sorgente (nodo evidenziato in rosso).
     I dispositivi mobili sono evidenziati da un cerchio blu.
     }
@@ -997,7 +1006,7 @@ In \cref{fig:navgrad-simulation} è riportata la simulazione dell'esperimento, i
 \section{Partizionamento di Voronoi}
 \label{sec:voronoi}
 
-\paragraph{Obiettivo} Suddividere lo spazio della rete tramite partizionamento di Voronoi\footnote{\url{https://en.wikipedia.org/wiki/Voronoi_diagram}}.
+\paragraph{Obiettivo} Suddividere lo spazio della rete tramite partizionamento di Voronoi.
 %
 Un insieme di dispositivi è designato come sorgenti.
 %
@@ -1007,7 +1016,7 @@ Il dispositivo è classificato in base alla sua posizione: in una cella, su un b
 %
 La colorazione dei nodi riflette questa classificazione.
 
-\paragraph{Codice originale} Il programma (\cref{lst:voronoi}) richiede in ingresso due valori booleani: \texttt{src}, che definisce l'insieme dei dispositivi generatori delle celle, e \texttt{showedge}, un flag che abilita la visualizzazione dei bordi.
+\paragraph{Codice originale} Il programma (\Cref{lst:voronoi}) richiede in ingresso due valori booleani: \texttt{src}, che definisce l'insieme dei dispositivi generatori delle celle, e \texttt{showedge}, un flag che abilita la visualizzazione dei bordi.
 %
 \lstinputlisting[
     language=Lisp,
@@ -1018,17 +1027,17 @@ La colorazione dei nodi riflette questa classificazione.
 Tramite il costrutto \texttt{let*}, si definiscono tre variabili in modo sequenziale:
 \begin{itemize}
     \item \texttt{closest-src}: identificatore del dispositivo sorgente più vicino, sfruttando la funzione \texttt{broardcast src (mid)}.
-    \item \texttt{edge}: indica se il dispositivo corrente si trova su un bordo tra due celle, verificando se ha almeno un vicino (\texttt{any-hood}) la cui sorgente più vicina (\texttt{nbr closest-src}) è diversa dalla propria (\texttt{closest-src}).
-    \item \texttt{vertex}: indica se il dispositivo corrente è un vertice, verificando se è sul bordo (\texttt{and edge}) e se, tra i suoi vicini appartenenti a celle diverse (\texttt{max-nbr}, \texttt{min-nbr}), esistono almeno due ID di sorgente distinti (\texttt{(not (= max-nbr min-nbr))}).
+    \item \texttt{edge}: indica se il dispositivo corrente si trovi su un bordo tra due celle, ossia se esista almeno un vicino (\texttt{any-hood}) la cui sorgente più prossima (\texttt{nbr closest-src}) sia diversa dalla propria (\texttt{closest-src}).
+    \item \texttt{vertex}: indica se il dispositivo corrente sia un vertice, ossia se si trovi su un bordo (\texttt{and edge}) e, tra i vicini appartenenti a celle diverse (\texttt{max-nbr}, \texttt{min-nbr}), vi siano almeno due identificativi di sorgente distinti (\texttt{(not (= max-nbr min-nbr))}).
 \end{itemize}
 %
-Se il flag \texttt{showedge} è attivo, i dispositivi vengono colorati in base alla loro classificazione: se è un vertice, viene colorato con il colore \texttt{rgb (tup 1 0 0)}, se è un bordo con \texttt{rgb (tup 0 0 0.5)}, altrimenti con il colore associato alla propria cella di appartenenza (\texttt{uid2rgb closest-src 10}).
+Se il flag \texttt{showedge} è attivo, i dispositivi vengono colorati in base alla loro classificazione: i vertici assumono il colore \texttt{rgb (tup 1 0 0)}, i bordi \texttt{rgb (tup 0 0 0.5)}, mentre gli altri dispositivi adottano il colore associato alla propria cella di appartenenza (\texttt{uid2rgb closest-src 10}).
 %
 La funzione restituisce la coppia \texttt{(tup closest-src edge)}.
 
-\paragraph{Trasposizione in Collektive} (\Cref{lst:voronoick}) L'identificatore della sorgente più vicina è determinato dalla funzione \texttt{gradientCast} (\ref{lst:gradientcast}), la cui natura assicura che ogni dispositivo ottenga il valore della sorgente più prossima.
+\paragraph{Trasposizione in Collektive} (\Cref{lst:voronoick}) L'identificatore della sorgente più vicina è determinato dalla funzione \texttt{gradientCast} (\Cref{lst:gradientcast}), la cui natura assicura che ogni dispositivo ottenga il valore della sorgente più prossima.
 
-I vicini condividono il valore calcolato tramite \texttt{neighboring} (\ref{lst:collektivenbr}), permettendo a ogni nodo di contare il numero di sorgenti diverse nel vicinato, determinando così la propria classificazione.
+I vicini condividono il valore calcolato tramite \texttt{neighboring} (\Cref{lst:collektivenbr}), permettendo a ogni nodo di contare il numero di sorgenti diverse nel vicinato, determinando così la propria classificazione.
 %
 Se \texttt{distinctSources >= 3}, il dispositivo è un vertice; se \texttt{distinctSources == 2}, è su un bordo.
 
@@ -1038,15 +1047,14 @@ In questa traduzione, il programma non restituisce la coppia \texttt{(closest-sr
 \lstinputlisting[
     language=Kotlin,
     label={lst:voronoick},
-    caption={Trasposizione della funzione \texttt{voronoi} (\ref{lst:voronoi}) in Collektive.}
+    caption={Trasposizione della funzione \texttt{voronoi} in Collektive.}
 ]{listings/collektive/Voronoi.kt}
 
-\newpage
 \begin{figure}
     \centering
     \includegraphics[width=.8\linewidth]{figures/voronoi.pdf}
-    \caption{Simulazione dell'esperimento ``Voronoi'' in Alchemist.
-    I dispositivi sono colorati in base alla cella di appartenenza;
+    \caption{Simulazione dell'esperimento in \cref{lst:voronoick}.
+    I dispositivi sono colorati in base alla cella di appartenenza:
     i dispositivi sui bordi sono colorati in rosso,
     mentre i vertici sono colorati in magenta.
     Le sorgenti sono evidenziate da un rettangolo nero.
@@ -1055,14 +1063,14 @@ In questa traduzione, il programma non restituisce la coppia \texttt{(closest-sr
 \end{figure}
 
 \newpage
-\section{Connessione lungo l'albero di percorso minimo}
+\section{Connessione lungo l'albero dei cammini minimi}
 \label{sec:wire}
 
 \paragraph{Obiettivo} Stabilire un collegamento tra due dispositivi identificando e attraversando i nodi che compongono l'albero di percorso minimo che li collega.
 
 \paragraph{Codice originale} Il programma è costituito da tre funzioni: \texttt{spath}, \texttt{connect} e \texttt{wire}.
 
-La funzione \texttt{spath} (\cref{lst:spath}) determina l'albero di percorso minimo tra sorgente (\texttt{src}) e destinazione (\texttt{dest}), sfruttando la distanza \texttt{d} di ciascun dispositivo rispetto alla destinazione.
+La funzione \texttt{spath} (\Cref{lst:spath}) determina l'albero di percorso minimo tra sorgente (\texttt{src}) e destinazione (\texttt{dest}), sfruttando la distanza \texttt{d} di ciascun dispositivo rispetto alla destinazione.
 
 In fase iniziale, viene definita la variabile \texttt{min-id}, la quale memorizza l'identificatore del vicino che presenta la distanza minima \texttt{d}, come espresso da \texttt{(2nd (min-hood (tup (nbr d) (nbr (mid)))))}.
 
@@ -1085,11 +1093,11 @@ La funzione restituisce \texttt{ispath}.
     caption={Codice della funzione \texttt{spath} in Proto.}
 ]{listings/proto/spath.proto}
 
-La funzione \texttt{connect} (\cref{lst:connect}) stabilisce il collegamento logico tra sorgente (\texttt{src}) e destinazione (\texttt{dest}), computando un vettore di connessione che indica il prossimo dispositivo lungo l'albero di percorso minimo.
+\texttt{connect} (\Cref{lst:connect}) stabilisce il collegamento logico tra sorgente (\texttt{src}) e destinazione (\texttt{dest}), computando un vettore di connessione che indica il prossimo dispositivo lungo l'albero di percorso minimo.
 
 Ogni dispositivo calcola innanzitutto la propria distanza \texttt{d} dalla destinazione mediante la funzione \texttt{distance-to}. Successivamente, tutti i dispositivi verificano la propria appartenenza all'albero, invocando \texttt{spath}.
 
-Attraverso l'espressione \texttt{if thepath \dots}, i dispositivi che risultano parte dell'albero collaborano per calcolare il vettore di connessione. Questo calcolo è basato sulla ricerca della distanza minima rispetto alla destinazione tra i nodi vicini (\texttt{(min-hood (nbr d))}). Vengono poi sommati i contributi di quei vicini per cui la distanza \texttt{(nbr d)} coincide con tale distanza minima (\texttt{= (nbr d) min-d}).
+Attraverso l'espressione \texttt{if thepath \dots}, i dispositivi che risultano parte dell'albero collaborano per calcolare il vettore di connessione. Questo calcolo è basato sulla ricerca della distanza minima rispetto alla destinazione tra i nodi vicini (\texttt{(min-hood (nbr d))}). Vengono poi sommati i contributi di quei vicini per cui la distanza \texttt{(nbr d)} coincida con tale distanza (\texttt{= (nbr d) min-d}).
 
 Se tale condizione è verificata, l'espressione \texttt{mux \dots} restituisce il vettore che punta verso il vicino in questione (\texttt{(nbr-vec)}); in caso contrario, restituisce il vettore nullo.
 
@@ -1110,21 +1118,21 @@ La funzione \texttt{wire} (\cref{lst:wire}) invoca \texttt{connect} solo per i n
 
 \paragraph{Trasposizione in Collektive} In \Cref{lst:spathck} è mostrata la trasposizione della funzione \texttt{spath}. 
 %
-Si utilizza il costrutto \texttt{share} (\ref{lst:collektiveshare}) per mantenere lo stato di appartenenza all'albero, condividendolo allo stesso tempo con i nodi adiacenti e ottenendo così una vista sul loro stato (\texttt{nbrIsPath}).
+Si utilizza il costrutto \texttt{share} (\Cref{lst:collektiveshare}) per mantenere lo stato di appartenenza all'albero, condividendolo allo stesso tempo con i nodi adiacenti e ottenendo così una vista sul loro stato (\texttt{nbrIsPath}).
 %
-L'identificatore del vicino con distanza minima dalla destinazione si ottiene costruendo un \texttt{Field} che associa a ciascun nodo del vicinato la sua distanza (\texttt{neighboring(toDestination)} (\ref{lst:collektivenbr})), e selezionando l'identificatore corrispondente al valore minimo tramite \texttt{.minBy \{ (\_, value) -> value \}.id}.
+L'identificatore del vicino con distanza minima dalla destinazione si ottiene costruendo un \texttt{Field} che associa a ciascun nodo del vicinato la sua distanza (\texttt{neighboring(toDestination)} (\Cref{lst:collektivenbr})), e selezionando l'identificatore corrispondente al valore minimo tramite \texttt{.minBy \{ (\_, value) -> value \}.id}.
 %
 Successivamente, si costruisce un \texttt{Field} di \texttt{minId}, che viene trasformato in un campo di valori booleani: il valore è \texttt{true} per i nodi il cui \texttt{minId} coincide con il proprio identificatore. Questo campo viene quindi combinato con \texttt{nbrIsPath} tramite un'operazione logica \texttt{and}; se almeno un nodo adiacente restituisce \texttt{true}, il dispositivo viene considerato parte dell'albero.
 
 La corrispondente implementazione di \texttt{connect} è riportata in \Cref{lst:connectck}.
 %
-Ogni nodo calcola la distanza dalla destinazione tramite \texttt{distanceTo} (\ref{lst:distanceto}) e verifica la propria appartenenza all'albero di percorso minimo invocando la funzione \texttt{shortestPath}.
+Ogni nodo calcola la distanza dalla destinazione tramite \texttt{distanceTo} (\Cref{lst:distanceto}) e verifica la propria appartenenza all'albero di percorso minimo invocando la funzione \texttt{shortestPath}.
 %
 Per calcolare il vettore di connessione, si combinano le distanze dei nodi adiacenti dalla destinazione (\texttt{neighborDistances}) con i rispettivi vettori direzionali (\texttt{neighborVectors}), considerando esclusivamente il contributo del nodo la cui distanza corrisponde al valore minimo rilevato nel vicinato.
 
 La trasposizione della funzione \texttt{wire} è mostrata in \Cref{lst:wireck}. 
 %
-La presenza di ostacoli nei dintorni viene rilevata costruendo un \texttt{Field} booleano tramite \texttt{neighboring(obstacle)} (\ref{lst:collektivenbr}) e verificando, con la funzione \texttt{any(\dots)}, se almeno uno dei nodi adiacenti rappresenta un ostacolo.
+La presenza di ostacoli nei dintorni viene rilevata costruendo un \texttt{Field} booleano tramite \texttt{neighboring(obstacle)} (\Cref{lst:collektivenbr}) e verificando, con la funzione \texttt{any(\dots)}, se almeno uno dei nodi adiacenti rappresenta un ostacolo.
 
 In \cref{fig:wire-simulation} è mostrata la simulazione dell'esperimento.
 
@@ -1151,11 +1159,11 @@ In \cref{fig:wire-simulation} è mostrata la simulazione dell'esperimento.
 
 \begin{figure}
     \centering
-    \includegraphics[width=.8\linewidth]{figures/wire.pdf}
-    \caption{Simulazione dell'esperimento ``Wire'' in Alchemist.
+    \includegraphics[width=.8\linewidth]{figures/wire2.pdf}
+    \caption{Simulazione dell'esperimento in \cref{lst:wireck}.
     La sorgente è evidenziata in rosso mentre la destinazione in verde.
     Gli ostacoli sono rappresentati attraverso quadrati blu.
-    I dispositivi che appartengono all'\ac{SPT} puntano verso il prossimo nodo lungo l'albero, formando un collegamento che unisce sorgente e destinazione.
+    I dispositivi che appartengono all'albero puntano verso il prossimo nodo del cammino, formando un collegamento che unisce sorgente e destinazione.
     }
     \label{fig:wire-simulation}
 \end{figure}
@@ -1172,12 +1180,11 @@ In \cref{fig:wire-simulation} è mostrata la simulazione dell'esperimento.
 
 La funzione \texttt{channel} ha lo scopo di creare un "canale" di dispositivi che collega la sorgente (\texttt{src}) alla destinazione (\texttt{dest}), restituendo \texttt{true} per tutti i nodi che fanno parte di questo percorso e \texttt{false} per gli altri. 
 %
-In particolare, la funzione calcola la distanza tra sorgente e destinazione (\texttt{(distance src dst)}) e identifica come appartenenti al canale tutti i dispositivi per cui la somma delle distanze dalla sorgente e dalla destinazione è minore o uguale alla distanza tra le due, aumentata di un margine di tolleranza (\texttt{(<= (+ (gradient src) (gradient dst)) (+ d 1)))}. 
+In particolare, la funzione calcola la distanza tra sorgente e destinazione (\texttt{(distance src dst)}) e considera appartenenti al canale tutti i dispositivi per cui la somma delle distanze dalla sorgente e dalla destinazione risulta minore o uguale alla distanza tra le due, incrementata di un margine di tolleranza (\texttt{(<= (+ (gradient src) (gradient dst)) (+ d 1))}).
 %
 Infine, la funzione restituisce \texttt{true} solo per i dispositivi effettivamente raggiungibili sia dalla sorgente sia dalla destinazione e che rientrano nella larghezza specificata dal canale, ampliata tramite la funzione \texttt{dilate}.
 
-La funzione \texttt{track} permette alla destinazione di seguire il target sfruttando il canale creato da \texttt{channel}: si propaga la posizione del target lungo il canale e, una volta ricevuta, la destinazione ne calcola la differenza rispetto le proprie coordinate, determinando così il verso cui puntare (\texttt{(- (broadcast target coord) coord)}).
-
+La funzione \texttt{track} consente alla destinazione di seguire il target sfruttando il canale creato da \texttt{channel}: la posizione del target viene propagata lungo il canale e, una volta ricevuta, la destinazione ne calcola la differenza rispetto alle proprie coordinate, determinando così la direzione verso cui puntare (\texttt{(- (broadcast target coord) coord)}).
 \lstinputlisting[
     language=Lisp,
     label={lst:track},
@@ -1185,9 +1192,9 @@ La funzione \texttt{track} permette alla destinazione di seguire il target sfrut
 comprendente le funzioni \texttt{channel} e \texttt{track}.}
 ]{listings/proto/track.proto}
 
-\paragraph{Trasposizione in Collektive} Per l'implementazione di \texttt{channel} è stata adottata la versione già utilizzata nella simulazione \href{https://github.com/Collektive/collektive-examples/blob/fc511935fa0cce9116cd6bb8e00088443c2cd506/simulation/src/main/kotlin/it/unibo/collektive/examples/channel/ChannelWithObstacles.kt#L28C1-L44}{ChannelWithObstacle} (\Cref{lst:channelck}).
+\paragraph{Trasposizione in Collektive} Per l'implementazione di \texttt{channel} è stata adottata la versione già utilizzata nella simulazione ChannelWithObstacle\footnote{\url{https://github.com/Collektive/collektive-examples/blob/fc511935fa0cce9116cd6bb8e00088443c2cd506/simulation/src/main/kotlin/it/unibo/collektive/examples/channel/ChannelWithObstacles.kt\#L28C1-L44}} (\Cref{lst:channelck}).
 
-La propagazione delle coordinate del nodo target nella funzione \texttt{track} (\Cref{lst:trackck}) avviene tramite la funzione \texttt{gradientCast} (\ref{lst:gradientcast}), che diffonde le informazioni esclusivamente tra i nodi appartenenti al canale, grazie al partizionamento derivato dal costrutto \texttt{when}.
+La propagazione delle coordinate del nodo target nella funzione \texttt{track} (\Cref{lst:trackck}) avviene tramite la funzione \texttt{gradientCast} (\Cref{lst:gradientcast}), che diffonde le informazioni esclusivamente tra i nodi appartenenti al canale, grazie al partizionamento derivato dal costrutto \texttt{when}.
 
 \newpage
 \lstinputlisting[
@@ -1199,8 +1206,19 @@ La propagazione delle coordinate del nodo target nella funzione \texttt{track} (
 \lstinputlisting[
     language=Kotlin,
     label={lst:channelck},
-    caption={Funzione \texttt{channel} tratta dall'esperimento \href{https://github.com/Collektive/collektive-examples/blob/fc511935fa0cce9116cd6bb8e00088443c2cd506/simulation/src/main/kotlin/it/unibo/collektive/examples/channel/ChannelWithObstacles.kt\#L28C1-L44}{ChannelWithObstacles}.}
+    caption={Funzione \texttt{channel} tratta dall'esperimento ChannelWithObstacles.}
 ]{listings/collektive/Channel.kt}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.8\linewidth]{figures/track.pdf}
+    \caption{Simulazione dell'esperimento in \cref{lst:trackck}.
+    Il dispositivo target è evidenziato in rosso, mentre la destinazione in verde.
+    I nodi che compongono il canale di comunicazione sono colorati in blu.
+    La destinazione segue il target sfruttando le informazioni propagate lungo il canale.
+    }
+    \label{fig:track-simulation}
+\end{figure}
 
 \newpage
 \section{Dinamica di uno stormo}
@@ -1238,9 +1256,9 @@ I contributi dei vicini vengono calcolati e aggregati tramite la funzione \textt
 Infine, la nuova velocità viene calcolata tramite l’espressione \texttt{(+ dir (mux (> (vdot d d) 0) d v))}: questa istruzione somma la direzione iniziale \texttt{dir} al vettore risultante \texttt{d} se la sua norma è positiva; in caso contrario, mantiene la velocità precedente \texttt{v}.
 \paragraph{Trasposizione in Collektive} La traduzione in Collektive è riportata in \cref{lst:flockck}.
 
-L’evoluzione della velocità dei nodi viene gestita tramite l’operatore \texttt{share} (\ref{lst:collektiveshare}) , poiché la dinamica dipende sia dallo stato dei vicini sia dallo stato calcolato nel round precedente.
-%
-La necessità di una migliore approssimazione contigua del campo ha portato all’introduzione delle funzioni ausiliarie \texttt{sumWeightedNeighbors} e \texttt{spatialWeight} (\cref{lst:inthoodck}), che calcolano rispettivamente la somma pesata dei contributi dei vicini e il peso attribuito a ciascun nodo adiacente.
+L’evoluzione della velocità dei nodi viene gestita tramite l’operatore \texttt{share} (\Cref{lst:collektiveshare}) , poiché la dinamica dipende sia dallo stato dei vicini sia dallo stato calcolato nel round precedente.
+
+La necessità di una migliore approssimazione contigua del campo ha portato all’introduzione delle funzioni ausiliarie \texttt{sumWeightedNeighbors} e \texttt{spatialWeight} (\Cref{lst:inthoodck}), che calcolano rispettivamente la somma pesata dei contributi dei vicini e il peso attribuito a ciascun nodo adiacente.
 %
 Il peso assegnato si ottiene dividendo l'area del cerchio, il cui raggio è pari a quello di comunicazione, per il numero di dispositivi presenti nel vicinato.
 
@@ -1263,7 +1281,7 @@ Si osserva come i dispositivi si organizzino spontaneamente in tre stormi, ciasc
 \begin{figure}
     \centering
     \includegraphics[width=.8\linewidth]{figures/flock.pdf}
-    \caption{Simulazione dell’esperimento in \cref{sec:flock}.
+    \caption{Simulazione dell’esperimento in \cref{lst:flockck}.
     I dispositivi leader sono colorati in rosso, mentre gli altri sono colorati in blu.
     Si osserva come i nodi si organizzino spontaneamente in tre stormi, ciascuno dei quali si dirige verso l’origine grazie alla presenza di un numero sufficiente di leader che guidano il movimento collettivo.
     }
@@ -1287,8 +1305,8 @@ Un naturale sviluppo futuro di questo lavoro potrebbe consistere in un confronto
 % \nocite{*}
 \bibliography{bibliography}
 
-\begin{acknowledgements} % this is optional
-Optional. Max 1 page.
-\end{acknowledgements}
+%\begin{acknowledgements} % this is optional
+%Optional. Max 1 page.
+%\end{acknowledgements}
 
 \end{document}

@@ -23,7 +23,7 @@ fun Aggregate<Int>.voronoi(source: Boolean, metric: () -> Field<Int, Double>): I
     return when {
         isVertex -> VERTEX_COLOR
         isBorder -> BORDER_COLOR
-        else -> closestSource.toColor()
+        else -> closestSource.toColor() // toColor() maps an ID to a color value
     }
 }
 

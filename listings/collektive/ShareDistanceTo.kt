@@ -1,5 +1,6 @@
 /**
- * Share the distance from the [isCalculating] or [source] to all non [isCalculating] nodes.
+ * Share the distance from the [isCalculating] or [source]
+ * to all non [isCalculating] nodes.
  */
 fun Aggregate<Int>.shareDistanceTo(
     isCalculating: Boolean,
