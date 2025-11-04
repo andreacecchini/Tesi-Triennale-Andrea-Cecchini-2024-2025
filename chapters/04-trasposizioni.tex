@@ -17,8 +17,6 @@ Il codice sviluppato per questo lavoro è reso disponibile pubblicamente nel rep
 
 \paragraph{Obiettivo} Calcolare la media dei vettori nel vicinato.
 
-% TODO (Richiede in ingresso il vettore v del dispositivo corrente)
-% filepath: /Users/andreacecchini/git/tesi/Tesi-Triennale-Andrea-Cecchini-2024-2025/thesis-main.tex
 \paragraph{Codice originale} La funzione \texttt{local-average} (\Cref{lst:localaverage}) accetta come parametro il vettore locale \texttt{v} del dispositivo, con \texttt{v} \(\in \mathbb{R}^3\).
 
 \lstinputlisting[
@@ -38,10 +36,8 @@ Il risultato del programma è quindi formalizzato come
     \texttt{local-average(v)} = \frac{1}{\sum_{d \in N} 1} \cdot \sum_{d \in N} v(d)
 \], dove \(N\) rappresenta l'insieme dei dispositivi nel vicinato.
 
-% Aggiungere reference ai costrutti usati
 \paragraph{Trasposizione in Collektive} (\Cref{lst:localaverageck}) La raccolta dei vettori nel vicinato avviene tramite il costrutto \texttt{neighboring} (\ref{lst:collektivenbr}); la loro somma viene calcolata con la funzione \texttt{fold} (\ref{lst:collapsefold}) e, infine, la media si ottiene dividendo tale somma per il numero di dispositivi, determinato tramite la proprietà \texttt{size}.
 
-% TODO (Sostituire il link con il permalink, possible aggiunta di footnote)
 \lstinputlisting[
     language=Kotlin,
     label={lst:localaverageck},
@@ -65,10 +61,8 @@ In \cref{fig:local-average-simulation} si illustra la simulazione dell'esperimen
 
 \paragraph{Obiettivo} Determinare se un dispositivo appartiene a una regione circolare, dati il centro e il raggio del cerchio.
 
-% TODO (Richiede in ingresso un valore booleano che indica se il dispositivo è il centro del cerchio)
 \paragraph{Codice originale} La funzione \texttt{in-circle} (\Cref{lst:incircle}) richiede in ingresso le coordinate del centro (\texttt{o}) e il raggio (\texttt{r}) del cerchio.
 
-% TODO (Permalink)
 \lstinputlisting[
     language=Lisp,
     label={lst:incircle},
@@ -80,11 +74,11 @@ depositando il risultato nella variabile \texttt{dv}.
 %
 Successivamente, l'espressione \texttt{(< (probe (vdot dv dv) 0) (* r r))}  verifica che il prodotto scalare di \texttt{dv} con sè stesso sia inferiore al quadrato del raggio \texttt{r}, restituendo un valore booleano   che indica l'appartenenza al cerchio.
 
-% TODO (Aggiungere giuste reference, far vedere la funzione distanceToSquared)
 \paragraph{Trasposizione in Collektive} (\Cref{lst:incircleck}) La propagazione delle coordinate del nodo centrale è realizzata tramite la funzione \texttt{gradientCast} (\Cref{lst:gradientcast}). 
 In seguito, si verifica che il quadrato della distanza tra il dispositivo corrente e il centro sia inferiore al quadrato del raggio.
 
-In \cref{fig:in-circle-simulation} è mostrata la simulazione dell'esperimento: il centro \texttt{o} è evidenziato in verde, mentre i dispositivi all'interno del cerchio sono colorati in rosso.
+In \cref{fig:in-circle-simulation} è mostrata la simulazione dell'esperimento: il centro \texttt{o} è evidenziato in verde, i dispositivi all'interno del cerchio sono colorati in rosso, mentre i dispositivi esterni al cerchio sono rappresentati in nero.
+
 \lstinputlisting[
     language=Kotlin,
     label={lst:incircleck},
@@ -243,7 +237,7 @@ Si restituisce il risultato di \texttt{(mux (and is-mover (> (len g) 0)) (normal
 Se il dispositivo è mobile e \texttt{g} ha lunghezza positiva, l'esito è il vettore normalizzato \texttt{g}; altrimenti, si ottiene il vettore nullo.
 \paragraph{Trasposizione in Collektive} La funzione \texttt{grad} (\Cref{lst:gradck}) è stata tradotta come segue : si calcolano le differenze (\texttt{differences}) tra il valore locale e quelli dei vicini tramite l'espressione \texttt{mapNeighborhood \{ v \} - neighboring(v)} (\Cref{lst:collektivenbrexamples}), quindi si determinano distanze e direzioni rispetto ai vicini e si combinano questi campi di vicinato (\texttt{alignedMapValues}) per ottenere il gradiente.
 
-La funzione \texttt{shareDistanceTo} (\Cref{lst:sharedistancetock}) utilizza la funzione \texttt{distanceTo} (\Cref{lst:distanceto}) per calcolare le distanze dalla sorgente; i dispositivi incapaci di calcolarla determinano il minimo tra la somma delle distanze dai vicini e le rispettive stime (\texttt{neighborDistances() + neighboring(myDist)}) , grazie all'espressione \texttt{potentialDist.all.valueOfMinBy(\dots)}.
+La funzione \texttt{shareDistanceTo} (\Cref{lst:sharedistancetock}) utilizza la funzione \texttt{distanceTo} (\Cref{lst:distanceto}) per calcolare le distanze dalla sorgente; i dispositivi incapaci di calcolarla determinano il minimo tra la somma delle distanze dai vicini e le rispettive stime (\texttt{neighborDistances() + neighboring(myDist)}), grazie all'espressione \texttt{potentialDist.all.valueOfMinBy(\dots)}.
 
 In \Cref{lst:navgradck} si mostra la trasposizione della funzione \texttt{nav-grad} che, come l'originale, combina le funzionalità delle due funzioni precedenti per calcolare il vettore di navigazione verso la sorgente.
 
@@ -532,7 +526,7 @@ I contributi dei vicini vengono calcolati e aggregati tramite la funzione \textt
 Infine, la nuova velocità è determinata tramite l’espressione \texttt{(+ dir (mux (> (vdot d d) 0) d v))}: questa istruzione somma la direzione iniziale \texttt{dir} al vettore risultante \texttt{d} se la sua norma è positiva; in caso contrario, mantiene la velocità precedente \texttt{v}.
 \paragraph{Trasposizione in Collektive} La traduzione in Collektive è riportata in \cref{lst:flockck}.
 
-L’evoluzione della velocità dei nodi è gestita tramite l’operatore \texttt{share} (\Cref{lst:collektiveshare}) , poiché la dinamica dipende sia dallo stato dei vicini sia dallo stato calcolato nel round precedente.
+L’evoluzione della velocità dei nodi è gestita tramite l’operatore \texttt{share} (\Cref{lst:collektiveshare}), poiché la dinamica dipende sia dallo stato dei vicini sia dallo stato calcolato nel round precedente.
 
 La necessità di una migliore approssimazione contigua del campo ha portato all’introduzione delle funzioni ausiliarie \texttt{sumWeightedNeighbors} e \texttt{spatialWeight} (\Cref{lst:inthoodck}), che calcolano rispettivamente la somma pesata dei contributi dei vicini e il peso attribuito a ciascun nodo adiacente.
 %

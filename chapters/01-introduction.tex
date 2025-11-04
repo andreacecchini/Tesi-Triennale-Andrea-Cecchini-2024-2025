@@ -13,7 +13,7 @@ Tra gli esempi più rilevanti si annoverano sistemi di monitoraggio ambientale, 
 
 I paradigmi di programmazione tradizionali, che individuano l'unità programmabile nel singolo dispositivo, risultano ormai inadatti allo sviluppo di applicazioni distribuite su larga scala.
 %
-Questa prospettiva individuale evidenzia le complessità legate alla gestione della comunicazione, della sincronizzazione e della coordinazione tra i nodi, che diventano parti integranti del codice applicativo del sistema distribuito.
+Questa prospettiva individuale evidenzia le complessità legate alla gestione della comunicazione, della sincronizzazione e del coordinamento tra nodi, che diventano parti integranti del codice applicativo del sistema distribuito.
 %
 Con l'aumentare della complessità, tali sistemi manifestano limiti di design, come scarsa modularità e riusabilità, difficoltà nel deployment e nel testing.
 %
@@ -21,17 +21,16 @@ Di conseguenza, la progettazione di sistemi distribuiti viene spesso percepita c
 
 
 
-\subsection{Programmazione Aggregata}
+\subsection{Aggregate Programming}
 \label{sec:programmazioneaggregata}
 
-La \ac{AP} \cite{AC} è un paradigma di macroprogrammazione \cite{macroprogramming} ideato per lo sviluppo di Sistemi Collettivi Adattivi (CAS). 
+\ac{AP} \cite{AC} è un paradigma di macroprogrammazione \cite{macroprogramming} ideato per lo sviluppo di Sistemi Collettivi Adattivi (CAS). 
 %
 A differenza degli approcci tradizionali, in cui il comportamento globale di un sistema emerge dall’interazione dei comportamenti locali dei singoli dispositivi (logica bottom-up), \ac{AP} adotta una prospettiva globale (top-down): il comportamento desiderato dell’intera rete viene specificato attraverso un unico programma aggregato, in cui l’unità programmabile non è più il singolo dispositivo, bensì l’intero collettivo.
 %
-Saranno poi il linguaggio e gli strumenti sottostanti a dedurre automaticamente i comportamenti locali necessari affinché il sistema si auto-organizzi per soddisfare le specifiche globali.
+Saranno poi il linguaggio e gli strumenti sottostanti a derivare automaticamente i comportamenti locali necessari affinché il sistema si auto-organizzi per soddisfare le specifiche globali.
 
-Dal punto di vista formale, la Programmazione Aggregata si fonda sul \textit{Field Calculus} \cite{AC} (\Cref{sec:fieldcalculus}), un linguaggio minimale progettato per collegare il comportamento locale dei dispositivi con quello globale del sistema. L’astrazione centrale è quella del \textit{campo computazionale} \cite{AC} (\Cref{campo}): una mappa, potenzialmente dinamica, che associa a ciascun dispositivo della rete un valore. Da una prospettiva globale, un programma aggregato implementa una serie di trasformazioni su queste strutture dati distribuite. L’approccio a campi consente di creare algoritmi distribuiti riusabili tramite funzioni componibili — da campo a campo — organizzabili in librerie di complessità crescente per costruire interi servizi applicativi.
-
+Dal punto di vista formale, \ac{AP} si fonda sul \textit{Field Calculus} \cite{AC} (\Cref{sec:fieldcalculus}), un linguaggio minimale progettato per specificare il comportamento aggregato di un sistema distribuito. L'astrazione centrale è quella del \textit{campo computazionale} \cite{AC} (\Cref{campo}): una mappa, potenzialmente dinamica, che associa a ciascun dispositivo della rete un valore. Da una prospettiva globale, un programma aggregato implementa una serie di trasformazioni su queste strutture dati distribuite. L'approccio a campi consente di creare algoritmi distribuiti riusabili tramite funzioni componibili — da campo a campo — organizzabili in librerie di complessità crescente per costruire interi servizi applicativi.
 \paragraph{Proprietà}
 
 I sistemi sviluppati con \ac{AP} possiedono intrinsecamente proprietà di adattabilità e resilienza, che si manifestano in risposta a variazioni dell'ambiente operativo, come cambiamenti nella topologia della rete, guasti dei dispositivi o fluttuazioni delle risorse disponibili. 
@@ -55,7 +54,7 @@ La scelta di basarsi su un calcolo minimale e matematico permette di dimostrare 
 \subsection{Field Calculus e Higher-Order Field Calculus}
 \label{sec:fieldcalculus}
 
-Il \textit{Field Calculus} (FC) è un linguaggio funzionale minimale, progettato per offrire i costrutti fondamentali necessari alla manipolazione dei campi \cite{HFC}. In questo formalismo, ogni espressione rappresenta un \textit{campo computazionale}, che costituisce l’astrazione unificante del linguaggio.
+Il \textit{Field Calculus} (FC) è un linguaggio funzionale minimale, progettato per offrire i costrutti fondamentali necessari alla manipolazione dei campi \cite{HFC}. In questo formalismo, l'astrazione unificante è quella del \textit{campo computazionale}, attorno al quale si organizzano i costrutti del linguaggio che permettono di operare su tali strutture.
 
 \paragraph{Campo computazionale \label{campo}} Un campo computazionale è una struttura dati distribuita nello spazio e nel tempo che associa a ogni dispositivo un valore.
 %
@@ -91,7 +90,7 @@ I costrutti fondamentali di \ac{FC} \cite{AC} sono:
 
     \item Interazione Spaziale: $\texttt{nbr\{e\}}$ modella l'evoluzione spaziale del campo, consentendo a un dispositivo di accedere ai valori calcolati dai vicini nell'ultimo round di esecuzione. Restituisce un campo di vicinato ($\phi$) che mappa l'identificatore di ogni vicino all'espressione $\texttt{e}$ valutata in quel dispositivo. I campi di vicinato così ottenuti possono essere manipolati tramite funzioni di aggregazione spaziale, come $\texttt{min-hood}$, $\texttt{max-hood}$, $\texttt{sum-hood}$ e altre.
 
-    \item Restrizione dello spazio: \texttt{if (\(e_0\)) \{\(e_1\)\} else \{\(e_2\)\}} partiziona lo spazio dei dispositivi in due sottoinsiemi \(D_{true}\) e \(D_{false}\) in base alla valutazione di \texttt{\(e_0\)}. Se un dispositivo \(\delta\) appartiene a \(D_{true}\), valuta esclusivamente l’espressione \(e_1\), ignorando \(e_2\); viceversa, se appartiene a \(D_{false}\), valuta solo \(e_2\). In entrambi i casi, le informazioni di stato e i valori scambiati con i vicini non vengono condivisi tra i due rami: quando un dispositivo passa da un ramo all’altro, le variabili di stato vengono reinizializzate e i valori precedenti vengono persi. Se è necessario condividere informazioni tra i rami, si può utilizzare il costrutto \texttt{mux(\(e_0, e_1, e_2\))}, che valuta entrambe le espressioni \texttt{\(e_1\)} ed \texttt{\(e_2\)}, prima del partizionamento, restituendo il valore corrispondente a \texttt{\(e_0\)}.
+    \item Restrizione del dominio: \texttt{if (\(e_0\)) \{\(e_1\)\} else \{\(e_2\)\}} partiziona il dominio in due sottoinsiemi \(D_{true}\) e \(D_{false}\) in base alla valutazione di \texttt{\(e_0\)}. Se un dispositivo \(\delta\) appartiene a \(D_{true}\), valuta esclusivamente l’espressione \(e_1\), ignorando \(e_2\); viceversa, se appartiene a \(D_{false}\), valuta solo \(e_2\). In entrambi i casi, le informazioni di stato e i valori scambiati con i vicini non vengono condivisi tra i due rami: quando un dispositivo passa da un ramo all’altro, le variabili di stato vengono reinizializzate e i valori precedenti vengono persi. Se è necessario condividere informazioni tra i rami, si può utilizzare il costrutto \texttt{mux(\(e_0, e_1, e_2\))}, che valuta entrambe le espressioni \texttt{\(e_1\)} ed \texttt{\(e_2\)}, prima del partizionamento, restituendo il valore corrispondente a \texttt{\(e_0\)}.
 
     \item Share: la combinazione dei costrutti \texttt{rep} e \texttt{nbr} permette di modellare l'evoluzione sia spaziale che temporale di un campo. Tuttavia, come evidenziato in \cite{UniversalityFC}, la loro integrazione introduce un ritardo implicito nel sistema che può causare la perdita di round. Per risolvere questo problema, l'approccio presentato in \cite{Share} introduce il costrutto \texttt{share}:
     \[
@@ -109,7 +108,7 @@ Si consideri l'esempio in \cref{lst:alignment}, in cui sono definite due funzion
     caption={Allineamento tra le esecuzioni di \texttt{nbr} in contesti diversi}
 ]{listings/alignment.scala}
 
-Questo aspetto risulta particolarmente evidente nel costrutto \texttt{if}, che non si limita a determinare quale ramo eseguire, bensì suddivide lo spazio computazionale in due gruppi distinti, ciascuno con il proprio contesto di esecuzione. In questi casi, l'allineamento diventa fondamentale per garantire che la comunicazione avvenga solo tra nodi che hanno scelto lo stesso ramo.
+Questo aspetto risulta particolarmente evidente nel costrutto \texttt{if}, che non si limita a determinare quale ramo eseguire, bensì suddivide il dominio in due gruppi distinti, ciascuno con il proprio contesto di esecuzione. In questi casi, l'allineamento diventa fondamentale per garantire che la comunicazione avvenga solo tra nodi che hanno scelto lo stesso ramo.
 
 Poiché non esiste una memoria condivisa per tracciare lo stato computazionale, è necessario introdurre meccanismi di allineamento capaci di monitorare ogni nodo e determinare quali risultino effettivamente allineati. In un linguaggio di programmazione ideale, questi dettagli di basso livello dovrebbero rimanere trasparenti all'utente finale.
 
@@ -123,7 +122,7 @@ Poiché non esiste una memoria condivisa per tracciare lo stato computazionale, 
 \subsection{XC}
 \label{sec:xc}
 
-\ac{XC} è un linguaggio di programmazione funzionale sperimentale che generalizza ed estende le capacità di \ac{FC} \cite{XC}, progettato per supportare lo sviluppo di comportamenti collettivi adattivi astraendo la gestione di aspetti di basso livello quali concorrenza, esecuzione asincrona, comunicazione e gestione dei guasti.
+\ac{XC} è un calcolo formale che definisce una semantica operazionale per la programmazione aggregata, generalizzando ed estendendo le capacità di \ac{FC} \cite{XC}. È progettato per supportare lo sviluppo di comportamenti collettivi adattivi astraendo la gestione di aspetti di basso livello quali concorrenza, esecuzione asincrona, comunicazione e gestione dei guasti.
 
 \paragraph{Modello di Esecuzione}
 Ogni dispositivo, indicato con \(\delta_i\), comunica con i propri vicini tramite uno scambio di messaggi. Il funzionamento dei nodi si articola in round di esecuzione asincroni. In ogni round, ciascun dispositivo esegue un programma \ac{XC}, elabora i messaggi ricevuti e produce nuovi messaggi da inviare al vicinato (\Cref{fig:xc-rounds}).
@@ -135,15 +134,17 @@ Data la natura asincrona del sistema, può verificarsi che un dispositivo comple
     \label{fig:xc-rounds}
 \end{figure}
 
-\paragraph{Tipi di dato} Nel formalismo \ac{FC}, si distinguono due categorie di valori: i valori locali \(\ell\) e i campi di vicinato \(\phi\). Quest'ultimi sono mappe che associano un valore locale a ciascun identificatore di dispositivo e vengono impiegati per rappresentare i messaggi ricevuti dai vicini. Tuttavia, \ac{FC} impone che solo i valori locali \(\ell\) possano essere inviati. Ciò implica che ogni nodo trasmetta necessariamente lo stesso messaggio a tutti i suoi vicini (comunicazione \textit{isotropica}), limitando l'espressività del linguaggio impedendo l'invio di messaggi differenziati.
+\paragraph{Tipi di dato} Nel formalismo \ac{FC}, si distinguono due categorie di valori: i valori locali \(\ell\) e i campi di vicinato \(\phi\). Quest'ultimi sono mappe che associano un valore locale a ciascun identificatore di dispositivo e vengono impiegati per rappresentare i messaggi ricevuti dai vicini. Tuttavia, \ac{FC} impone che solo i valori locali \(\ell\) possano essere inviati. Ciò implica che ogni nodo trasmetta necessariamente lo stesso messaggio a tutti i suoi vicini (comunicazione \textit{isotropica}), limitando l'espressività del linguaggio e impedendo l'invio di messaggi differenziati.
 
-Il linguaggio \ac{XC} risolve questa limitazione unificando le due categorie in una singola classe di valori, denominata \texttt{nvalues} (\(v\)). Un \texttt{nvalue} è una struttura dati che associa un valore locale \(\ell_i\) a ciascun identificatore di dispositivo \(\delta_i\) specificato e include un valore di default \(\ell\):
+\ac{XC} risolve questa limitazione unificando le due categorie di valori in una singola classe denominata \texttt{nvalues} (\(v\)), consentendo così a ciascun dispositivo di inviare messaggi diversi a vicini differenti (comunicazione \textit{anisotropica}).
+
+Un \texttt{nvalue} è una struttura dati che associa un valore locale \(\ell_i\) a ciascun identificatore di dispositivo \(\delta_i\) specificato e include un valore di default \(\ell\):
 
 \[v = \ell[\delta_1 \to \ell_1, \dots, \delta_n \to \ell_n]\]
 
 Tale notazione significa che \(v\) assume il valore di default \(\ell\) per tutti i dispositivi, ad eccezione di quelli esplicitamente specificati (\(\delta_1, \dots, \delta_n\)), ai quali sono associati i valori \(\ell_1, \dots, \ell_n\). Un valore locale \(\ell\) può essere automaticamente convertito in un \texttt{nvalue} con \(\ell\) come valore di default e senza eccezioni (\(\ell[]\)).
 
-Questa unificazione semplifica notevolmente il sistema di tipi rispetto a \ac{FC} e, grazie alla flessibilità degli \texttt{nvalues}, \ac{XC} risulta più espressivo, consentendo a ciascun dispositivo di inviare messaggi diversi a vicini differenti (comunicazione \textit{anisotropica}).
+Questa unificazione semplifica notevolmente il sistema di tipi rispetto a \ac{FC} e, grazie alla flessibilità degli \texttt{nvalues}, \ac{XC} risulta più espressivo e versatile nella gestione della comunicazione eterogenea tra dispositivi.
 
 \paragraph{exchange} La comunicazione in \ac{XC} è costruita attorno ad un'unica primitiva chiamata \texttt{exchange} \cite{XC}, che incapsula in unico costrutto computazione, comunicazione e gestione dello stato.
 
@@ -178,7 +179,7 @@ In questo scenario, l'ultima proposta è Collektive (\Cref{sec:collektive}), un 
 
 \emph{Proto} \cite{proto}, riconosciuto come il precursore della programmazione aggregata, fu concepito originariamente da Jonathan Bachrach e Jacob Beal e si basa sui principi teorici dell'\emph{Amorphous Computing} \cite{Amorphous}. 
 
-È un linguaggio puramente funzionale, con una sintassi ispirata al Lisp (\Cref{lst:mitprotoexample}).
+È un linguaggio puramente funzionale, con una sintassi ispirata a Lisp (\Cref{lst:mitprotoexample}).
 \lstinputlisting[
     language=Lisp,
     label={lst:mitprotoexample},
@@ -232,7 +233,7 @@ Questa scelta, tuttavia, comporta anche alcune limitazioni: la sintassi è vinco
 
 \emph{FCPP} \cite{fcpp} rappresenta la prima implementazione nativa della programmazione aggregata in \(\text{C++}\).
 
-L’utilizzo di \(\text{C++}\) come linguaggio di base è un elemento chiave, poiché consente l’esecuzione diretta del codice sui dispositivi, senza la necessità di una macchina virtuale. Questo approccio offre due vantaggi principali: da un lato, risulta particolarmente adatto a dispositivi con risorse limitate, tipici dell'\ac{IoT}, superando così le restrizioni imposte dalla dipendenza dalla JVM che caratterizzano soluzioni come Protelis e ScaFi; dall’altro, permette di ottenere prestazioni elevate nell’implementazione del paradigma aggregato.
+L'utilizzo di \(\text{C++}\) come linguaggio di base è un elemento chiave, poiché consente l'esecuzione diretta del codice sui dispositivi, senza la necessità di una macchina virtuale. Questo approccio offre due vantaggi principali: da un lato, risulta particolarmente adatto a dispositivi con risorse limitate, come sistemi di microcontrollori e dispositivi embedded, superando così le restrizioni imposte dalla dipendenza dalla JVM che caratterizzano soluzioni come Protelis e ScaFi; dall'altro, permette di ottenere prestazioni elevate nell'implementazione del paradigma aggregato.
 
 Tuttavia, la scelta di \(\text{C++}\) comporta anche alcune criticità. La complessità della sintassi (\Cref{lst:fcppexample}) e la limitata ergonomia rispetto ad altre soluzioni rendono difficile l’adozione da parte di un ampio pubblico di sviluppatori. Inoltre, la gestione dell’allineamento non è trasparente, ma richiede interventi manuali tramite macro. Sebbene FCPP sia pensato come una piattaforma flessibile ed estensibile, il numero di funzionalità attualmente disponibili risulta inferiore rispetto alle alternative.
 
@@ -247,11 +248,18 @@ Tuttavia, la scelta di \(\text{C++}\) comporta anche alcune criticità. La compl
 \subsection{Collektive}
 \label{sec:collektive}
 
-\emph{Collektive} nasce dall’esigenza di disporre di un linguaggio che garantisca una gestione dell’allineamento robusta e completamente trasparente; sia multipiattaforma e quindi adatto a operare su reti di dispositivi eterogenei; offra una sintassi moderna, espressiva ed ergonomica; possa contare su un ecosistema maturo e ricco di funzionalità grazie al linguaggio host.
-
+\emph{Collektive}\footnote{\url{https://github.com/Collektive}} nasce dall'esigenza di disporre di un linguaggio che 
+\begin{enumerate*}[label=\roman*), itemjoin={{; }}, itemjoin*={{; }}]
+    \item garantisca una gestione dell'allineamento robusta e completamente trasparente
+    \item sia multipiattaforma e quindi adatto a operare su reti di dispositivi eterogenei
+    \item offra una sintassi moderna, espressiva ed ergonomica
+    \item possa contare su un ecosistema maturo e ricco di funzionalità grazie al linguaggio host
+\end{enumerate*}.
 I linguaggi analizzati in precedenza non riescono a soddisfare tutti questi requisiti contemporaneamente: Protelis offre una buona gestione dell'allineamento ma dipende dalla JVM; ScaFi è anch'esso vincolato alla JVM e presenta un allineamento debole; FCPP è nativo e performante ma manca di ergonomia, semplicità d'uso e trasparenza.
 
-Analogamente a ScaFi, Collektive è implementato come un \ac{DSL} interno. A differenza di ScaFi, però, il compilatore del linguaggio host, Kotlin, è stato esteso tramite plugin per gestire automaticamente l'allineamento del codice aggregato.
+Analogamente a ScaFi, Collektive è un \ac{DSL} interno; tuttavia, si basa su Kotlin, la cui natura multi-piattaforma, resa possibile dal progetto \ac{KMP}\footnote{\url{https://kotlinlang.org/docs/multiplatform.html}}, consente l’operatività su reti di dispositivi eterogenei, che spaziano da server con elevate capacità di calcolo (tramite JVM), a dispositivi mobili (Android e iOS), offrendo inoltre la possibilità di eseguire nativamente applicazioni su piattaforme quali Windows, MacOS e Linux, sia su architetture x86 che ARM.
+
+A differenza di ScaFi, il compilatore di Kotlin è stato esteso tramite un apposito plugin per gestire automaticamente l'allineamento del codice aggregato.
 
 Se si volesse gestire manualmente l'allineamento, sarebbe sufficiente adottare un semplice \ac{DSL}; tuttavia, il codice risulterebbe esposto a meccanismi di basso livello, rendendo la scrittura dei programmi aggregati più complessa e soggetta ad errori (\Cref{lst:ckmanuallyaligned}).
 
