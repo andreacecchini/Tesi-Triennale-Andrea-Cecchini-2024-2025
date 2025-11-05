@@ -60,7 +60,7 @@ Se si desidera dichiarare più variabili contemporaneamente, si possono racchiud
 \section{Operatori}
 \label{sec:mitprotooperators}
 
-Proto fornisce un insieme di operatori che corrispondono ai costrutti fondamentali del field calculus (\cref{sec:fieldcalculus}).
+Proto fornisce un insieme di operatori che corrispondono ai costrutti fondamentali di \ac{FC} (\cref{sec:fieldcalculus}).
 
 \paragraph{Dinamica temporale} Per modellare lo stato di un dispositivo si sfrutta l'operatore \texttt{rep}, che segue la sintassi:
 
@@ -113,7 +113,7 @@ Queste funzioni si basano su \texttt{fold-hood} (\Cref{lst:mitprotofoldhood}), u
 
 Si noti che \texttt{fold-hood} non richiede in ingresso un \texttt{Field}, bensì \texttt{value} è un valore locale (\texttt{Local}). Internamente, \texttt{fold-hood} utilizza l'operatore \texttt{nbr} per raccogliere i valori dai vicini in modo trasparente al programmatore e applica la funzione di combinazione specificata per aggregarli.
 
-\paragraph{Restrizione dello spazio} L'operatore \texttt{if} partiziona lo spazio dei dispositivi in due sottoinsiemi in base alla valutazione di una condizione. La sintassi è la seguente (\Cref{lst:mitprotoif}):
+\paragraph{Restrizione del dominio} L'operatore \texttt{if} partiziona la rete dei dispositivi in due sottoinsiemi in base alla valutazione di una condizione. La sintassi è la seguente (\Cref{lst:mitprotoif}):
 
 \lstinputlisting[
     language=Lisp,

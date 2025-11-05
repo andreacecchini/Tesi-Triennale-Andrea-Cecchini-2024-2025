@@ -89,8 +89,7 @@ In \cref{fig:in-circle-simulation} è mostrata la simulazione dell'esperimento: 
     \centering
     \includegraphics[width=.8\linewidth]{figures/in-circle.pdf}
     \caption{Simulazione dell'esperimento in \cref{lst:incircleck}.
-    Il centro \texttt{o} è rappresentato dal dispositivo in verde, mentre i dispositivi
-    all'interno del cerchio sono colorati in rosso.}
+    Il centro \texttt{o} è evidenziato in verde, i dispositivi all'interno del cerchio sono colorati in rosso, mentre i dispositivi esterni al cerchio sono rappresentati in nero.}
     \label{fig:in-circle-simulation}
 \end{figure}
 
@@ -108,11 +107,8 @@ In \cref{fig:in-circle-simulation} è mostrata la simulazione dell'esperimento: 
     caption={Codice della funzione \texttt{ring} in Proto.}
 ]{listings/proto/ring.proto}
 %
-L'espressione \texttt{(let (\dots))} si articola in due componenti principali. La prima,
-\[
-\texttt{((t (probe (broadcast (sense 1) (if (sense 1) (timer) 0)) 0)))}
-\]
-, propaga il valore del \texttt{timer} dalle sorgenti del segnale: ogni dispositivo riceve il valore dalla sorgente più vicina e lo memorizza nella variabile \texttt{t}.
+L'espressione \texttt{(let (\dots))} si articola in due componenti principali. La prima, \[
+\texttt{((t (probe (broadcast (sense 1) (if (sense 1) (timer) 0)) 0)))}\], propaga il valore del \texttt{timer} dalle sorgenti del segnale: ogni dispositivo riceve il valore dalla sorgente più vicina e lo memorizza nella variabile \texttt{t}.
 %
 La seconda componente, \texttt{(d (probe (gradient (sense 1)) 1))}, calcola la distanza dalla sorgente più prossima, assegnandola alla variabile \texttt{d}.
 %

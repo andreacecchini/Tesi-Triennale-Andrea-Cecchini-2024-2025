@@ -83,7 +83,7 @@ L’operatore \texttt{exchange} (\Cref{lst:collektiveexchange}) è il cuore del 
 
 A partire da un valore iniziale (\texttt{initial}), che funge da default quando non sono ancora stati ricevuti messaggi dai vicini, \texttt{exchange} costruisce un campo contenente i messaggi ricevuti nell'ultimo round. Su questo viene applicata una funzione (\texttt{body}) che restituisce un nuovo campo, i cui valori vengono inviati come messaggi personalizzati ai rispettivi vicini al termine del round corrente.
 %
-Questo costrutto, derivato da \ac{XC} (\Cref{sec:xc}), permette di esprimere tutti gli altri operatori del field calculus.
+Questo costrutto, derivato da \ac{XC} (\Cref{sec:xc}), permette di esprimere tutti gli altri operatori di \ac{FC}. Tuttavia, non tutti i costrutti ne richiedono l'utilizzo: ad esempio, \texttt{evolve} si occupa esclusivamente dell'evoluzione temporale locale, senza comunicazione con i vicini, e per questo non viene implementato tramite \texttt{exchange}, poiché risulterebbe inefficiente.
 
 Un esempio di utilizzo dell’operatore \texttt{exchange} è riportato in \cref{lst:collektiveexchangeexample}: partendo dal valore \(1\), ogni dispositivo riceve i valori dai vicini e, in base al loro identificativo, invia a ciascuno il valore ricevuto incrementato di \(1\) oppure il suo doppio. Il valore locale viene aggiornato secondo la stessa logica, tenendo presente che il dispositivo corrente è incluso in \texttt{field}.
 
@@ -112,7 +112,7 @@ Internamente, è implementato tramite \texttt{exchange} (\Cref{sec:collektiveexc
 Un esempio di utilizzo di \texttt{share} è riportato in \cref{lst:temperatureck}, dove ogni dispositivo calcola la propria temperatura in base a quella dei vicini e, una volta ottenuto il risultato, lo condivide con tutti i nodi adiacenti.
 
 
-\paragraph{Neighboring} l'operatore \texttt{neighboring} (\Cref{lst:collektivenbr}), corrispondente al costrutto \texttt{nbr} del field calculus (\Cref{sec:fieldcalculus}), consente a un dispositivo di accedere ai valori calcolati dai vicini nell'ultimo round di esecuzione.
+\paragraph{Neighboring} l'operatore \texttt{neighboring} (\Cref{lst:collektivenbr}), corrispondente al costrutto \texttt{nbr} di \ac{FC} (\Cref{sec:fieldcalculus}), consente a un dispositivo di accedere ai valori calcolati dai vicini nell'ultimo round di esecuzione.
 %
 \lstinputlisting[
     language=Kotlin,
@@ -134,7 +134,7 @@ In \cref{lst:collektivenbrexamples} si illustra la differenza tra i tre operator
     caption={Varianti dell'operatore \texttt{neighboring} in Collektive.}
 ]{listings/collektive/NeighboringExample.kt}
 
-\paragraph{Evolve} L'operatore \texttt{evolve} (\Cref{lst:collektiveevolve}) corrisponde al costrutto \texttt{rep} del field calculus (\Cref{sec:fieldcalculus}) e consente di modellare l'evoluzione temporale dello stato di un dispositivo.
+\paragraph{Evolve} L'operatore \texttt{evolve} (\Cref{lst:collektiveevolve}) corrisponde al costrutto \texttt{rep} di \ac{FC} (\Cref{sec:fieldcalculus}) e consente di modellare l'evoluzione temporale dello stato di un dispositivo.
 %
 \lstinputlisting[
     language=Kotlin,

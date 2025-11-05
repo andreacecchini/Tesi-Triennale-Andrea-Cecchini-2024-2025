@@ -1,7 +1,5 @@
-fun <ID: Any> Aggregate<ID>.distanceTo(
-    source: Boolean,
-    metric: Field<ID, Double>,
-) = alignedOn("Aggregate.distanceTo(Boolean)") { // Avoid clashing with other functions with a similar structure
+fun <ID: Any> Aggregate<ID>.distanceTo(source: Boolean, metric: Field<ID, Double>) 
+    = alignedOn("Aggregate.distanceTo(Boolean)") { // Avoid clashing with other functions with a similar structure
         share(Double.POSITIVE_INFINITY) { distances ->
             alignedOn("share(Boolean)") { // We need to manually align again on share operator.
                 val actualMetrics = project(metric) // Fields need projection  
@@ -12,5 +10,5 @@ fun <ID: Any> Aggregate<ID>.distanceTo(
                     else -> alignedOn(false) { throughNeighbor } // Align on false
                 }
             }
+        }
     }
-}
